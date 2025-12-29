@@ -1,29 +1,30 @@
 stages:
-  - verify
   - test
   - build
   - docker
 
 variables:
   MAVEN_CLI_OPTS: "-B -e -U"
-  POSTGRES_DB: appdb
-  POSTGRES_USER: app
-  POSTGRES_PASSWORD: app
+  TESTCONTAINERS_CHECKS_DISABLE: "true"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  POSTGRES_DB: bus2holiday
+  POSTGRES_USER: thera
+  POSTGRES_PASSWORD: 1702
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_TLS_VERIFY: 1
+  DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
 
-services:
-  - name: postgres:15
-    alias: postgres
-
-verify:
-  stage: verify
-  image: maven:3.9.9-eclipse-temurin-21
-  script:
-    - mvn $MAVEN_CLI_OPTS validate
-    - mvn $MAVEN_CLI_OPTS compile
+cache:
+  paths:
+    - .m2/repository
 
 test:
   stage: test
   image: maven:3.9.9-eclipse-temurin-21
+  services:
+    - name: docker:25.0.3-dind
+      alias: docker
   script:
     - mvn $MAVEN_CLI_OPTS test
   artifacts:
@@ -38,6 +39,7 @@ build:
   artifacts:
     paths:
       - target/*.jar
+    expire_in: 1 week
 
 docker-build:
   stage: docker
@@ -45,5 +47,14 @@ docker-build:
   services:
     - docker:25.0.3-dind
   script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA .
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - |
+      if [ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]; then
+        docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
+        docker push $CI_REGISTRY_IMAGE:latest
+      fi
+  only:
+    - main
+    - develop
