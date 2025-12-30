@@ -103,5 +103,5 @@ jobs:
           context: .
           push: true
           tags: |
-            myuser/myapp:${{ github.sha }}
-            ${{ github.ref == 'refs/heads/main' && 'myuser/myapp:latest' || '' }}
+            therainhub/bus2holiday:${{ github.sha }}
+            ${{ github.ref == 'refs/heads/main' && 'therainhub/bus2holiday:latest' || '' }}
