@@ -1,4 +1,4 @@
-package cz.cvut.ear.bus2holiday.dto;
+package cz.cvut.ear.bus2holiday.dto.request;
 
 import java.util.List;
 

@@ -11,4 +11,6 @@ import java.util.List;
 public interface BookedSegmentRepository extends JpaRepository<BookedSegment, Long> {
 
     List<BookedSegment> findByTripIdAndSeatNumber(Long tripId, String seatNumber);
+
+    void deleteByPassenger_Reservation_Id(Long reservationId);
 }
