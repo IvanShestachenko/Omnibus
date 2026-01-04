@@ -155,7 +155,7 @@ public class ReservationService {
         }
 
         reservation.setStatus(ReservationStatus.CANCELLED);
-        segmentRepo.deleteByPassenger_Reservation_Id(reservationId);
+        reservation.getPassengers().forEach(p -> p.getBookedSegments().clear());
         reservationRepo.save(reservation);
     }
 

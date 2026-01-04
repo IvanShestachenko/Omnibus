@@ -27,6 +27,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -35,6 +36,7 @@ import java.util.HashSet;
 import java.util.List;
 
 @SpringBootTest
+@Transactional
 @AutoConfigureMockMvc
 public class ReservationControllerIntegrationTest extends TestContainerConfig {
 
@@ -148,7 +150,7 @@ public class ReservationControllerIntegrationTest extends TestContainerConfig {
         testTrip.setPrice(BigDecimal.valueOf(500));
         testTrip.setDepartureDatetime(OffsetDateTime.now(ZoneOffset.UTC).plusDays(5));
         testTrip.setArrivalDatetime(OffsetDateTime.now(ZoneOffset.UTC).plusDays(5).plusHours(2));
-        testTrip.setStatus(TripStatus.SCHEDULED); // Ensure this is set if you have an Enum
+        testTrip.setStatus(TripStatus.SCHEDULED);
         tripRepo.save(testTrip);
 
         testReservation = new Reservation();

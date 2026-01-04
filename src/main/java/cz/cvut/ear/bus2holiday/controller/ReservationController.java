@@ -9,8 +9,6 @@ import cz.cvut.ear.bus2holiday.service.ReservationService;
 
 import jakarta.validation.Valid;
 
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,10 +18,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/reservations")
-@RequiredArgsConstructor
 class ReservationController {
     private final ReservationService reservationService;
     private final SecurityUtils securityUtils;
+
+    public ReservationController(
+            ReservationService reservationService, SecurityUtils securityUtils) {
+        this.reservationService = reservationService;
+        this.securityUtils = securityUtils;
+    }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
