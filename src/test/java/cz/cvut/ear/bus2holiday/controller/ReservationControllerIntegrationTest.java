@@ -49,6 +49,7 @@ public class ReservationControllerIntegrationTest extends TestContainerConfig {
     @Autowired private RouteRepository routeRepo;
     @Autowired private TerminalRepository terminalRepo;
     @Autowired private RouteStopRepository routeStopRepo;
+    @Autowired private PaymentRepository paymentRepo;
     @Autowired private PasswordEncoder passwordEncoder;
 
     private String userToken;
@@ -259,5 +260,39 @@ public class ReservationControllerIntegrationTest extends TestContainerConfig {
                 .andExpect(status().isNoContent());
         Reservation reservation = reservationRepo.findById(reservationId).orElseThrow();
         assertEquals(ReservationStatus.CANCELLED, reservation.getStatus());
+    }
+
+    @Test
+    void payReservation_ShouldSuccess() throws Exception {
+        CreateReservationRequest request =
+                new CreateReservationRequest(
+                        testTrip.getId(),
+                        List.of(new PassengerSeatRequest("Payer", "Test", "4D", 1, 2)));
+
+        MvcResult createRes =
+                mockMvc.perform(
+                                post("/api/reservations")
+                                        .header("Authorization", userToken)
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(objectMapper.writeValueAsString(request)))
+                        .andExpect(status().isCreated())
+                        .andReturn();
+
+        Long reservationId =
+                objectMapper
+                        .readTree(createRes.getResponse().getContentAsString())
+                        .get("id")
+                        .asLong();
+
+        mockMvc.perform(
+                        post("/api/reservations/" + reservationId + "/pay")
+                                .header("Authorization", userToken))
+                .andExpect(status().isOk());
+
+        Reservation reservation = reservationRepo.findById(reservationId).orElseThrow();
+        assertEquals(ReservationStatus.CONFIRMED, reservation.getStatus());
+
+        assertEquals(1, paymentRepo.findByReservationId(reservationId).size());
+        assertEquals("CONFIRMED", reservation.getStatus().name());
     }
 }
