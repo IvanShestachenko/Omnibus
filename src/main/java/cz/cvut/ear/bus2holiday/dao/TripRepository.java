@@ -13,4 +13,6 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
 
     List<Trip> findAllByRouteIdAndDepartureDatetimeBetween(
             Long routeId, OffsetDateTime start, OffsetDateTime end);
+
+    List<Trip> findByDriverUserId(Long driverId);
 }

@@ -19,6 +19,7 @@ public class Driver {
     private Long userId;
 
     @OneToOne
+    @MapsId
     @JoinColumn(name = "user_id")
     private User user;
 
