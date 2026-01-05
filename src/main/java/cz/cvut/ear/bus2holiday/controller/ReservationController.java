@@ -5,6 +5,7 @@ import cz.cvut.ear.bus2holiday.dto.response.ReservationResponse;
 import cz.cvut.ear.bus2holiday.exception.ForbiddenException;
 import cz.cvut.ear.bus2holiday.model.Reservation;
 import cz.cvut.ear.bus2holiday.security.SecurityUtils;
+import cz.cvut.ear.bus2holiday.service.PaymentService;
 import cz.cvut.ear.bus2holiday.service.ReservationService;
 
 import jakarta.validation.Valid;
@@ -20,11 +21,15 @@ import java.util.List;
 @RequestMapping("/api/reservations")
 class ReservationController {
     private final ReservationService reservationService;
+    private final PaymentService paymentService;
     private final SecurityUtils securityUtils;
 
     public ReservationController(
-            ReservationService reservationService, SecurityUtils securityUtils) {
+            ReservationService reservationService,
+            PaymentService paymentService,
+            SecurityUtils securityUtils) {
         this.reservationService = reservationService;
+        this.paymentService = paymentService;
         this.securityUtils = securityUtils;
     }
 
@@ -65,6 +70,13 @@ class ReservationController {
         reservationService.cancelReservation(id, currentUserId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/pay")
+    public ResponseEntity<Void> payReservation(@PathVariable Long id) {
+        Long currentUserId = securityUtils.getCurrentUserId();
+        paymentService.payReservation(id, currentUserId);
+        return ResponseEntity.ok().build();
     }
 
     private ReservationResponse toResponse(Reservation reservation) {
