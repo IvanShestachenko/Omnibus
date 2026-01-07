@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@NamedQuery(name = "Trip.findTripByRoute", query = "SELECT t FROM Trip t WHERE t.route = :route")
 @Table(name = "trip")
 public class Trip extends BaseEntity {
 

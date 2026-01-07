@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@NamedQuery(name = "Terminal.findAllTerminals", query = "SELECT t FROM Terminal t")
 @Table(name = "terminal")
 public class Terminal extends BaseEntity {
 

@@ -31,7 +31,6 @@ public class UserDetails implements org.springframework.security.core.userdetail
     }
 
     private void addUserRole() {
-        // Map enum role 'user' to 'ROLE_USER', etc.
         authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().name().toUpperCase()));
     }
 
