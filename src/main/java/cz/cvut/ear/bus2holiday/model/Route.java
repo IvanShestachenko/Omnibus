@@ -1,5 +1,7 @@
 package cz.cvut.ear.bus2holiday.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 
@@ -11,6 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@NamedQuery(name = "Route.findAllActive", query = "SELECT r FROM Route r WHERE r.isActive = true")
 @Table(name = "route")
 public class Route extends BaseEntity {
 
@@ -36,9 +39,11 @@ public class Route extends BaseEntity {
     @OrderBy("sequenceOrder ASC") // Всегда получаем остановки по порядку
     private Set<RouteStop> stops = new HashSet<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "route")
     private Set<Trip> trips = new HashSet<>();
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "routes")
     private Set<Bus> buses = new HashSet<>();
 

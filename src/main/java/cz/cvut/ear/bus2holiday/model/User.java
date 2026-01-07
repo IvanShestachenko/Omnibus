@@ -1,5 +1,7 @@
 package cz.cvut.ear.bus2holiday.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import cz.cvut.ear.bus2holiday.model.enums.UserRole;
 
 import jakarta.persistence.*;
@@ -15,12 +17,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@NamedQuery(name = "User.findByRole", query = "SELECT u FROM User u WHERE u.role = :role")
 @Table(name = "\"user\"")
 public class User extends BaseEntity {
 
     @Column(nullable = false, unique = true, length = 255)
     private String email;
 
+    @JsonIgnore
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
@@ -46,12 +50,15 @@ public class User extends BaseEntity {
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Driver driver;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private Set<Reservation> reservations = new HashSet<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private Set<Payment> payments = new HashSet<>();
 

@@ -1,5 +1,7 @@
 package cz.cvut.ear.bus2holiday.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 
@@ -11,6 +13,7 @@ import java.math.BigDecimal;
         uniqueConstraints = {@UniqueConstraint(columnNames = {"route_id", "sequence_order"})})
 public class RouteStop extends BaseEntity {
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "route_id", nullable = false)
     private Route route;

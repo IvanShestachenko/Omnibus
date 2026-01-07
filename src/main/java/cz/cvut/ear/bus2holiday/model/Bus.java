@@ -1,5 +1,7 @@
 package cz.cvut.ear.bus2holiday.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import cz.cvut.ear.bus2holiday.model.enums.BusStatus;
 
 import jakarta.persistence.*;
@@ -50,9 +52,11 @@ public class Bus extends BaseEntity {
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "bus")
     private Set<Trip> trips = new HashSet<>();
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "buses_on_routes",
