@@ -93,7 +93,7 @@ mvn clean test
 
 ## Autoři
 - Mykhailo Plokhin
-- Ivan Plokhin
+- Ivan Shestachenko
 
 ## Technologie
 - Java 17, Spring Boot 3.x, Spring Security, Spring Data JPA
