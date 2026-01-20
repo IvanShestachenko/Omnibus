@@ -48,7 +48,7 @@ public class BusControllerIntegrationTest extends TestContainerConfig {
         userRepo.deleteAll();
 
         User admin = new User();
-        admin.setEmail("admin@test.com");
+        admin.setEmail("admin123@test.com");
         admin.setPasswordHash(passwordEncoder.encode("admin123"));
         admin.setFirstName("Admin");
         admin.setLastName("User");
@@ -63,8 +63,8 @@ public class BusControllerIntegrationTest extends TestContainerConfig {
         user.setRole(UserRole.user);
         userRepo.save(user);
 
-        adminToken = loginAndGetToken("admin@test.com", "admin123");
-        userToken = loginAndGetToken("user@test.com", "pass123");
+        adminToken = loginAndGetToken("admin123@test.com", "admin123");
+        userToken = loginAndGetToken("user123@test.com", "pass123");
 
         testBus = new Bus();
         testBus.setModel("Volvo 9700");
