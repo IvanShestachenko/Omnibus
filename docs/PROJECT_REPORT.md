@@ -482,34 +482,8 @@ spring.jpa.hibernate.ddl-auto=create-drop
 
 ---
 
-## 🎓 Závěr
-
-Během tohoto semestrálního projektu jsem získal praktické zkušenosti s:
-
-- ✅ Návrhem enterprise vícevrstvé architektury
-- ✅ Spring Boot ekosystémem (Boot, Data, Security)
-- ✅ JWT autentizací a autorizací
-- ✅ JPA vztahy a jejich úskalími
-- ✅ Testováním pomocí Testcontainers
-- ✅ Database migrations (Flyway)
-- ✅ Docker kontejnerizací
-
-### 📚 Klíčové ponaučení
-
-> [!IMPORTANT]
-> **Správně strukturovaná aplikace šetří čas v dlouhodobém horizontu**, i když zpočátku vývoj trvá déle.
-
-Největším přínosem bylo naučit se **debugovat komplexní problémy** (circular dependencies, JSON serialization) a porozumět **interakci mezi jednotlivými vrstvami** Spring Boot aplikace.
-
----
-
-<div align="center">
-
-**Bus2Holiday** © 2026 | Vytvořeno pro předmět EAR na ČVUT FEL SIT
-
-[![Java](https://img.shields.io/badge/Java-21-orange?style=flat&logo=openjdk)](https://openjdk.org/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.6-green?style=flat&logo=spring)](https://spring.io/projects/spring-boot)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?style=flat&logo=postgresql)](https://www.postgresql.org/)
-[![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=flat&logo=docker)](https://www.docker.com/)
+## Autoři
+- Mykhailo Plokhin
+- Ivan Shestachenko
 
 </div>
