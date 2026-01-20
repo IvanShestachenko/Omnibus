@@ -64,6 +64,12 @@ public class GlobalExceptionHandler {
                 .body(new ApiError("Reservation not found", ex.getMessage()));
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiError("Resource not found", ex.getMessage()));
+    }
+
     @ExceptionHandler(CancellationNotAllowedException.class)
     public ResponseEntity<ApiError> handleCancellationNotAllowed(
             CancellationNotAllowedException ex) {

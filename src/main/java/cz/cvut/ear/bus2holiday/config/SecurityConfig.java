@@ -56,6 +56,12 @@ public class SecurityConfig {
                                         .permitAll()
                                         .requestMatchers("/api/auth/debug/**")
                                         .permitAll()
+                                        .requestMatchers("/api/trips/search")
+                                        .permitAll()
+                                        .requestMatchers("/api/trips/{id}")
+                                        .permitAll()
+                                        .requestMatchers("/api/routes/**")
+                                        .permitAll()
                                         .requestMatchers("/error")
                                         .permitAll()
                                         .anyRequest()
@@ -73,7 +79,7 @@ public class SecurityConfig {
     private CorsConfigurationSource corsConfigurationSource() {
         final CorsConfiguration configuration = new CorsConfiguration().applyPermitDefaultValues();
         configuration.setAllowCredentials(true);
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173"));
         configuration.setAllowedMethods(List.of("*"));
         configuration.addExposedHeader(HttpHeaders.LOCATION);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
