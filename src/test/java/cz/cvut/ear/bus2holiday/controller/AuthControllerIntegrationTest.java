@@ -46,7 +46,11 @@ public class AuthControllerIntegrationTest extends TestContainerConfig {
     public void register_ShouldCreateUser_WhenRequestIsValid() throws Exception {
         RegisterRequest request =
                 new RegisterRequest(
-                        "John", "Winchester", "john@example.com", "password123", "123456789");
+                        "John",
+                        "Winchester",
+                        "johnwinchester@example.com",
+                        "password123",
+                        "123456789");
 
         mockMvc.perform(
                         post("/api/auth/register")
@@ -54,7 +58,7 @@ public class AuthControllerIntegrationTest extends TestContainerConfig {
                                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
 
-        assertTrue(userRepository.findByEmail("john@example.com").isPresent());
+        assertTrue(userRepository.findByEmail("johnwinchester@example.com").isPresent());
     }
 
     @Test
@@ -68,7 +72,7 @@ public class AuthControllerIntegrationTest extends TestContainerConfig {
         user.setRole(UserRole.user);
         userRepository.save(user);
 
-        LoginRequest loginRequest = new LoginRequest("jane@example.com", "password123");
+        LoginRequest loginRequest = new LoginRequest("janehoper@example.com", "password123");
 
         MvcResult result =
                 mockMvc.perform(
@@ -88,14 +92,14 @@ public class AuthControllerIntegrationTest extends TestContainerConfig {
     @Test
     public void login_ShouldFail_WhenPasswordIsIncorrect() throws Exception {
         User user = new User();
-        user.setEmail("jane@example.com");
+        user.setEmail("janehoper@example.com");
         user.setPasswordHash(passwordEncoder.encode("password123"));
         user.setFirstName("Jane");
         user.setLastName("Hoper");
         user.setRole(UserRole.user);
         userRepository.save(user);
 
-        LoginRequest loginRequest = new LoginRequest("jane@example.com", "wrongpassword");
+        LoginRequest loginRequest = new LoginRequest("janehoper@example.com", "wrongpassword");
 
         mockMvc.perform(
                         post("/api/auth/login")
@@ -119,7 +123,7 @@ public class AuthControllerIntegrationTest extends TestContainerConfig {
         user.setRole(UserRole.user);
         userRepository.save(user);
 
-        LoginRequest loginRequest = new LoginRequest("test@test.com", "password");
+        LoginRequest loginRequest = new LoginRequest("testtesttest@test.com", "password123");
         MvcResult loginResult =
                 mockMvc.perform(
                                 post("/api/auth/login")
