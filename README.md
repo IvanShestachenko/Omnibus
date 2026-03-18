@@ -8,7 +8,6 @@
 
 - [Application Description](#-application-description)
 - [Application Structure](#-application-structure)
-- [Installation Guide](#-installation-guide)
 - [Lessons Learned During the Project](#-lessons-learned-during-the-project)
 - [Conclusion](#-conclusion)
 
@@ -81,8 +80,10 @@ bus2holiday/
 │
 ├── ⚠️ exception/           # Custom exceptions (6 classes)
 └── 🔧 config/              # Spring configuration (3 classes)
+```
 
-📐 Data Model - Key Relationships
+## 📐 Data Model - Key Relationships
+```mermaid
 erDiagram
     USER ||--o| DRIVER : "1:1"
     USER ||--o{ RESERVATION : "1:N"
@@ -120,19 +121,9 @@ erDiagram
         decimal total_amount
         enum status
     }
+```
 
-📥 Installation Guide
-Prerequisites
-
-    ☕ JDK 21 or higher
-
-    📦 Maven 3.9+
-
-    🐘 PostgreSQL 15+ (or Docker)
-
-    🔧 Git
-
-💡 Lessons Learned
+## 💡 Lessons Learned
 4.1 Technology Evaluation
 ✅ Spring Boot 3.5.6 (Java 21)
 
