@@ -32,6 +32,6 @@ public abstract class BaseEntity implements Serializable {
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return id != null ? id.hashCode() : getClass().hashCode();
     }
 }
