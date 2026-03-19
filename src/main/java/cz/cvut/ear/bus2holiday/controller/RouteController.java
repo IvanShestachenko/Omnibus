@@ -1,5 +1,7 @@
 package cz.cvut.ear.bus2holiday.controller;
 
+import cz.cvut.ear.bus2holiday.dto.mapper.RouteMapper;
+import cz.cvut.ear.bus2holiday.dto.response.RouteResponse;
 import cz.cvut.ear.bus2holiday.model.Route;
 import cz.cvut.ear.bus2holiday.model.RouteStop;
 import cz.cvut.ear.bus2holiday.service.RouteService;
@@ -16,32 +18,37 @@ import java.util.List;
 public class RouteController {
 
     private final RouteService routeService;
+    private final RouteMapper routeMapper;
 
-    public RouteController(RouteService routeService) {
+    public RouteController(RouteService routeService, RouteMapper routeMapper) {
         this.routeService = routeService;
+        this.routeMapper = routeMapper;
     }
 
     @GetMapping
-    public ResponseEntity<List<Route>> getAllRoutes() {
-        return ResponseEntity.ok(routeService.findAll());
+    public ResponseEntity<List<RouteResponse>> getAllRoutes() {
+        return ResponseEntity.ok(
+                routeService.findAll().stream().map(routeMapper::toResponse).toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Route> getRoute(@PathVariable Long id) {
-        return ResponseEntity.ok(routeService.findById(id));
+    public ResponseEntity<RouteResponse> getRoute(@PathVariable Long id) {
+        return ResponseEntity.ok(routeMapper.toResponse(routeService.findById(id)));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Route> createRoute(@RequestBody Route route) {
+    public ResponseEntity<RouteResponse> createRoute(@RequestBody Route route) {
         Route created = routeService.create(route);
-        return ResponseEntity.created(URI.create("/api/routes/" + created.getId())).body(created);
+        return ResponseEntity.created(URI.create("/api/routes/" + created.getId()))
+                .body(routeMapper.toResponse(created));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Route> updateRoute(@PathVariable Long id, @RequestBody Route route) {
-        return ResponseEntity.ok(routeService.update(id, route));
+    public ResponseEntity<RouteResponse> updateRoute(
+            @PathVariable Long id, @RequestBody Route route) {
+        return ResponseEntity.ok(routeMapper.toResponse(routeService.update(id, route)));
     }
 
     @DeleteMapping("/{id}")
@@ -53,11 +60,12 @@ public class RouteController {
 
     @PostMapping("/{id}/stops")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<RouteStop> addStop(@PathVariable Long id, @RequestBody RouteStop stop) {
-        RouteStop createdCtx = routeService.addStop(id, stop);
-        return ResponseEntity.created(
-                        URI.create("/api/routes/" + id + "/stops/" + createdCtx.getId()))
-                .body(createdCtx);
+    public ResponseEntity<RouteResponse> addStop(
+            @PathVariable Long id, @RequestBody RouteStop stop) {
+        routeService.addStop(id, stop);
+        Route updatedRoute = routeService.findById(id);
+        return ResponseEntity.created(URI.create("/api/routes/" + id))
+                .body(routeMapper.toResponse(updatedRoute));
     }
 
     @DeleteMapping("/{id}/stops/{stopId}")
