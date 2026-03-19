@@ -13,7 +13,6 @@ import cz.cvut.ear.bus2holiday.model.enums.ReservationStatus;
 
 import jakarta.persistence.EntityNotFoundException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,19 +33,20 @@ public class ReservationService {
     private final BookedSegmentRepository segmentRepo;
     private final TripRepository tripRepo;
     private final UserRepository userRepo;
+    private final RouteStopRepository routeStopRepo;
 
     public ReservationService(
             ReservationRepository reservationRepo,
             BookedSegmentRepository segmentRepo,
             TripRepository tripRepo,
-            UserRepository userRepo) {
+            UserRepository userRepo,
+            RouteStopRepository routeStopRepo) {
         this.reservationRepo = reservationRepo;
         this.segmentRepo = segmentRepo;
         this.tripRepo = tripRepo;
         this.userRepo = userRepo;
+        this.routeStopRepo = routeStopRepo;
     }
-
-    @Autowired private RouteStopRepository routeStopRepo;
 
     @Transactional
     public Reservation createReservation(Long userId, CreateReservationRequest request) {
@@ -151,7 +151,7 @@ public class ReservationService {
 
         if (minutesUntilDeparture < 15) {
             throw new CancellationNotAllowedException(
-                    "Canncelation is not possibal after less than 15 minutes before departure");
+                    "Cancellation is not possible less than 15 minutes before departure");
         }
 
         reservation.setStatus(ReservationStatus.CANCELLED);

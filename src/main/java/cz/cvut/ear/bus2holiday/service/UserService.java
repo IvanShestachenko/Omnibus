@@ -2,6 +2,7 @@ package cz.cvut.ear.bus2holiday.service;
 
 import cz.cvut.ear.bus2holiday.dao.UserRepository;
 import cz.cvut.ear.bus2holiday.exception.ForbiddenException;
+import cz.cvut.ear.bus2holiday.exception.ResourceNotFoundException;
 import cz.cvut.ear.bus2holiday.model.User;
 
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public User findById(Long id) {
         return userRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
 
     @Transactional
