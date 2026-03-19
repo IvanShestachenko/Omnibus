@@ -50,8 +50,6 @@ public class SecurityConfig {
                         auth ->
                                 auth.requestMatchers("/api/auth/**")
                                         .permitAll()
-                                        .requestMatchers("/api/auth/debug/**")
-                                        .permitAll()
                                         .requestMatchers("/api/trips/search")
                                         .permitAll()
                                         .requestMatchers("/api/trips/{id}")
