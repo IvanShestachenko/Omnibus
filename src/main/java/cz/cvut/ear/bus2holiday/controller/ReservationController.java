@@ -1,5 +1,6 @@
 package cz.cvut.ear.bus2holiday.controller;
 
+import cz.cvut.ear.bus2holiday.dto.mapper.ReservationMapper;
 import cz.cvut.ear.bus2holiday.dto.request.CreateReservationRequest;
 import cz.cvut.ear.bus2holiday.dto.response.ReservationResponse;
 import cz.cvut.ear.bus2holiday.exception.ForbiddenException;
@@ -19,18 +20,21 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/reservations")
-class ReservationController {
+public class ReservationController {
     private final ReservationService reservationService;
     private final PaymentService paymentService;
     private final SecurityUtils securityUtils;
+    private final ReservationMapper reservationMapper;
 
     public ReservationController(
             ReservationService reservationService,
             PaymentService paymentService,
-            SecurityUtils securityUtils) {
+            SecurityUtils securityUtils,
+            ReservationMapper reservationMapper) {
         this.reservationService = reservationService;
         this.paymentService = paymentService;
         this.securityUtils = securityUtils;
+        this.reservationMapper = reservationMapper;
     }
 
     @PostMapping
@@ -40,15 +44,16 @@ class ReservationController {
 
         Long currentUserId = securityUtils.getCurrentUserId();
         Reservation reservation = reservationService.createReservation(currentUserId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(reservation));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(reservationMapper.toResponse(reservation));
     }
 
     @GetMapping
     public ResponseEntity<List<ReservationResponse>> getMyReservations() {
-        Long currenUserId = securityUtils.getCurrentUserId();
-        List<Reservation> reservations = reservationService.findByUserId(currenUserId);
+        Long currentUserId = securityUtils.getCurrentUserId();
+        List<Reservation> reservations = reservationService.findByUserId(currentUserId);
 
-        return ResponseEntity.ok(reservations.stream().map(this::toResponse).toList());
+        return ResponseEntity.ok(reservations.stream().map(reservationMapper::toResponse).toList());
     }
 
     @GetMapping("/{id}")
@@ -61,7 +66,7 @@ class ReservationController {
             throw new ForbiddenException("Access denied");
         }
 
-        return ResponseEntity.ok(toResponse(reservation));
+        return ResponseEntity.ok(reservationMapper.toResponse(reservation));
     }
 
     @DeleteMapping("/{id}")
@@ -77,42 +82,5 @@ class ReservationController {
         Long currentUserId = securityUtils.getCurrentUserId();
         paymentService.payReservation(id, currentUserId);
         return ResponseEntity.ok().build();
-    }
-
-    private ReservationResponse toResponse(Reservation reservation) {
-        var trip = reservation.getTrip();
-        var tripSummary =
-                new ReservationResponse.TripSummary(
-                        trip.getId(),
-                        trip.getRoute().getName(),
-                        trip.getDepartureDatetime().toLocalDateTime());
-
-        List<ReservationResponse.PassengerResponse> passengerResponses =
-                reservation.getPassengers().stream()
-                        .map(
-                                p ->
-                                        new ReservationResponse.PassengerResponse(
-                                                p.getFirstName(),
-                                                p.getLastName(),
-                                                p.getBookedSegments().stream()
-                                                        .map(
-                                                                s ->
-                                                                        new ReservationResponse
-                                                                                .SegmentInfo(
-                                                                                s.getSeatNumber(),
-                                                                                s
-                                                                                        .getFromStopOrder(),
-                                                                                s.getToStopOrder()))
-                                                        .toList()))
-                        .toList();
-
-        return new ReservationResponse(
-                reservation.getId(),
-                reservation.getBookingReference(),
-                reservation.getStatus().name(),
-                reservation.getTotalAmount(),
-                reservation.getCreatedAt().toLocalDate(),
-                tripSummary,
-                passengerResponses);
     }
 }

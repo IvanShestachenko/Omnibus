@@ -1,10 +1,11 @@
 package cz.cvut.ear.bus2holiday.controller;
 
 import cz.cvut.ear.bus2holiday.dto.mapper.DriverMapper;
+import cz.cvut.ear.bus2holiday.dto.mapper.TripMapper;
 import cz.cvut.ear.bus2holiday.dto.response.DriverResponse;
+import cz.cvut.ear.bus2holiday.dto.response.TripResponse;
 import cz.cvut.ear.bus2holiday.exception.ForbiddenException;
 import cz.cvut.ear.bus2holiday.model.Driver;
-import cz.cvut.ear.bus2holiday.model.Trip;
 import cz.cvut.ear.bus2holiday.security.SecurityUtils;
 import cz.cvut.ear.bus2holiday.service.DriverService;
 
@@ -22,12 +23,17 @@ public class DriverController {
     private final DriverService driverService;
     private final SecurityUtils securityUtils;
     private final DriverMapper driverMapper;
+    private final TripMapper tripMapper;
 
     public DriverController(
-            DriverService driverService, SecurityUtils securityUtils, DriverMapper driverMapper) {
+            DriverService driverService,
+            SecurityUtils securityUtils,
+            DriverMapper driverMapper,
+            TripMapper tripMapper) {
         this.driverService = driverService;
         this.securityUtils = securityUtils;
         this.driverMapper = driverMapper;
+        this.tripMapper = tripMapper;
     }
 
     @GetMapping
@@ -53,15 +59,19 @@ public class DriverController {
 
     @GetMapping("/me/trips")
     @PreAuthorize("hasRole('ROLE_DRIVER')")
-    public ResponseEntity<List<Trip>> getMyTrips() {
+    public ResponseEntity<List<TripResponse>> getMyTrips() {
         Long currentUserId = securityUtils.getCurrentUserId();
-        return ResponseEntity.ok(driverService.getTrips(currentUserId));
+        return ResponseEntity.ok(
+                driverService.getTrips(currentUserId).stream()
+                        .map(tripMapper::toResponse)
+                        .toList());
     }
 
     @GetMapping("/{id}/trips")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<Trip>> getDriverTrips(@PathVariable Long id) {
-        return ResponseEntity.ok(driverService.getTrips(id));
+    public ResponseEntity<List<TripResponse>> getDriverTrips(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                driverService.getTrips(id).stream().map(tripMapper::toResponse).toList());
     }
 
     @PostMapping

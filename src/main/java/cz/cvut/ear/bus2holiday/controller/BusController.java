@@ -1,5 +1,7 @@
 package cz.cvut.ear.bus2holiday.controller;
 
+import cz.cvut.ear.bus2holiday.dto.mapper.BusMapper;
+import cz.cvut.ear.bus2holiday.dto.response.BusResponse;
 import cz.cvut.ear.bus2holiday.model.Bus;
 import cz.cvut.ear.bus2holiday.model.enums.BusStatus;
 import cz.cvut.ear.bus2holiday.service.BusService;
@@ -16,32 +18,35 @@ import java.util.List;
 public class BusController {
 
     private final BusService busService;
+    private final BusMapper busMapper;
 
-    public BusController(BusService busService) {
+    public BusController(BusService busService, BusMapper busMapper) {
         this.busService = busService;
+        this.busMapper = busMapper;
     }
 
     @GetMapping
-    public ResponseEntity<List<Bus>> getAllBuses() {
-        return ResponseEntity.ok(busService.findAll());
+    public ResponseEntity<List<BusResponse>> getAllBuses() {
+        return ResponseEntity.ok(busService.findAll().stream().map(busMapper::toResponse).toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Bus> getBus(@PathVariable Long id) {
-        return ResponseEntity.ok(busService.findById(id));
+    public ResponseEntity<BusResponse> getBus(@PathVariable Long id) {
+        return ResponseEntity.ok(busMapper.toResponse(busService.findById(id)));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Bus> createBus(@RequestBody Bus bus) {
+    public ResponseEntity<BusResponse> createBus(@RequestBody Bus bus) {
         Bus created = busService.create(bus);
-        return ResponseEntity.created(URI.create("/api/buses/" + created.getId())).body(created);
+        return ResponseEntity.created(URI.create("/api/buses/" + created.getId()))
+                .body(busMapper.toResponse(created));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Bus> updateBus(@PathVariable Long id, @RequestBody Bus bus) {
-        return ResponseEntity.ok(busService.update(id, bus));
+    public ResponseEntity<BusResponse> updateBus(@PathVariable Long id, @RequestBody Bus bus) {
+        return ResponseEntity.ok(busMapper.toResponse(busService.update(id, bus)));
     }
 
     @PatchMapping("/{id}/status")
