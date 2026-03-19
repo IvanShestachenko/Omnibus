@@ -8,7 +8,6 @@ import cz.cvut.ear.bus2holiday.model.User;
 import cz.cvut.ear.bus2holiday.model.enums.UserRole;
 import cz.cvut.ear.bus2holiday.security.JwtTokenProvider;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,7 +24,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
 
-    @Autowired
     public AuthService(
             AuthenticationManager authenticationManager,
             UserRepository userRepository,
@@ -51,7 +49,7 @@ public class AuthService {
     @Transactional
     public void register(RegisterRequest request) {
         if (userRepository.findByEmail(request.email()).isPresent()) {
-            throw new RuntimeException("Email already exists");
+            throw new IllegalArgumentException("Email already exists");
         }
 
         User user = new User();
