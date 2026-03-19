@@ -1,7 +1,6 @@
 package cz.cvut.ear.bus2holiday.model;
 
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "booked_segment")

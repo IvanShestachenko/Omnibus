@@ -3,7 +3,6 @@ package cz.cvut.ear.bus2holiday.model;
 import cz.cvut.ear.bus2holiday.model.enums.TripStatus;
 
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;

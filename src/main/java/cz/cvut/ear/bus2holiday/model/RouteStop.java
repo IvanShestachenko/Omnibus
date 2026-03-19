@@ -3,7 +3,6 @@ package cz.cvut.ear.bus2holiday.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
 

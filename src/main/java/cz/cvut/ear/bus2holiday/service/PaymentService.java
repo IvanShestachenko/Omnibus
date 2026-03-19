@@ -9,8 +9,6 @@ import cz.cvut.ear.bus2holiday.model.Reservation;
 import cz.cvut.ear.bus2holiday.model.enums.PaymentStatus;
 import cz.cvut.ear.bus2holiday.model.enums.ReservationStatus;
 
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,11 +17,15 @@ import java.time.ZoneOffset;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class PaymentService {
 
     private final PaymentRepository paymentRepo;
     private final ReservationRepository reservationRepo;
+
+    public PaymentService(PaymentRepository paymentRepo, ReservationRepository reservationRepo) {
+        this.paymentRepo = paymentRepo;
+        this.reservationRepo = reservationRepo;
+    }
 
     @Transactional
     public void payReservation(Long reservationId, Long userId) {

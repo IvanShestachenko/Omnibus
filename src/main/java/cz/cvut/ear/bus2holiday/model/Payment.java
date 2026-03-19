@@ -3,12 +3,10 @@ package cz.cvut.ear.bus2holiday.model;
 import cz.cvut.ear.bus2holiday.model.enums.PaymentStatus;
 
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-// import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -46,7 +44,6 @@ public class Payment extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // @Type(type = "jsonb")
     @Column(name = "gateway_response", nullable = false)
     @JdbcTypeCode(SqlTypes.JSON)
     private String gatewayResponse;
