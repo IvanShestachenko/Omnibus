@@ -1,0 +1,376 @@
+/* ===================================
+   Trip Details Page Styles
+   =================================== */
+
+.trip-details-page {
+  padding: var(--space-xl);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.trip-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: var(--space-xl);
+  align-items: start;
+}
+
+/* Main Content */
+.trip-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* Trip Header Card */
+.trip-header-card {
+  padding: var(--space-xl);
+}
+
+.trip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xl);
+}
+
+.trip-header h1 {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  margin: 0;
+}
+
+.status-badge {
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  text-transform: uppercase;
+}
+
+.status-scheduled {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.status-completed {
+  background: rgba(107, 114, 128, 0.2);
+  color: var(--text-muted);
+}
+
+.status-cancelled {
+  background: rgba(255, 68, 68, 0.1);
+  color: var(--error);
+}
+
+/* Journey Visualization */
+.trip-journey {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.journey-point {
+  text-align: center;
+  min-width: 140px;
+}
+
+.point-time {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--primary);
+}
+
+.point-date {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-top: var(--space-xs);
+}
+
+.point-label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: var(--space-sm);
+}
+
+.journey-line {
+  flex: 1;
+  position: relative;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--bg-elevated) 50%, var(--primary) 100%);
+  border-radius: var(--radius-full);
+}
+
+.journey-line::before,
+.journey-line::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--primary);
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.journey-line::before { left: -6px; }
+.journey-line::after { right: -6px; }
+
+.journey-duration {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-surface);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+}
+
+/* Stops Card */
+.stops-card h3,
+.info-card h3 {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-lg);
+}
+
+.stops-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.stop-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) 0;
+  border-left: 2px solid var(--border-default);
+  margin-left: var(--space-md);
+  padding-left: var(--space-lg);
+  position: relative;
+}
+
+.stop-item:first-child {
+  border-color: var(--primary);
+}
+
+.stop-item:last-child {
+  border-color: var(--primary);
+}
+
+.stop-marker {
+  font-size: 1.5rem;
+  position: absolute;
+  left: -18px;
+  background: var(--bg-surface);
+}
+
+.stop-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stop-name {
+  font-weight: var(--font-medium);
+}
+
+.stop-distance {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/* Info Grid */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-lg);
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.info-label {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.info-value {
+  font-size: var(--text-lg);
+  font-weight: var(--font-medium);
+}
+
+.info-value.seats {
+  color: var(--primary);
+}
+
+/* Booking Sidebar */
+.booking-sidebar {
+  position: sticky;
+  top: 100px;
+}
+
+.booking-card {
+  padding: var(--space-xl);
+}
+
+.booking-card h3 {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-lg);
+}
+
+/* Passengers Section */
+.passengers-section {
+  margin-bottom: var(--space-xl);
+}
+
+.passengers-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+  font-weight: var(--font-medium);
+}
+
+.passenger-form {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.passenger-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: var(--text-sm);
+}
+
+.remove-btn:hover {
+  color: var(--error);
+}
+
+.passenger-input {
+  width: 100%;
+  padding: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+}
+
+.passenger-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Price Summary */
+.price-summary {
+  border-top: 1px solid var(--border-default);
+  padding-top: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-sm);
+}
+
+.price-total {
+  display: flex;
+  justify-content: space-between;
+  font-weight: var(--font-semibold);
+  font-size: var(--text-lg);
+  margin-top: var(--space-md);
+}
+
+.total-amount {
+  color: var(--primary);
+  font-size: var(--text-2xl);
+}
+
+.sold-out-msg {
+  text-align: center;
+  color: var(--error);
+  font-size: var(--text-sm);
+  margin-top: var(--space-md);
+}
+
+/* Loading/Error States */
+.loading-state,
+.error-state {
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  color: var(--text-secondary);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-default);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .trip-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .booking-sidebar {
+    position: static;
+  }
+
+  .trip-journey {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .journey-line {
+    width: 4px;
+    height: 60px;
+    background: linear-gradient(180deg, var(--primary) 0%, var(--bg-elevated) 50%, var(--primary) 100%);
+  }
+
+  .journey-line::before,
+  .journey-line::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .journey-line::before { top: -6px; }
+  .journey-line::after { bottom: -6px; top: auto; }
+
+  .journey-duration {
+    top: 50%;
+    left: 30px;
+    transform: translateY(-50%);
+  }
+}

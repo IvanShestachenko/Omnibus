@@ -1,0 +1,233 @@
+/* ===================================
+   Search Page Styles
+   =================================== */
+
+.search-page {
+  padding: var(--space-xl);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Filters Card */
+.filters-card {
+  margin-bottom: var(--space-xl);
+}
+
+.filters-form {
+  width: 100%;
+}
+
+.filters-row {
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.filter-field {
+  flex: 1;
+  min-width: 150px;
+}
+
+.filter-field label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xs);
+}
+
+.filter-select,
+.filter-input {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  height: 42px;
+}
+
+.filter-select:focus,
+.filter-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Results Section */
+.results-section {
+  margin-top: var(--space-xl);
+}
+
+.results-title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-lg);
+  color: var(--text-secondary);
+}
+
+/* Loading & Error States */
+.loading-state,
+.error-state {
+  text-align: center;
+  padding: var(--space-3xl);
+  color: var(--text-secondary);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-default);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto var(--space-md);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-state {
+  color: var(--error);
+}
+
+/* Trips List */
+.trips-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.trip-card {
+  padding: var(--space-lg);
+}
+
+.trip-content {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr auto;
+  gap: var(--space-lg);
+  align-items: center;
+}
+
+.trip-route {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.route-name {
+  font-weight: var(--font-semibold);
+  font-size: var(--text-lg);
+}
+
+.driver-name {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/* Times Section */
+.trip-times {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.time-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.time-block .time {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+}
+
+.time-block .label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.duration {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.duration-line {
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--border-default) 50%, var(--primary) 100%);
+  position: relative;
+}
+
+.duration-line::before,
+.duration-line::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--primary);
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.duration-line::before { left: 0; }
+.duration-line::after { right: 0; }
+
+.duration span {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/* Price */
+.trip-price {
+  text-align: right;
+}
+
+.trip-price .price {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--primary);
+}
+
+.trip-price .per-person {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .trip-content {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .trip-times {
+    flex-direction: row;
+  }
+
+  .trip-price {
+    text-align: left;
+  }
+
+  .trip-actions {
+    width: 100%;
+  }
+
+  .trip-actions button {
+    width: 100%;
+  }
+
+  .filters-row {
+    flex-direction: column;
+  }
+}
