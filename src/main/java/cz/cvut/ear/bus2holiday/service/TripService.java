@@ -82,7 +82,11 @@ public class TripService {
     public int getAvailableSeats(Long tripId) {
         Trip trip = findById(tripId);
         int totalSeats = trip.getBus().getTotalSeats();
-        int bookedSeats = trip.getBookedSegments().size();
-        return totalSeats - bookedSeats;
+        long distinctBookedSeats =
+                trip.getBookedSegments().stream()
+                        .map(segment -> segment.getSeatNumber())
+                        .distinct()
+                        .count();
+        return totalSeats - (int) distinctBookedSeats;
     }
 }

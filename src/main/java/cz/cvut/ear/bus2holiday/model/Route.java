@@ -3,13 +3,14 @@ package cz.cvut.ear.bus2holiday.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -36,8 +37,8 @@ public class Route extends BaseEntity {
             cascade = CascadeType.ALL,
             orphanRemoval = true,
             fetch = FetchType.LAZY)
-    @OrderBy("sequenceOrder ASC") // Всегда получаем остановки по порядку
-    private Set<RouteStop> stops = new HashSet<>();
+    @OrderBy("sequenceOrder ASC")
+    private List<RouteStop> stops = new ArrayList<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "route")
@@ -79,11 +80,11 @@ public class Route extends BaseEntity {
         this.updatedAt = updatedAt;
     }
 
-    public Set<RouteStop> getStops() {
+    public List<RouteStop> getStops() {
         return stops;
     }
 
-    public void setStops(Set<RouteStop> stops) {
+    public void setStops(List<RouteStop> stops) {
         this.stops = stops;
     }
 

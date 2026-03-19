@@ -1,7 +1,6 @@
 package cz.cvut.ear.bus2holiday.model;
 
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -93,5 +92,18 @@ public class Driver {
 
     public void setTrips(Set<Trip> trips) {
         this.trips = trips;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Driver driver = (Driver) o;
+        return userId != null && userId.equals(driver.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return userId != null ? userId.hashCode() : getClass().hashCode();
     }
 }
