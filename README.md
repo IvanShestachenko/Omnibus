@@ -2,11 +2,15 @@
 
 *Semester project EAR/NSS — CTU FEL*
 
+> **Semester Project for Enterprise Applications (EAR)** > **Academic Year:** 2025/2026
+
 [![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.6-brightgreen?logo=springboot)](https://spring.io/projects/spring-boot)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?logo=postgresql)](https://www.postgresql.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
+
+<img width="1919" height="824" alt="image" src="https://github.com/user-attachments/assets/04437448-c7dc-41b2-b042-20fc5500843e" />
 
 ## 🎯 Project Goal
 
