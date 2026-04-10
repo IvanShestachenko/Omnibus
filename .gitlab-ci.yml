@@ -10,10 +10,9 @@ variables:
   POSTGRES_DB: bus2holiday
   POSTGRES_USER: thera
   POSTGRES_PASSWORD: 1702
-  DOCKER_HOST: tcp://docker:2376
-  DOCKER_TLS_CERTDIR: "/certs"
-  DOCKER_TLS_VERIFY: 1
-  DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+  TESTCONTAINERS_RYUK_DISABLED: "true"
 
 cache:
   paths:
@@ -25,6 +24,9 @@ test:
   services:
     - name: docker:25.0.3-dind
       alias: docker
+      command: ["--tls=false"]
+  before_script:
+    - apt-get update && apt-get install -y docker.io || true
   script:
     - mvn $MAVEN_CLI_OPTS test
   artifacts:
