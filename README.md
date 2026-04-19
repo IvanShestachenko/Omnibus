@@ -1,6 +1,10 @@
 # 🚍 Bus2Holiday — Enterprise Bus Transportation System
 
 *Semester project EAR — CTU FEL*
+<img width="1919" height="824" alt="image" src="https://github.com/user-attachments/assets/04437448-c7dc-41b2-b042-20fc5500843e" />
+
+---
+> **Semester Project for Enterprise Applications (EAR)** > **Academic Year:** 2025/2026
 
 ## 🎯 Project Goal
 
