@@ -56,13 +56,9 @@ public class ReservationControllerIntegrationTest extends TestContainerConfig {
     private Trip testTrip;
     private User testUser;
     private Reservation testReservation;
-    private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
 
     @BeforeEach
     void setUp() throws Exception {
-        jdbcTemplate.execute(
-                "TRUNCATE TABLE payment, reservation_passenger, reservation, trip, route_stop,"
-                        + " route, terminal, bus, \"user\" RESTART IDENTITY CASCADE");
 
         testUser = new User();
         testUser.setEmail("traveler@test.com");

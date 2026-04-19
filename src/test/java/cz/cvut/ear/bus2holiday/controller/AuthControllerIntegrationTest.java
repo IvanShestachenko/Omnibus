@@ -15,7 +15,6 @@ import cz.cvut.ear.bus2holiday.dto.response.AuthResponse;
 import cz.cvut.ear.bus2holiday.model.User;
 import cz.cvut.ear.bus2holiday.model.enums.UserRole;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,8 +23,10 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
+@Transactional
 @AutoConfigureMockMvc
 public class AuthControllerIntegrationTest extends TestContainerConfig {
 
@@ -37,10 +38,7 @@ public class AuthControllerIntegrationTest extends TestContainerConfig {
 
     @Autowired private ObjectMapper objectMapper;
 
-    @BeforeEach
-    public void setUp() {
-        userRepository.deleteAll();
-    }
+    // No manual cleanup needed: @Transactional rolls back each test automatically.
 
     @Test
     public void register_ShouldCreateUser_WhenRequestIsValid() throws Exception {
@@ -72,7 +70,7 @@ public class AuthControllerIntegrationTest extends TestContainerConfig {
         user.setRole(UserRole.user);
         userRepository.save(user);
 
-        LoginRequest loginRequest = new LoginRequest("janehoper@example.com", "password123");
+        LoginRequest loginRequest = new LoginRequest("jane@example.com", "password123");
 
         MvcResult result =
                 mockMvc.perform(
@@ -123,7 +121,7 @@ public class AuthControllerIntegrationTest extends TestContainerConfig {
         user.setRole(UserRole.user);
         userRepository.save(user);
 
-        LoginRequest loginRequest = new LoginRequest("testtesttest@test.com", "password123");
+        LoginRequest loginRequest = new LoginRequest("test@test.com", "password");
         MvcResult loginResult =
                 mockMvc.perform(
                                 post("/api/auth/login")
