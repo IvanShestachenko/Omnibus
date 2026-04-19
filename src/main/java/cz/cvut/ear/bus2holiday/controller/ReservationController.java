@@ -49,6 +49,7 @@ public class ReservationController {
     }
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<ReservationResponse>> getMyReservations() {
         Long currentUserId = securityUtils.getCurrentUserId();
         List<Reservation> reservations = reservationService.findByUserId(currentUserId);
@@ -70,6 +71,7 @@ public class ReservationController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> cancelReservation(@PathVariable Long id) {
         Long currentUserId = securityUtils.getCurrentUserId();
         reservationService.cancelReservation(id, currentUserId);
@@ -78,6 +80,7 @@ public class ReservationController {
     }
 
     @PostMapping("/{id}/pay")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> payReservation(@PathVariable Long id) {
         Long currentUserId = securityUtils.getCurrentUserId();
         paymentService.payReservation(id, currentUserId);

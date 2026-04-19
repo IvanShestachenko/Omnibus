@@ -1,6 +1,7 @@
 package cz.cvut.ear.bus2holiday.service;
 
 import cz.cvut.ear.bus2holiday.dao.UserRepository;
+import cz.cvut.ear.bus2holiday.dto.mapper.UserMapper;
 import cz.cvut.ear.bus2holiday.dto.request.LoginRequest;
 import cz.cvut.ear.bus2holiday.dto.request.RegisterRequest;
 import cz.cvut.ear.bus2holiday.dto.response.AuthResponse;
@@ -23,16 +24,19 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
+    private final UserMapper userMapper;
 
     public AuthService(
             AuthenticationManager authenticationManager,
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            JwtTokenProvider tokenProvider) {
+            JwtTokenProvider tokenProvider,
+            UserMapper userMapper) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
+        this.userMapper = userMapper;
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -43,7 +47,12 @@ public class AuthService {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.generateToken(authentication);
-        return new AuthResponse(jwt);
+
+        User user =
+                userRepository
+                        .findByEmail(request.email())
+                        .orElseThrow(() -> new IllegalStateException("User not found after auth"));
+        return new AuthResponse(jwt, userMapper.toResponse(user));
     }
 
     @Transactional

@@ -162,8 +162,9 @@ public class ReservationService {
     private boolean isSeatAvailable(
             Long tripId, String seatNumber, int requestedFrom, int requestedTo) {
 
+        // Uses PESSIMISTIC_WRITE lock to prevent race conditions with concurrent bookings
         List<BookedSegment> existingSegments =
-                segmentRepo.findByTripIdAndSeatNumber(tripId, seatNumber);
+                segmentRepo.findByTripIdAndSeatNumberForUpdate(tripId, seatNumber);
 
         if (existingSegments.isEmpty()) {
             return true;

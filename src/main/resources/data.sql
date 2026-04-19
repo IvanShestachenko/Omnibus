@@ -1,17 +1,10 @@
 -- USERS (password: password123)
 INSERT INTO "user" (first_name, last_name, email, password_hash, phone, role, created_at, updated_at) VALUES
-                                                                                                          ('Admin', 'System', 'admin@bus2holiday.com','$2a$10$EjdOlTGGHbKhL6j7mCLxFukCwC6fhvHKfvYi8YEeZtjhxSWt17TDG', '+420111222333', 'admin', NOW(), NOW()),
-                                                                                                          ('John', 'Doe', 'john@example.com', '$2a$10$EjdOlTGGHbKhL6j7mCLxFukCwC6fhvHKfvYi8YEeZtjhxSWt17TDG', '+420444555666', 'user', NOW(), NOW()),
-                                                                                                          ('Jane', 'Smith', 'jane@example.com', '$2a$10$EjdOlTGGHbKhL6j7mCLxFukCwC6fhvHKfvYi8YEeZtjhxSWt17TDG', '+420777888999', 'user', NOW(), NOW()),
-                                                                                                          ('Driver', 'One', 'driver1@bus2holiday.com', '$2a$10$EjdOlTGGHbKhL6j7mCLxFukCwC6fhvHKfvYi8YEeZtjhxSWt17TDG', '+420123123123', 'driver', NOW(), NOW()),
-                                                                                                          ('Driver', 'Two', 'driver2@bus2holiday.com', '$2a$10$EjdOlTGGHbKhL6j7mCLxFukCwC6fhvHKfvYi8YEeZtjhxSWt17TDG', '+420456456456', 'driver', NOW(), NOW());
-
-
-INSERT INTO "user" (first_name, last_name, email, password_hash, phone, role, created_at, updated_at)
-VALUES ('Admin', 'System', 'admin@bus2holiday.com',
-        '$2a$10$EjdOlTGGHbKhL6j7mCLxFukCwC6fhvHKfvYi8YEeZtjhxSWt17TDG',
-        '+420000000000', 'admin', NOW(), NOW())
-
+    ('Admin', 'System', 'admin@bus2holiday.com','$2a$10$EjdOlTGGHbKhL6j7mCLxFukCwC6fhvHKfvYi8YEeZtjhxSWt17TDG', '+420111222333', 'admin', NOW(), NOW()),
+    ('John', 'Doe', 'john@example.com', '$2a$10$EjdOlTGGHbKhL6j7mCLxFukCwC6fhvHKfvYi8YEeZtjhxSWt17TDG', '+420444555666', 'user', NOW(), NOW()),
+    ('Jane', 'Smith', 'jane@example.com', '$2a$10$EjdOlTGGHbKhL6j7mCLxFukCwC6fhvHKfvYi8YEeZtjhxSWt17TDG', '+420777888999', 'user', NOW(), NOW()),
+    ('Driver', 'One', 'driver1@bus2holiday.com', '$2a$10$EjdOlTGGHbKhL6j7mCLxFukCwC6fhvHKfvYi8YEeZtjhxSWt17TDG', '+420123123123', 'driver', NOW(), NOW()),
+    ('Driver', 'Two', 'driver2@bus2holiday.com', '$2a$10$EjdOlTGGHbKhL6j7mCLxFukCwC6fhvHKfvYi8YEeZtjhxSWt17TDG', '+420456456456', 'driver', NOW(), NOW())
 ON CONFLICT (email) DO NOTHING;
 
 -- DRIVERS

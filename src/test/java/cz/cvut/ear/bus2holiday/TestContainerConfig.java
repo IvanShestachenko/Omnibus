@@ -20,12 +20,13 @@ public abstract class TestContainerConfig {
 
     @DynamicPropertySource
     public static void setProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
+        // Disable PostgreSQL prepared statement cache to prevent
+        // "cached plan must not change result type" when ddl-auto=create-drop
+        // recreates tables between Spring context loads.
+        String jdbcUrl = postgreSQLContainer.getJdbcUrl() + "&preparedStatementCacheQueries=0";
+        registry.add("spring.datasource.url", () -> jdbcUrl);
         registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
         registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
-
         registry.add("spring.flyway.enabled", () -> "false");
-
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "update");
     }
 }

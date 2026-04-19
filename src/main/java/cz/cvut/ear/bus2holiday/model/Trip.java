@@ -41,7 +41,7 @@ public class Trip extends BaseEntity {
     private OffsetDateTime arrivalDatetime;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "trip_status")
+    @Column(nullable = false)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private TripStatus status = TripStatus.SCHEDULED;
 
