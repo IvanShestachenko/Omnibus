@@ -44,13 +44,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(false);
   }, []);
 
+  // Sync React state when Axios interceptor clears localStorage on 401
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'token' && e.newValue === null) {
+        setToken(null);
+        setUser(null);
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const login = async (email: string, password: string) => {
     const response: AuthResponse = await authApi.login({ email, password });
 
-    setToken(response.token);
+    setToken(response.accessToken);
     setUser(response.user);
 
-    localStorage.setItem('token', response.token);
+    localStorage.setItem('token', response.accessToken);
     localStorage.setItem('user', JSON.stringify(response.user));
   };
 
