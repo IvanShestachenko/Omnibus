@@ -64,7 +64,7 @@ public class BusControllerIntegrationTest extends TestContainerConfig {
         userRepo.save(user);
 
         adminToken = loginAndGetToken("admin123@test.com", "admin123");
-        userToken = loginAndGetToken("user123@test.com", "pass123");
+        userToken = loginAndGetToken("user@test.com", "pass123");
 
         testBus = new Bus();
         testBus.setModel("Volvo 9700");

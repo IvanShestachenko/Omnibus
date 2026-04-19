@@ -161,8 +161,8 @@ public class RouteControllerIntegrationTest extends TestContainerConfig {
     }
 
     @Test
-    void deleteRoute_AsAnonymous_ShouldFail401() throws Exception {
+    void deleteRoute_AsAnonymous_ShouldFail403() throws Exception {
         mockMvc.perform(delete("/api/routes/" + testRoute.getId()))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 }

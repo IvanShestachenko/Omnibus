@@ -1,165 +1,219 @@
-# 📋 Project Report: Bus2Holiday
+# 🚍 Bus2Holiday — Enterprise Bus Transportation System
 
-> **Semester Project for Enterprise Applications (EAR)** > **Academic Year:** 2025/2026
+*Semester project EAR — CTU FEL*
 
----
+## 🎯 Project Goal
 
-## 📑 Table of Contents
-
-- [Application Description](#-application-description)
-- [Application Structure](#-application-structure)
-- [Lessons Learned During the Project](#-lessons-learned-during-the-project)
-- [Conclusion](#-conclusion)
-
----
-
-## 🚍 Application Description
-
-**Bus2Holiday** is a backend information system for managing international bus transport, inspired by the FlixBus platform. The application provides a complete REST API for ticket reservations, management of buses, routes, drivers, and users.
-
-### Main Functionalities
-
-| 👤 For Customers (USER) | 🚗 For Drivers (DRIVER) | 🔐 For Administrators (ADMIN) |
-| :--- | :--- | :--- |
-| ✅ Registration & JWT auth | 📋 Overview of assigned trips | 👥 User and role management |
-| 🔍 Connection search | 👥 Passenger lists | 🚌 Fleet management |
-| 🎫 Ticket reservation | ⏰ Availability management | 🗺️ Route and stop definitions |
-| 💺 Seat selection | 🔔 Change notifications | 📊 Statistics and revenue |
-| 💳 Payment operations | | |
-
-### 🛠️ Technology Stack
-
-| Category | Technology | Version |
-| :--- | :--- | :--- |
-| **Framework** | Spring Boot | 3.5.6 |
-| **Database** | PostgreSQL | 15+ |
-| **ORM** | Spring Data JPA / Hibernate | - |
-| **Security** | Spring Security + JWT | 0.12.3 |
-| **Migration** | Flyway | - |
-| **Testing** | JUnit 5 + Testcontainers | - |
-| **Build Tool** | Maven | - |
-| **Java** | OpenJDK | 21 (LTS) |
-| **Containerization** | Docker + Docker Compose | - |
+The goal of this semester project is to **design and implement an enterprise information system** for a bus transportation company (inspired by FlixBus).
+The project focuses on building a **multi-layered enterprise-level application** with emphasis on:
+- backend system architecture design,
+- use of modern technologies,
+- security and testing.
 
 ---
 
-## 🏗️ Application Structure
+## ⚙️ Technology Stack
 
-The application follows a classic **multi-tier architecture** for enterprise applications:
+### Backend
+| Technology | Version |
+|---|---|
+| **Java** | 21 |
+| **Spring Boot** | 3.5.6 |
+| **Spring Security** | JWT authentication |
+| **JPA / Hibernate** | ORM |
+| **PostgreSQL** | Database |
+| **Flyway** | Migrations (prepared) |
+| **Lombok** | Boilerplate reduction |
+| **JUnit 5 + Mockito** | Testing |
+| **Testcontainers** | Integration tests |
 
-```text
+### Frontend
+| Technology | Version |
+|---|---|
+| **React** | 19.x |
+| **TypeScript** | 5.9 |
+| **Vite** | 7.x |
+| **React Router** | 7.x |
+| **Axios** | HTTP client |
+
+---
+
+## 📁 Project Structure
+
+```
 bus2holiday/
-├── 🎮 controller/          # REST API endpoints (7 controllers)
-│   ├── AuthController
-│   ├── BusController
-│   ├── DriverController
-│   ├── ReservationController
-│   ├── RouteController
-│   ├── UserController
-│   └── DebugController
-│
-├── ⚙️ service/             # Business logic (7 services)
-│   └── [BusService, DriverService, ReservationService, ...]
-│
-├── 💾 dao/                 # Data Access Objects (11 repositories)
-│   └── [BusRepository, UserRepository, TripRepository, ...]
-│
-├── 📊 model/               # JPA entities (17 entities)
-│   ├── User, Driver, Bus
-│   ├── Route, RouteStop, Terminal
-│   ├── Trip, Reservation
-│   └── enums/ (UserRole, BusStatus, TripStatus, ...)
-│
-├── 📦 dto/                 # Data Transfer Objects (20 DTOs)
-│   └── mapper/            # MapStruct mappers
-│
-├── 🔒 security/            # Security layer (7 classes)
-│   ├── JwtTokenProvider
-│   ├── UserDetailsServiceImpl
-│   └── model/ (UserDetails, LoginStatus)
-│
-├── ⚠️ exception/           # Custom exceptions (6 classes)
-└── 🔧 config/              # Spring configuration (3 classes)
+├── src/main/java/cz/cvut/ear/bus2holiday/
+│   ├── config/              # Configuration (Security, CORS, JWT filter)
+│   ├── controller/          # REST controllers
+│   ├── dao/                 # JPA repositories
+│   ├── dto/
+│   │   ├── mapper/          # Entity → DTO mapping
+│   │   ├── request/         # Request DTOs
+│   │   └── response/        # Response DTOs
+│   ├── exception/           # Global exception handling
+│   ├── model/               # JPA entities
+│   │   └── enums/           # Enumerations (UserRole, TripStatus, ...)
+│   ├── security/            # JWT provider, SecurityUtils, UserDetails
+│   ├── service/             # Business logic
+│   └── utils/               # Utility classes
+├── src/main/resources/
+│   ├── application.properties
+│   └── data.sql             # Initial seed data
+├── src/test/                # Unit + integration tests
+├── frontend/                # React SPA
+│   ├── src/
+│   │   ├── api/             # API client (Axios)
+│   │   ├── components/      # UI components (Button, Card, Input, Header, Footer)
+│   │   ├── context/         # Auth context (React Context API)
+│   │   └── pages/           # Pages (Home, Search, Trip, Reservations, Login, Register)
+│   └── vite.config.ts
+└── pom.xml
 ```
 
-## 📐 Data Model - Key Relationships
-```mermaid
-erDiagram
-    USER ||--o| DRIVER : "1:1"
-    USER ||--o{ RESERVATION : "1:N"
-    TRIP ||--o{ RESERVATION : "1:N"
-    ROUTE ||--o{ TRIP : "1:N"
-    BUS ||--o{ TRIP : "1:N"
-    DRIVER ||--o{ TRIP : "1:N"
-    ROUTE ||--o{ ROUTE_STOP : "1:N"
-    TERMINAL ||--o{ ROUTE_STOP : "1:N"
-    RESERVATION ||--o{ RESERVATION_PASSENGER : "1:N"
-    TRIP ||--o{ BOOKED_SEGMENT : "1:N"
+---
 
-    USER {
-        uuid id PK
-        string email UK
-        string password_hash
-        enum role
-    }
+## 🚀 Getting Started
 
-    TRIP {
-        uuid id PK
-        uuid route_id FK
-        uuid bus_id FK
-        uuid driver_id FK
-        decimal price
-        timestamp departure_datetime
-        enum status
-    }
+### Prerequisites
+- Java 21+
+- Node.js 18+
+- PostgreSQL with a `bus2holiday` database
 
-    RESERVATION {
-        uuid id PK
-        uuid user_id FK
-        uuid trip_id FK
-        string booking_reference UK
-        decimal total_amount
-        enum status
-    }
+### Backend
+```bash
+# Configure variables in application.properties:
+#   spring.datasource.url, username, password
+#   jwt.secret
+
+./mvnw spring-boot:run
+# Backend runs at http://localhost:8081
 ```
 
-## 💡 Lessons Learned
-4.1 Technology Evaluation
-✅ Spring Boot 3.5.6 (Java 21)
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+# Frontend runs at http://localhost:5173
+```
 
-    Pros: Excellent integration, auto-configuration, Virtual Threads support.
+---
 
-    Cons: Newer versions have less community documentation available.
+## 🧩 Key Features
 
-✅ JWT Authentication
+### 👤 User & Role Management
+- Registration, login, JWT authentication
+- Role-based authorization (**Admin** / **User** / **Driver**)
+- User profile management
 
-    Pros: Stateless and scalable.
+### 🚌 Bus & Route Management
+- Vehicle fleet tracking with seat capacities
+- Driver assignment to buses
+- Route definition with stops (segment-based routes)
 
-    Cons: Complex token revocation and refresh logic.
+### 🕓 Trip Scheduling
+- Creation of individual trips (departure, arrival, capacity)
+- Trip modification and deletion
+- Seat availability display
 
-✅ Spring Data JPA + Hibernate
+### 🔍 Trip Search
+- Filtering by city, date, price, availability
+- Overview of upcoming trips
+- Public API (no authentication required)
 
-    Pros: Minimal boilerplate.
+### 🎟️ Reservations & Ticket Sales
+- Seat selection on route segments
+- Ticket purchase and online payment
+- Ticket cancellation (min. 15 minutes before departure)
 
-    Cons: Faced N+1 problems and Circular References during JSON serialization.
+### 🚛 Driver Module
+- Overview of assigned trips
+- Availability management
 
-    Solution: Used @JsonIgnore and planned to migrate fully to the DTO pattern.
+### 🧾 Administration Module
+- Management of users, routes, buses, and drivers
+- Full CRUD access
 
-4.2 Unexpected Issues
-🔴 Issue 1: Infinite Recursion
+---
 
-    Cause: Bidirectional JPA relationships (Route ↔ RouteStop).
+## 🔒 Security
 
-    Fix: Applied @JsonIgnore on the child side.
+- **Spring Security** with JWT tokens (24h expiration)
+- **Role-based access control (RBAC)**: `user`, `driver`, `admin`
+- **Method-level security**: `@PreAuthorize` on controllers
+- **CORS**: configured for `http://localhost:*`
+- **Input validation**: `@Valid` on request DTOs
+- **Centralized exception handling**: `GlobalExceptionHandler`
 
-🔴 Issue 2: Flyway Circular Dependency
+---
 
-    Cause: Dependency loop between dataSource, flyway, and entityManagerFactory.
+## 👥 System Roles
 
-    Fix: Temporarily disabled Flyway in favor of data.sql for the development phase.
+| Role | Description |
+|---|---|
+| **Admin** | Full access. Manages users, roles, routes, buses, drivers, and orders. |
+| **User** | Searches trips, buys and cancels tickets, selects seats, tracks reservations. |
+| **Driver** | Views assigned trips, manages availability. |
 
-👥 Authors
+---
 
-    Mykhailo Plokhin
+## 📡 API Endpoints
 
-    Ivan Shestachenko
+### Public (no authentication)
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/auth/login` | Login |
+| POST | `/api/auth/register` | Registration |
+| GET | `/api/trips/search` | Search trips |
+| GET | `/api/trips/{id}` | Trip details |
+| GET | `/api/trips/{id}/available-seats` | Available seats |
+| GET | `/api/routes/**` | Routes and stops |
+
+### Authenticated (USER / DRIVER / ADMIN)
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/reservations` | My reservations |
+| POST | `/api/reservations` | Create reservation |
+| DELETE | `/api/reservations/{id}` | Cancel reservation |
+| POST | `/api/reservations/{id}/pay` | Pay for reservation |
+| GET | `/api/users/me` | My profile |
+| GET | `/api/drivers/me/trips` | My trips (driver) |
+
+### Admin only
+| Method | Endpoint | Description |
+|---|---|---|
+| CRUD | `/api/buses/**` | Bus management |
+| CRUD | `/api/routes/**` | Route management |
+| CRUD | `/api/trips/**` | Trip management |
+| CRUD | `/api/drivers/**` | Driver management |
+| CRUD | `/api/users/**` | User management |
+
+---
+
+## 🧪 Testing
+
+```bash
+./mvnw test
+```
+
+- **Unit tests**: JUnit 5 + Mockito
+- **Integration tests**: Testcontainers (PostgreSQL)
+- Test profile: `@Profile("test")` — separate Security configuration
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────┐     ┌───────────────┐     ┌─────────────┐     ┌──────────────┐
+│  Frontend   │────▶│  Controller   │────▶│   Service   │────▶│  Repository  │
+│  (React)    │◀────│  (REST API)   │◀────│  (Business) │◀────│   (JPA)      │
+└─────────────┘     └───────────────┘     └─────────────┘     └──────────────┘
+                           │                                         │
+                    ┌──────┴──────┐                           ┌──────┴──────┐
+                    │  DTO/Mapper │                           │ PostgreSQL  │
+                    └─────────────┘                           └─────────────┘
+```
+
+Controllers accept and return **DTOs** (Data Transfer Objects), not raw JPA entities.
+Mapping is handled by `*Mapper` components (`UserMapper`, `BusMapper`, `TripMapper`, `DriverMapper`, `RouteMapper`, `ReservationMapper`).
