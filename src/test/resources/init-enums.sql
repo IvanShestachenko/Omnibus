@@ -1,0 +1,3 @@
+-- No longer needed: Hibernate 6.x with @JdbcTypeCode(SqlTypes.NAMED_ENUM) auto-creates
+-- PostgreSQL enum types during ddl-auto=create.
+-- This file is kept empty to avoid breaking withInitScript() reference.

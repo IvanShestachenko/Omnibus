@@ -39,7 +39,7 @@ public class Bus extends BaseEntity {
     private String seatLayout;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "bus_status")
+    @Column(nullable = false)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private BusStatus status = BusStatus.ACTIVE;
 

@@ -37,11 +37,8 @@ public class TripService {
         OffsetDateTime startOfDay = date.atStartOfDay().atOffset(ZoneOffset.UTC);
         OffsetDateTime endOfDay = date.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC);
 
-        return tripRepository
-                .findAllByRouteIdAndDepartureDatetimeBetween(routeId, startOfDay, endOfDay)
-                .stream()
-                .filter(trip -> trip.getStatus() == TripStatus.SCHEDULED)
-                .toList();
+        return tripRepository.findAllByRouteIdAndDepartureDatetimeBetweenAndStatus(
+                routeId, startOfDay, endOfDay, TripStatus.SCHEDULED);
     }
 
     public List<Trip> findByDriverId(Long driverId) {

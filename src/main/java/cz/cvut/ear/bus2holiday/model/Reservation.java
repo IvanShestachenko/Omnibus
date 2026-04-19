@@ -33,7 +33,7 @@ public class Reservation extends BaseEntity {
     private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "reservation_status")
+    @Column(nullable = false)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private ReservationStatus status = ReservationStatus.PENDING;
 
