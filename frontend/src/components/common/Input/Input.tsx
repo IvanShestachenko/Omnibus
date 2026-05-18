@@ -15,7 +15,8 @@ export const Input: React.FC<InputProps> = ({
   id,
   ...props
 }) => {
-  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = React.useId();
+  const inputId = id || generatedId;
 
   return (
     <div className={`input-wrapper ${error ? 'input-error' : ''} ${className}`}>
