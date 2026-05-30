@@ -4,53 +4,53 @@
    =================================== */
 
 :root {
-  /* Primary Colors - FlixBus Green */
-  --primary: #00D68F;
-  --primary-hover: #00B377;
-  --primary-light: rgba(0, 214, 143, 0.15);
+  /* Primary Colors - Coral Accent */
+  --primary: #FA6B6B;
+  --primary-hover: #E05A5A;
+  --primary-light: rgba(250, 107, 107, 0.15);
 
-  /* Secondary Colors */
-  --secondary: #1A1A2E;
-  --secondary-light: #2D2D4A;
+  /* Secondary Colors - Royal Navy */
+  --secondary: #132968;
+  --secondary-light: #1E3A8A;
 
   /* Accent Colors */
-  --accent: #FF6B35;
-  --accent-hover: #E55A2B;
+  --accent: #FF7F50;
+  --accent-hover: #FF6347;
 
-  /* Background Colors */
-  --bg-dark: #0A0A14;
-  --bg-primary: #0F0F1A;
-  --bg-secondary: #16162A;
-  --bg-surface: #1E1E3F;
-  --bg-elevated: #252550;
+  /* Background Colors - Clean Light Mode */
+  --bg-dark: #0C1E4E;
+  --bg-primary: #F8F9FC;
+  --bg-secondary: #FFFFFF;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #F1F3F9;
 
   /* Text Colors */
-  --text-primary: #FFFFFF;
-  --text-secondary: #B4B4C7;
-  --text-muted: #6B6B8A;
-  --text-inverse: #0A0A14;
+  --text-primary: #1A202C;
+  --text-secondary: #4A5568;
+  --text-muted: #718096;
+  --text-inverse: #FFFFFF;
 
   /* Status Colors */
-  --success: #00D68F;
-  --warning: #FFB800;
-  --error: #FF4444;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --error: #EF4444;
   --info: #3B82F6;
 
   /* Border Colors */
-  --border-default: rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(255, 255, 255, 0.15);
-  --border-focus: var(--primary);
+  --border-default: #E2E8F0;
+  --border-hover: #CBD5E0;
+  --border-focus: var(--secondary);
 
   /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.45);
-  --shadow-glow: 0 0 20px rgba(0, 214, 143, 0.3);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 15px rgba(250, 107, 107, 0.3);
 
   /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #00D68F 0%, #00B377 100%);
-  --gradient-dark: linear-gradient(180deg, #1E1E3F 0%, #0F0F1A 100%);
-  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  --gradient-primary: linear-gradient(135deg, #FA6B6B 0%, #FF8A8A 100%);
+  --gradient-dark: linear-gradient(180deg, #132968 0%, #0C1E4E 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.95) 100%);
 
   /* Spacing */
   --space-xs: 0.25rem;
@@ -279,3 +279,4 @@ input, textarea, select {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
+
