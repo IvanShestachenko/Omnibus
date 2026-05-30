@@ -1,187 +1,431 @@
 /* ===================================
-   Home Page Styles
+   Home Page Styles (Omio + FlixBus Light Theme)
    =================================== */
 
 .home-page {
   min-height: 100%;
+  background-color: var(--bg-primary);
 }
 
 /* Hero Section */
 .hero-section {
   position: relative;
-  min-height: 80vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-2xl);
+  padding: 0 0 var(--space-2xl) 0;
+  /* Flush with top and horizontal edges */
+  background-color: #FFFFFF;
+  /* Matches pure white of search card and banner fade to prevent grayer strips */
   overflow: hidden;
+  text-align: center;
+  width: 100%;
 }
 
-.hero-background {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-primary) 50%, var(--secondary) 100%);
-}
-
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 50% 0%, rgba(0, 214, 143, 0.15) 0%, transparent 50%);
-}
-
-.hero-particles {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-}
-
-.particle {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: var(--primary);
-  border-radius: 50%;
-  opacity: 0.3;
-  animation: float-up linear infinite;
-}
-
-@keyframes float-up {
-  0% {
-    transform: translateY(100vh) scale(0);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.3;
-  }
-  90% {
-    opacity: 0.3;
-  }
-  100% {
-    transform: translateY(-10vh) scale(1);
-    opacity: 0;
-  }
+.hero-background-gradient {
+  display: none;
+  /* Disabled to maintain crystal clear background color without layers */
 }
 
 .hero-content {
   position: relative;
-  z-index: 1;
-  text-align: center;
-  max-width: 800px;
+  z-index: 2;
+  max-width: 100%;
+  /* Stretches to full screen width */
   width: 100%;
+  margin: 0;
+}
+
+/* Widescreen Banner (flush, auto-proportioned to show full width without cropping) */
+.hero-banner-container {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+
+
+.hero-banner-image {
+  width: 100%;
+  height: auto;
+  /* Scales proportionally to show the entire original image */
+  display: block;
+  filter: brightness(0.94);
+}
+
+.hero-text-overlay {
+  position: absolute;
+  bottom: 13%;
+  /* Lifted slightly to give more breathing room above the floating search panel */
+  left: 0;
+  right: 0;
+  padding: var(--space-md) var(--space-3xl);
+  background: transparent;
+  /* Removed background gradient to eliminate horizontal seams entirely */
+  color: var(--text-inverse);
+  text-align: left;
+  z-index: 3;
 }
 
 .hero-title {
-  font-size: clamp(2.5rem, 6vw, 4rem);
-  font-weight: var(--font-bold);
-  margin-bottom: var(--space-md);
-  line-height: 1.1;
+  font-size: clamp(1.4rem, 3.2vw, 2.0rem);
+  font-weight: var(--font-medium);
+  /* Sleek medium weight (500) */
+  line-height: 1.2;
+  margin-bottom: 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  /* Stronger shadow for clean contrast without background box */
 }
 
 .hero-subtitle {
-  font-size: var(--text-xl);
-  color: var(--text-secondary);
-  margin-bottom: var(--space-2xl);
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  font-size: clamp(0.95rem, 2vw, 1.15rem);
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 700px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-/* Search Card */
+/* Floating Search Card */
 .search-card {
-  background: rgba(30, 30, 63, 0.9);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border-default);
-  padding: var(--space-xl);
-  margin-top: var(--space-xl);
+  max-width: 1040px;
+  width: 92%;
+  margin: -66px auto 0 auto;
+  /* Vertical center perfectly aligned with bottom edge of banner */
+  background: #FFFFFF;
+  /* Pure bright white (brighter than the grayer #F8F9FC page background) */
+  border: none;
+  /* Removed the border outline completely */
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 28px rgba(19, 41, 104, 0.24);
+  /* Highly saturated static shadow for stunning depth and pop */
+  padding: var(--space-lg);
+  position: relative;
+  z-index: 10;
+  transition: box-shadow var(--transition-base);
+  /* Smooth transition for shadows only (no movement) */
 }
+
+.search-card:hover {
+  /* Override global .card:hover from index.css to prevent the custom shadow from shrinking */
+  box-shadow: 0 12px 28px rgba(19, 41, 104, 0.24) !important;
+}
+
+
 
 .search-form {
   width: 100%;
 }
 
-.search-fields {
+.search-fields-grid {
   display: flex;
-  gap: var(--space-md);
+  gap: var(--space-sm);
   align-items: flex-end;
-  flex-wrap: wrap;
+  width: 100%;
 }
 
 .search-field {
-  flex: 1;
-  min-width: 200px;
+  display: flex;
+  flex-direction: column;
   text-align: left;
 }
 
 .search-field label {
-  display: block;
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: var(--font-bold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   margin-bottom: var(--space-xs);
+  padding-left: 2px;
 }
 
-.search-select,
+.autocomplete-field {
+  flex: 2.2;
+  position: relative;
+}
+
+.date-field {
+  flex: 1.4;
+}
+
+.passenger-field {
+  flex: 1.4;
+}
+
+.search-action-container {
+  flex: 1.6;
+}
+
 .search-input {
   width: 100%;
   padding: var(--space-sm) var(--space-md);
   font-size: var(--text-base);
   color: var(--text-primary);
-  background: var(--bg-surface);
+  background: var(--bg-primary);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
   height: 48px;
   transition: all var(--transition-fast);
 }
 
-.search-select:focus,
 .search-input:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-light);
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 3px rgba(19, 41, 104, 0.08);
+  background: var(--bg-secondary);
 }
 
-.search-select option {
+/* Autocomplete Suggestion Dropdowns */
+.autocomplete-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
   background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  max-height: 280px;
+  overflow-y: auto;
+  z-index: 100;
+  padding: var(--space-xs) 0;
+}
+
+.suggestions-header {
+  font-size: var(--text-xs);
+  font-weight: var(--font-bold);
+  color: var(--text-muted);
+  padding: var(--space-xs) var(--space-md);
+  background: var(--bg-elevated);
+  margin-bottom: var(--space-xs);
+}
+
+.suggestion-item {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.suggestion-item:hover {
+  background: var(--bg-elevated);
+}
+
+.suggestion-city {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
   color: var(--text-primary);
 }
 
-.search-button {
-  min-width: 160px;
+.suggestion-name {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.suggestions-empty {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  padding: var(--space-md);
+  text-align: center;
+}
+
+/* Direction Swap Button */
+.swap-button-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 48px;
+  align-self: flex-end;
+  margin-bottom: 2px;
+}
+
+.swap-button {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  color: var(--secondary);
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.swap-button:hover {
+  background: var(--border-hover);
+  transform: rotate(180deg) scale(1.05);
+  box-shadow: var(--shadow-md);
+}
+
+/* Passenger Counter Widget */
+.passenger-counter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  height: 48px;
+  padding: 0 var(--space-sm);
+}
+
+.passenger-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+  font-weight: var(--font-bold);
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.passenger-btn:hover:not(:disabled) {
+  background: var(--bg-elevated);
+  border-color: var(--border-hover);
+  transform: scale(1.05);
+}
+
+.passenger-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.passenger-count-display {
+  font-size: var(--text-base);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  min-width: 20px;
+  text-align: center;
+}
+
+/* Coral CTA Button */
+.search-button-coral {
+  width: 100%;
+  height: 48px;
+  background: var(--gradient-primary) !important;
+  color: var(--text-inverse) !important;
+  font-weight: var(--font-bold) !important;
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-md) !important;
+}
+
+.search-button-coral:hover {
+  box-shadow: var(--shadow-glow) !important;
+  transform: translateY(-1.5px);
 }
 
 .search-error {
   color: var(--error);
   font-size: var(--text-sm);
+  font-weight: var(--font-medium);
   margin-top: var(--space-md);
+  text-align: left;
+}
+
+/* Popular Routes Section */
+.popular-routes-section {
+  padding: var(--space-3xl) var(--space-lg);
+  background-color: var(--bg-secondary);
+}
+
+.section-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.section-subtitle {
+  color: var(--text-secondary);
+  margin-top: 0px;
+  margin-bottom: var(--space-2xl);
+  font-size: var(--text-base);
+}
+
+.routes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-xl);
+}
+
+.route-shortcut-card {
+  position: relative;
+  height: 110px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--bg-dark) 100%);
+  display: flex;
+  align-items: flex-end;
+  padding: var(--space-md);
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-default);
+}
+
+.route-shortcut-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 10% 90%, rgba(250, 107, 107, 0.25) 0%, transparent 60%);
+  transition: opacity var(--transition-base);
+}
+
+.route-shortcut-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg), 0 10px 20px rgba(19, 41, 104, 0.15);
+  border-color: var(--primary);
+}
+
+.route-shortcut-content {
+  position: relative;
+  z-index: 2;
+  text-align: left;
+  width: 100%;
+}
+
+.route-shortcut-content h3 {
+  font-size: var(--text-base);
+  font-weight: var(--font-bold);
+  color: var(--text-inverse);
+  margin-bottom: 2px;
+}
+
+.route-shortcut-price {
+  font-size: var(--text-sm);
+  color: var(--primary);
+  /* Coral Orange highlight */
+  font-weight: var(--font-semibold);
 }
 
 /* Features Section */
 .features-section {
   padding: var(--space-3xl) var(--space-lg);
-  background: var(--bg-secondary);
+  background-color: var(--bg-primary);
 }
 
 .features-container {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
-}
-
-.section-title {
-  text-align: center;
-  font-size: var(--text-3xl);
-  font-weight: var(--font-bold);
-  margin-bottom: var(--space-2xl);
 }
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--space-xl);
+  margin-top: var(--space-xl);
 }
 
 .feature-card {
-  background: var(--bg-surface);
+  background: var(--bg-secondary);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
   padding: var(--space-xl);
@@ -190,25 +434,27 @@
 }
 
 .feature-card:hover {
-  border-color: var(--primary);
+  border-color: var(--secondary);
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
 }
 
 .feature-icon {
-  font-size: 3rem;
+  font-size: 2.8rem;
   margin-bottom: var(--space-md);
 }
 
 .feature-card h3 {
-  font-size: var(--text-xl);
-  font-weight: var(--font-semibold);
-  margin-bottom: var(--space-sm);
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
 }
 
 .feature-card p {
   color: var(--text-secondary);
   font-size: var(--text-sm);
+  line-height: 1.5;
 }
 
 /* CTA Section */
@@ -221,36 +467,80 @@
 .cta-content {
   max-width: 600px;
   margin: 0 auto;
+  color: var(--text-inverse);
 }
 
 .cta-content h2 {
-  font-size: var(--text-3xl);
+  font-size: var(--text-2xl);
   font-weight: var(--font-bold);
   margin-bottom: var(--space-md);
 }
 
 .cta-content p {
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.8);
   margin-bottom: var(--space-xl);
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+.cta-button-coral {
+  background: var(--gradient-primary) !important;
+  color: var(--text-inverse) !important;
+  font-weight: var(--font-bold) !important;
+}
+
+.cta-button-coral:hover {
+  box-shadow: var(--shadow-glow) !important;
+  transform: translateY(-1px);
+}
+
+.text-brand-navy {
+  color: var(--secondary);
+}
+
+/* Responsive Styles */
+@media (max-width: 900px) {
   .hero-section {
-    min-height: auto;
-    padding: var(--space-xl) var(--space-md);
+    padding-top: 90px;
   }
 
-  .search-fields {
+  .hero-banner-container {
+    aspect-ratio: 2.2 / 1;
+  }
+
+  .search-fields-grid {
     flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-md);
   }
 
-  .search-field {
-    min-width: 100%;
-  }
-
-  .search-button {
+  .autocomplete-field,
+  .date-field,
+  .passenger-field,
+  .search-action-container {
+    flex: none;
     width: 100%;
+  }
+
+  .swap-button-container {
+    align-self: center;
+    margin: -10px 0 -5px 0;
+  }
+}
+
+@media (max-width: 500px) {
+  .hero-banner-container {
+    aspect-ratio: 1.8 / 1;
+  }
+
+  .hero-text-overlay {
+    padding: var(--space-md);
+  }
+
+  .hero-title {
+    font-size: 1.3rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.8rem;
   }
 }
