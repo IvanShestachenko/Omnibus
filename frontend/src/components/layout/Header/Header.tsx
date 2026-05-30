@@ -1,30 +1,29 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { Button } from '../../common';
+import logoImg from '../../../assets/logo_3.png';
 import './Header.css';
 
 export const Header: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
 
+  const isHomepage = location.pathname === '/';
+
   return (
-    <header className="header">
+    <header className={`header ${isHomepage ? 'header-transparent' : 'header-solid'}`}>
       <div className="header-container">
         <Link to="/" className="header-logo">
-          <span className="logo-icon">🚌</span>
-          <span className="logo-text">bus2holiday</span>
+          <img src={logoImg} alt="Omnibus" className="logo-image" />
         </Link>
 
-        <nav className="header-nav">
-          <Link to="/" className="nav-link">Home</Link>
-          <Link to="/search" className="nav-link">Search Trips</Link>
-        </nav>
 
         <div className="header-actions">
           {isAuthenticated ? (
@@ -46,10 +45,10 @@ export const Header: React.FC = () => {
           ) : (
             <>
               <Link to="/login">
-                <Button variant="ghost" size="sm">Login</Button>
+                <Button variant="ghost" size="md">Login</Button>
               </Link>
               <Link to="/register">
-                <Button variant="primary" size="sm">Sign Up</Button>
+                <Button variant="primary" size="md">Sign Up</Button>
               </Link>
             </>
           )}
