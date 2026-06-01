@@ -262,15 +262,29 @@ export const ParallaxBanner: React.FC<ParallaxBannerProps> = ({
 
     // 7. Dynamic camera animation loop (Pure, uninterrupted Lissajous orbital sway)
     let animationFrameId: number;
+    let lastTime = performance.now();
+    let accumulatedTime = 0;
 
     const startLoop = () => {
       const render = () => {
-        const time = performance.now() * 0.0012; // Time in seconds
+        const now = performance.now();
+        let dt = (now - lastTime) * 0.0012; // Delta time scaled
+        lastTime = now;
+
+        // Cap dt to prevent any massive spikes (e.g. if the tab was suspended/throttled)
+        if (dt > 0.1) {
+          dt = 0.1;
+        }
+
+        // Only accumulate time if the page is visible
+        if (document.visibilityState === 'visible') {
+          accumulatedTime += dt;
+        }
 
         // Premium constant Lissajous amplitudes (X: 0.45, Y: 0.65)
         // This coordinates all layers into a smooth, organic, infinite orbital camera sweep.
-        const currentX = Math.sin(time * 0.55) * 0.45;
-        const currentY = Math.cos(time * 0.45) * 0.65;
+        const currentX = Math.sin(accumulatedTime * 0.55) * 0.45;
+        const currentY = Math.cos(accumulatedTime * 0.45) * 0.65;
 
         gl.uniform2f(uOffsetLoc, currentX, currentY);
 
@@ -283,9 +297,19 @@ export const ParallaxBanner: React.FC<ParallaxBannerProps> = ({
       animationFrameId = requestAnimationFrame(render);
     };
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Reset lastTime on tab focus to prevent a large delta spike
+        lastTime = performance.now();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     // Cleanup resources on unmount
     return () => {
       window.removeEventListener('resize', resizeCanvas);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       cancelAnimationFrame(animationFrameId);
       gl.deleteBuffer(buffer);
       gl.deleteProgram(program);
