@@ -3,7 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Card } from '../components/common';
 import { routesApi, type RouteResponse } from '../api/routes';
 import { terminalsApi, type TerminalResponse } from '../api/terminals';
-import heroBannerImg from '../assets/hero_banner_4.png';
+import layer1Img from '../assets/layer_1_cut.png';
+import layer2Img from '../assets/layer_2_cut.png';
+import layer3Img from '../assets/layer_3_cut.png';
+import layer4Img from '../assets/layer_4_cut.png';
+import { ParallaxBanner } from '../components/common/ParallaxBanner/ParallaxBanner';
 import './HomePage.css';
 
 export const HomePage: React.FC = () => {
@@ -216,7 +220,13 @@ export const HomePage: React.FC = () => {
 
         <div className="hero-content">
           <div className="hero-banner-container">
-            <img src={heroBannerImg} alt="Omnibus Widescreen Journey" className="hero-banner-image" />
+            <ParallaxBanner
+              layer1Src={layer1Img}
+              layer2Src={layer2Img}
+              layer3Src={layer3Img}
+              layer4Src={layer4Img}
+              altText="Omnibus Widescreen Journey"
+            />
             <div className="hero-text-overlay">
               <h1 className="hero-title">Travel by bus all across Europe</h1>
             </div>
