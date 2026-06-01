@@ -41,13 +41,21 @@
   overflow: hidden;
 }
 
-
-
 .hero-banner-image {
   width: 100%;
   height: auto;
   /* Scales proportionally to show the entire original image */
   display: block;
+  filter: brightness(0.94);
+}
+
+.hero-banner-parallax-container {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-banner-parallax-canvas {
   filter: brightness(0.94);
 }
 
@@ -503,10 +511,6 @@
     padding-top: 90px;
   }
 
-  .hero-banner-container {
-    aspect-ratio: 2.2 / 1;
-  }
-
   .search-fields-grid {
     flex-direction: column;
     align-items: stretch;
@@ -528,10 +532,6 @@
 }
 
 @media (max-width: 500px) {
-  .hero-banner-container {
-    aspect-ratio: 1.8 / 1;
-  }
-
   .hero-text-overlay {
     padding: var(--space-md);
   }
