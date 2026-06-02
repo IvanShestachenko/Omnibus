@@ -62,30 +62,30 @@ export const ParallaxBanner: React.FC<ParallaxBannerProps> = ({
         vec2 aspectUv = (vUv - 0.5) * uScale + 0.5;
 
         // --- LAYER 1: FOREGROUND OVERLAY ---
-        // Exaggerated displacement X=0.075, Y=0.090. Safe Zoom = 1.20
-        vec2 uv1 = (aspectUv - 0.5) * (1.0 / 1.20) + 0.5;
-        uv1 -= uOffset * vec2(0.075, 0.090);
+        // Exaggerated displacement X=0.095, Y=0.115. Safe Zoom = 1.25
+        vec2 uv1 = (aspectUv - 0.5) * (1.0 / 1.25) + 0.5;
+        uv1 -= uOffset * vec2(0.095, 0.115);
         uv1 = clamp(uv1, 0.0, 1.0);
         vec4 col1 = texture2D(uLayer1, uv1);
 
         // --- LAYER 2: BUS & ROAD ---
-        // Exaggerated displacement X=0.035, Y=0.042. Safe Zoom = 1.10
-        vec2 uv2 = (aspectUv - 0.5) * (1.0 / 1.10) + 0.5;
-        uv2 -= uOffset * vec2(0.035, 0.042);
+        // Exaggerated displacement X=0.038, Y=0.046. Safe Zoom = 1.11
+        vec2 uv2 = (aspectUv - 0.5) * (1.0 / 1.11) + 0.5;
+        uv2 -= uOffset * vec2(0.038, 0.046);
         uv2 = clamp(uv2, 0.0, 1.0);
         vec4 col2 = texture2D(uLayer2, uv2);
 
         // --- LAYER 3: BRIDGE & FIELDS ---
-        // Exaggerated displacement X=0.012, Y=0.015. Safe Zoom = 1.04
-        vec2 uv3 = (aspectUv - 0.5) * (1.0 / 1.04) + 0.5;
-        uv3 -= uOffset * vec2(0.012, 0.015);
+        // Exaggerated displacement X=0.017, Y=0.021. Safe Zoom = 1.06
+        vec2 uv3 = (aspectUv - 0.5) * (1.0 / 1.06) + 0.5;
+        uv3 -= uOffset * vec2(0.017, 0.021);
         uv3 = clamp(uv3, 0.0, 1.0);
         vec4 col3 = texture2D(uLayer3, uv3);
 
         // --- LAYER 4: SKY & MOUNTAINS (BACKGROUND) ---
-        // Minimized displacement X=0.002, Y=0.002. Safe Zoom = 1.01
-        vec2 uv4 = (aspectUv - 0.5) * (1.0 / 1.01) + 0.5;
-        uv4 -= uOffset * vec2(0.002, 0.002);
+        // Minimized displacement X=0.005, Y=0.006. Safe Zoom = 1.02
+        vec2 uv4 = (aspectUv - 0.5) * (1.0 / 1.02) + 0.5;
+        uv4 -= uOffset * vec2(0.005, 0.006);
         uv4 = clamp(uv4, 0.0, 1.0);
         vec4 col4 = texture2D(uLayer4, uv4);
 
@@ -201,6 +201,9 @@ export const ParallaxBanner: React.FC<ParallaxBannerProps> = ({
       if (texturesLoaded === 4) {
         resizeCanvas(); // Trigger canvas size and aspect ratio update with loaded dimensions
         startLoop();
+        // Trigger a series of delayed fit corrections to catch scrollbar shifts or layout adjustments
+        setTimeout(resizeCanvas, 50);
+        setTimeout(resizeCanvas, 300);
       }
     };
 
