@@ -28,17 +28,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: var(--space-md) var(--space-lg);
+  max-width: 100%;
+  width: 100%;
+  padding: 0.8rem 3%;
   gap: var(--space-xl);
 }
 
 .header-logo {
-  position: absolute;
-  top: 50%; /* Mathematically center the logo vertically */
-  transform: translateY(-50%); /* Shift by 50% of own height for pixel-perfect center alignment */
-  left: 3%; /* Fixed percentage offset from the left edge of the page, closer to the side */
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -46,10 +42,20 @@
 }
 
 .logo-image {
-  height: 75px;
+  height: 66px; /* Scaled 1.1x from 60px for a refined logo scale */
   width: auto;
   object-fit: contain;
   display: block;
+}
+
+@media (max-width: 768px) {
+  .header-container {
+    padding: 0.5rem var(--space-md);
+  }
+
+  .logo-image {
+    height: 46px; /* Scaled 1.1x from 42px on mobile and tablets */
+  }
 }
 .header-actions {
   display: flex;
