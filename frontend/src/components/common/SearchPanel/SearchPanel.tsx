@@ -72,6 +72,34 @@ export const SearchPanel: React.FC = () => {
     fetchRoutes();
   }, []);
 
+  // Listen for popular route selections from the home page
+  useEffect(() => {
+    const handlePopularRouteSelect = (e: Event) => {
+      const customEvent = e as CustomEvent<{ fromCity: string; toCity: string }>;
+      const { fromCity, toCity } = customEvent.detail;
+
+      if (terminals.length > 0) {
+        const fromTerm = terminals.find(t => t.city.toLowerCase() === fromCity.toLowerCase());
+        const toTerm = terminals.find(t => t.city.toLowerCase() === toCity.toLowerCase());
+
+        if (fromTerm) {
+          setFromTerminal(fromTerm);
+          setFromSearch(`${fromTerm.city}, ${fromTerm.name}`);
+        }
+        if (toTerm) {
+          setToTerminal(toTerm);
+          setToSearch(`${toTerm.city}, ${toTerm.name}`);
+        }
+        setIsSwapped(false); // Reset visual swap flip state
+      }
+    };
+
+    window.addEventListener('popular-route-select', handlePopularRouteSelect);
+    return () => {
+      window.removeEventListener('popular-route-select', handlePopularRouteSelect);
+    };
+  }, [terminals]);
+
   // Caching Terminal retrieval in LocalStorage (24h TTL)
   useEffect(() => {
     const loadTerminals = async () => {
@@ -249,8 +277,8 @@ export const SearchPanel: React.FC = () => {
               >
                 <svg
                   viewBox="0 0 24 24"
-                  width="18"
-                  height="18"
+                  width="20" /* TO ADJUST SVG SIZE: Change width and height here to match the swap button container size (e.g., 20 is even to prevent subpixel layout jerks) */
+                  height="20"
                   stroke="currentColor"
                   strokeWidth="2.2"
                   fill="none"
@@ -330,6 +358,16 @@ export const SearchPanel: React.FC = () => {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
+              onClick={(e) => {
+                try {
+                  const target = e.currentTarget as HTMLInputElement & { showPicker?: () => void };
+                  if (typeof target.showPicker === 'function') {
+                    target.showPicker();
+                  }
+                } catch {
+                  // Empty catch to avoid unused variable warnings
+                }
+              }}
               min={new Date().toISOString().split('T')[0]}
               required
               className="search-input"
@@ -345,8 +383,11 @@ export const SearchPanel: React.FC = () => {
                 onClick={() => setPassengers(p => Math.max(1, p - 1))}
                 disabled={passengers <= 1}
                 className="passenger-btn"
+                aria-label="Decrease passenger count"
               >
-                −
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
               </button>
               <span className="passenger-count-display">{passengers}</span>
               <button
@@ -354,8 +395,12 @@ export const SearchPanel: React.FC = () => {
                 onClick={() => setPassengers(p => Math.min(9, p + 1))}
                 disabled={passengers >= 9}
                 className="passenger-btn"
+                aria-label="Increase passenger count"
               >
-                +
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                </svg>
               </button>
             </div>
           </div>
