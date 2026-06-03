@@ -2,6 +2,17 @@ import React from 'react';
 import './Footer.css';
 
 export const Footer: React.FC = () => {
+  const handleHashLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    if (window.location.pathname === '/') {
+      e.preventDefault();
+      const element = document.getElementById(targetId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        window.history.pushState(null, '', `/#${targetId}`);
+      }
+    }
+  };
+
   return (
     <footer className="footer">
       <div className="footer-container">
@@ -13,8 +24,8 @@ export const Footer: React.FC = () => {
         <nav className="footer-links" aria-label="Footer Navigation">
           <section className="footer-section">
             <h4>Travel</h4>
-            <a href="/#search-panel">Find Trips</a>
-            <a href="/#popular-routes">Popular Routes</a>
+            <a href="/#search-panel" onClick={(e) => handleHashLinkClick(e, 'search-panel')}>Find Trips</a>
+            <a href="/#popular-routes" onClick={(e) => handleHashLinkClick(e, 'popular-routes')}>Popular Routes</a>
           </section>
 
           <section className="footer-section">
