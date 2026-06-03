@@ -115,7 +115,20 @@
   text-align: center;
 }
 
+.section-title {
+  text-align: center;
+  text-transform: none;
+  color: var(--secondary);
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-sm);
+}
+
+.section-title .text-brand-navy {
+  color: var(--secondary);
+}
+
 .section-subtitle {
+  text-align: center;
   color: var(--text-secondary);
   margin-top: 0px;
   margin-bottom: 25px;
@@ -326,22 +339,57 @@
 
 /* We are constantly expanding our fleet! Video Section */
 .fleet-section {
-  padding: 48px var(--space-lg);
+  padding: 60px var(--space-lg) 73px var(--space-lg);
   background-color: #F2F5F8;
   /* Soft Blue-Gray Section background for alternating layout */
+}
+
+.fleet-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.fleet-header {
   text-align: center;
+  margin-bottom: 44px;
+}
+
+.fleet-tag {
+  display: inline-block;
+  font-size: var(--text-xs);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.fleet-content-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+.fleet-video-column {
+  position: relative;
 }
 
 .fleet-video-wrapper {
   position: relative;
-  max-width: 800px;
-  margin: 0 auto;
+  z-index: 1;
+  width: 100%;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 20px 40px rgba(19, 41, 104, 0.15);
   background: #000000;
   transform: translate3d(0, 0, 0);
   will-change: transform;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.fleet-video-wrapper:hover {
+  box-shadow: 0 24px 48px rgba(19, 41, 104, 0.22);
 }
 
 .fleet-video {
@@ -349,8 +397,6 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
-  transform: translate3d(0, 0, 0);
-  will-change: transform;
 }
 
 .fleet-video-title {
@@ -358,7 +404,7 @@
   top: 20px;
   left: 20px;
   color: #FFFFFF;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: var(--font-bold);
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
   pointer-events: none;
@@ -371,6 +417,79 @@
 .fleet-video-title.fade-out {
   opacity: 0;
   transform: translateY(-8px);
+}
+
+.fleet-text-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fleet-text-column h3 {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--secondary);
+  line-height: 1.25;
+}
+
+.fleet-description {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.fleet-features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.fleet-feature-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.fleet-feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background-color: var(--primary-light);
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.fleet-feature-text h4 {
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.fleet-feature-text p {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* Responsive grid for video section */
+@media (max-width: 900px) {
+  .fleet-content-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .fleet-text-column {
+    text-align: center;
+  }
+
+  .fleet-feature-item {
+    text-align: left;
+  }
 }
 
 /* Deals Section */
@@ -396,20 +515,21 @@
   /* Light blue card background */
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
-  padding: 32px;
+  padding: 29px 32px;
   gap: 24px;
   text-align: left;
   box-shadow: 0 12px 28px rgba(19, 41, 104, 0.24);
   /* Rich shadow like trip search panel, does not react to hover */
   position: relative;
   overflow: hidden;
+  color: var(--secondary);
 }
 
 .deal-card-header {
   width: 100%;
   border-bottom: 1px solid var(--border-default);
-  padding-bottom: 20px;
-  margin-bottom: 8px;
+  padding-bottom: 18px;
+  margin-bottom: 7px;
   position: relative;
   z-index: 2;
 }
@@ -417,7 +537,7 @@
 .deal-card-section-title {
   font-size: 2.2rem;
   font-weight: var(--font-bold);
-  color: var(--text-primary);
+  color: var(--secondary);
   margin: 0;
   text-align: left;
 }
@@ -425,7 +545,7 @@
 .deal-card-body {
   display: flex;
   gap: 32px;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   position: relative;
   z-index: 2;
@@ -438,21 +558,21 @@
 .deal-info h3 {
   font-size: 1.6rem;
   font-weight: var(--font-bold);
-  color: var(--text-primary);
+  color: #2D3748;
   margin-bottom: 8px;
 }
 
 .deal-tagline {
   font-size: var(--text-base);
-  color: var(--primary);
-  /* Coral Orange highlight */
+  color: var(--secondary);
+  /* Navy blue color */
   font-weight: var(--font-semibold);
   margin-bottom: 12px;
 }
 
 .deal-description {
   font-size: var(--text-sm);
-  color: var(--text-secondary);
+  color: var(--secondary);
   line-height: 1.6;
   margin: 0;
 }
