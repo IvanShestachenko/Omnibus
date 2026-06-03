@@ -18,11 +18,14 @@ export const ParallaxBanner: React.FC<ParallaxBannerProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hasWebGL, setHasWebGL] = useState(true);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
+
+    let isMounted = true;
 
     // 1. Get WebGL context
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl') as WebGLRenderingContext | null;
@@ -142,11 +145,11 @@ export const ParallaxBanner: React.FC<ParallaxBannerProps> = ({
     // 5. Plane Geometry (2 triangles making a full screen quad)
     const vertices = new Float32Array([
       -1, -1,
-       1, -1,
-      -1,  1,
-      -1,  1,
-       1, -1,
-       1,  1,
+      1, -1,
+      -1, 1,
+      -1, 1,
+      1, -1,
+      1, 1,
     ]);
 
     const buffer = gl.createBuffer();
@@ -168,8 +171,8 @@ export const ParallaxBanner: React.FC<ParallaxBannerProps> = ({
     // 6. Texture Loading helper
     let texturesLoaded = 0;
     const initTexture = (
-      imageElement: HTMLImageElement, 
-      textureUnit: number, 
+      imageElement: HTMLImageElement,
+      textureUnit: number,
       uniformLoc: WebGLUniformLocation | null
     ) => {
       const texture = gl.createTexture();
@@ -178,7 +181,7 @@ export const ParallaxBanner: React.FC<ParallaxBannerProps> = ({
 
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      
+
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
@@ -198,28 +201,37 @@ export const ParallaxBanner: React.FC<ParallaxBannerProps> = ({
     const img4 = new Image();
 
     const checkStartLoop = () => {
+      if (!isMounted) return;
       if (texturesLoaded === 4) {
         resizeCanvas(); // Trigger canvas size and aspect ratio update with loaded dimensions
         startLoop();
         // Trigger a series of delayed fit corrections to catch scrollbar shifts or layout adjustments
-        setTimeout(resizeCanvas, 50);
-        setTimeout(resizeCanvas, 300);
+        setTimeout(() => {
+          if (isMounted) resizeCanvas();
+        }, 50);
+        setTimeout(() => {
+          if (isMounted) resizeCanvas();
+        }, 300);
       }
     };
 
     img1.onload = () => {
+      if (!isMounted) return;
       initTexture(img1, 0, uLayer1Loc);
       checkStartLoop();
     };
     img2.onload = () => {
+      if (!isMounted) return;
       initTexture(img2, 1, uLayer2Loc);
       checkStartLoop();
     };
     img3.onload = () => {
+      if (!isMounted) return;
       initTexture(img3, 2, uLayer3Loc);
       checkStartLoop();
     };
     img4.onload = () => {
+      if (!isMounted) return;
       initTexture(img4, 3, uLayer4Loc);
       checkStartLoop();
     };
@@ -231,7 +243,7 @@ export const ParallaxBanner: React.FC<ParallaxBannerProps> = ({
 
     // Handle container resizing to preserve widescreen dimensions without stretching
     const resizeCanvas = () => {
-      if (!canvas || !container) return;
+      if (!canvas || !container || !isMounted) return;
 
       const width = container.clientWidth;
       const height = container.clientHeight;
@@ -261,16 +273,38 @@ export const ParallaxBanner: React.FC<ParallaxBannerProps> = ({
       gl.uniform2f(uScaleLoc, scaleX, scaleY);
     };
 
-    window.addEventListener('resize', resizeCanvas);
+    const handleResize = () => {
+      if (isMounted) resizeCanvas();
+    };
+    window.addEventListener('resize', handleResize);
 
-    // 7. Dynamic camera animation loop (Pure, uninterrupted Lissajous orbital sway)
+    // 7. Setup IntersectionObserver to pause rendering when off-screen (GPU optimization)
+    let isVisible = true;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (isMounted) {
+          isVisible = entry.isIntersecting;
+        }
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(container);
+
+    // 8. Dynamic camera animation loop (Pure, uninterrupted Lissajous orbital sway)
     let animationFrameId: number;
     let lastTime = performance.now();
     let accumulatedTime = 0;
-
+    let firstFrameRendered = false;
     const startLoop = () => {
       const render = () => {
+        if (!isMounted) return; // Exit loop completely if unmounted
         const now = performance.now();
+        if (!isVisible) {
+          lastTime = now; // Prevent delta spike on resume
+          animationFrameId = requestAnimationFrame(render);
+          return;
+        }
+
         let dt = (now - lastTime) * 0.0012; // Delta time scaled
         lastTime = now;
 
@@ -285,7 +319,7 @@ export const ParallaxBanner: React.FC<ParallaxBannerProps> = ({
         }
 
         // Premium constant Lissajous amplitudes (X: 0.45, Y: 0.65)
-        // This coordinates all layers into a smooth, organic, infinite orbital camera sweep.
+        // This coordinates all layers into a organic, infinite orbital camera sweep.
         const currentX = Math.sin(accumulatedTime * 0.55) * 0.45;
         const currentY = Math.cos(accumulatedTime * 0.45) * 0.65;
 
@@ -295,12 +329,18 @@ export const ParallaxBanner: React.FC<ParallaxBannerProps> = ({
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
 
+        if (!firstFrameRendered) {
+          firstFrameRendered = true;
+          setIsLoaded(true);
+        }
+
         animationFrameId = requestAnimationFrame(render);
       };
       animationFrameId = requestAnimationFrame(render);
     };
 
     const handleVisibilityChange = () => {
+      if (!isMounted) return;
       if (document.visibilityState === 'visible') {
         // Reset lastTime on tab focus to prevent a large delta spike
         lastTime = performance.now();
@@ -311,9 +351,11 @@ export const ParallaxBanner: React.FC<ParallaxBannerProps> = ({
 
     // Cleanup resources on unmount
     return () => {
-      window.removeEventListener('resize', resizeCanvas);
+      isMounted = false;
+      window.removeEventListener('resize', handleResize);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       cancelAnimationFrame(animationFrameId);
+      observer.disconnect();
       gl.deleteBuffer(buffer);
       gl.deleteProgram(program);
       gl.deleteShader(vs);
@@ -326,9 +368,9 @@ export const ParallaxBanner: React.FC<ParallaxBannerProps> = ({
   }
 
   return (
-    <div 
-      ref={containerRef} 
-      className="hero-banner-parallax-container" 
+    <div
+      ref={containerRef}
+      className="hero-banner-parallax-container"
       style={{ position: 'relative', width: '100%', overflow: 'hidden' }}
     >
       {/* 
@@ -336,33 +378,33 @@ export const ParallaxBanner: React.FC<ParallaxBannerProps> = ({
         It stretches naturally to 100% width and calculates its own height automatically 
         based on the original image aspect ratio. 
       */}
-      <img 
-        src={layer4Src} 
-        alt={altText} 
-        className="hero-banner-image" 
-        style={{ 
-          width: '100%', 
-          height: 'auto', 
-          display: 'block', 
-          opacity: 0, 
-          pointerEvents: 'none' 
-        }} 
+      <img
+        src={layer4Src}
+        alt={altText}
+        className="hero-banner-image"
+        style={{
+          width: '100%',
+          height: 'auto',
+          display: 'block',
+          opacity: 0,
+          pointerEvents: 'none'
+        }}
       />
-      
+
       {/* 
         The WebGL canvas overlays absolutely on top of the transparent image space, 
         matching its dimensions pixel-for-pixel with perfect quality. 
       */}
-      <canvas 
-        ref={canvasRef} 
-        className="hero-banner-parallax-canvas" 
-        style={{ 
-          position: 'absolute', 
-          top: 0, 
-          left: 0, 
-          width: '100%', 
-          height: '100%', 
-          display: 'block' 
+      <canvas
+        ref={canvasRef}
+        className={`hero-banner-parallax-canvas ${isLoaded ? 'loaded' : ''}`}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          display: 'block'
         }}
       />
     </div>
