@@ -1,15 +1,19 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Footer.css';
 
 export const Footer: React.FC = () => {
+  const navigate = useNavigate();
+
   const handleHashLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
-    if (window.location.pathname === '/') {
+    const element = document.getElementById(targetId);
+    if (element) {
       e.preventDefault();
-      const element = document.getElementById(targetId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        window.history.pushState(null, '', `/#${targetId}`);
-      }
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      window.history.pushState(null, '', `${window.location.pathname}#${targetId}`);
+    } else {
+      e.preventDefault();
+      navigate(`/#${targetId}`);
     }
   };
 
