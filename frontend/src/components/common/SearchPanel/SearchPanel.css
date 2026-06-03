@@ -147,17 +147,20 @@
 }
 
 .input-with-swap-container .search-input {
-  padding-right: 44px; /* Ensure text doesn't overflow under inline button */
+  padding-right: 44px;
+  /* Ensure text doesn't overflow under inline button */
 }
 
 .swap-button-inline {
   position: absolute;
   right: 14px;
-  top: 12px; /* Centered perfectly inside 48px height parent input: (48px - 24px) / 2 = 12px */
+  top: 10px;
+  /* Centered perfectly inside 48px height parent input: (48px - 28px) / 2 = 10px */
   transform: rotate(0deg);
   background: transparent;
   border: none;
-  color: var(--secondary); /* Thematic Dark Navy by default */
+  color: var(--secondary);
+  /* Thematic Dark Navy by default */
   font-size: 1.35rem;
   font-weight: var(--font-bold);
   display: flex;
@@ -168,13 +171,17 @@
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease;
   transform-origin: center center;
   padding: 0;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  /* TO ADJUST SWAP BUTTON SIZE: Change width and height here (e.g., 28px is 1.15x of original 24px). Also update SVG width/height in SearchPanel.tsx accordingly. */
+  height: 28px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* Swapped state: color changes to primary orange and rotates 180deg (flip effect) */
 .swap-button-inline.swapped {
-  color: var(--primary); /* Thematic Coral Orange */
+  color: var(--primary);
+  /* Thematic Coral Orange */
   transform: rotate(180deg);
 }
 
@@ -204,6 +211,7 @@
   justify-content: center;
   cursor: pointer;
   transition: all var(--transition-fast);
+  padding: 0;
 }
 
 .passenger-btn:hover:not(:disabled) {
@@ -252,8 +260,10 @@
 /* Responsive Styles */
 @media (max-width: 900px) {
   .search-card {
-    margin: -14px auto 0 auto; /* Reduced overlap for an elegant, spacious transition */
-    width: 92%;
+    margin: -20px auto 0 auto;
+    /* Reduced overlap for an elegant, spacious transition */
+    width: 86%;
+    /* TO ADJUST PANEL WIDTH / SIDE MARGINS ON MOBILE: Change this percentage (e.g., 86% leaves 14% total space, creating a 7% margin on each side. Decrease percentage to make panel narrower / increase margins). */
     padding: var(--space-md);
   }
 
@@ -274,12 +284,23 @@
   /* Mobile Inline Swap Button Adjustment */
   .swap-button-inline {
     top: auto;
-    bottom: -28px; /* Floats perfectly in the gap/label space of vertical stack */
+    bottom: -30px;
+    /* Floats perfectly in the gap/label space of vertical stack (adjusted for 28px button) */
     right: 20px;
-    transform: rotate(90deg); /* Turn horizontal arrows ⇄ into vertical arrows ⇅ */
+    transform: rotate(90deg);
+    /* Turn horizontal arrows ⇄ into vertical arrows ⇅ */
   }
 
   .swap-button-inline.swapped {
-    transform: rotate(270deg); /* Swapped vertical flip */
+    transform: rotate(270deg);
+    /* Swapped vertical flip */
+  }
+}
+
+/* Dynamic negative margin adjustments between mobile breakpoint (900px) and the resolution where banner min-height takes effect (1280px) */
+@media (min-width: 901px) and (max-width: 1280px) {
+  .search-card {
+    /* Formula: (Visual Image height 32.8vw) - (Parent min-height 420px) - (Desired overlap 66px) */
+    margin-top: calc(32.8vw - 486px);
   }
 }
