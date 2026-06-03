@@ -340,6 +340,8 @@
   overflow: hidden;
   box-shadow: var(--shadow-lg);
   background: #000000;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
 }
 
 .fleet-video {
@@ -347,6 +349,8 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
 }
 
 .fleet-video-title {
