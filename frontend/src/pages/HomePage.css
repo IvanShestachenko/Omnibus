@@ -235,14 +235,14 @@
 }
 
 .feature-icon svg {
-  color: var(--secondary);
-  /* Default: Royal Navy (blue) */
+  color: var(--primary);
+  /* Default: Coral Orange */
   transition: color var(--transition-base), transform var(--transition-base);
 }
 
 .feature-card:hover .feature-icon svg {
-  color: var(--primary);
-  /* Hover: Coral Orange */
+  color: var(--secondary);
+  /* Hover: Royal Navy (blue) */
   transform: scale(1.1);
   /* Smooth scale up on hover */
 }
