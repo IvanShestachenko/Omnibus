@@ -1,56 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button, SearchPanel } from '../components/common';
-import { routesApi, type RouteResponse } from '../api/routes';
-import layer1Img from '../assets/layer_1_cut.png';
-import layer2Img from '../assets/layer_2_cut.png';
-import layer3Img from '../assets/layer_3_cut.png';
-import layer4Img from '../assets/layer_4_cut.png';
+import React, { useState } from 'react';
+import { SearchPanel } from '../components/common';
+import layer1Img from '../assets/layer_1_cut.webp';
+import layer2Img from '../assets/layer_2_cut.webp';
+import layer3Img from '../assets/layer_3_cut.webp';
+import layer4Img from '../assets/layer_4_cut.webp';
+import fleetVideo from '../assets/2020_Setra_S515_HD_Walkaround.mp4';
 import { ParallaxBanner } from '../components/common/ParallaxBanner/ParallaxBanner';
 import './HomePage.css';
 
 export const HomePage: React.FC = () => {
-  const navigate = useNavigate();
-  const [routes, setRoutes] = useState<RouteResponse[]>([]);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
-  // Load routes to navigate directly for Popular Routes quick search
-  useEffect(() => {
-    const fetchRoutes = async () => {
-      try {
-        const data = await routesApi.getAll();
-        setRoutes(data);
-      } catch (err) {
-        console.error('Failed to load routes', err);
-      }
-    };
-    fetchRoutes();
-  }, []);
-
-  const findMatchingRouteId = (fromCity: string, toCity: string): number | null => {
-    for (const route of routes) {
-      if (route.stops.length < 2) continue;
-
-      const sortedStops = [...route.stops].sort((a, b) => a.sequenceOrder - b.sequenceOrder);
-      const originStop = sortedStops[0];
-      const destStop = sortedStops[sortedStops.length - 1];
-
-      if (
-        originStop.city.toLowerCase() === fromCity.toLowerCase() &&
-        destStop.city.toLowerCase() === toCity.toLowerCase()
-      ) {
-        return route.id;
-      }
-    }
-    return null;
-  };
-
-  // Quick search popular route triggers (Navigates directly for premium instant UX!)
+  // Populates the Search Panel inputs with the selected popular route cities
   const handleQuickSearch = (fromCity: string, toCity: string) => {
-    const matchingRouteId = findMatchingRouteId(fromCity, toCity);
-    if (matchingRouteId) {
-      const todayStr = new Date().toISOString().split('T')[0];
-      navigate(`/search?routeId=${matchingRouteId}&date=${todayStr}&passengers=1`);
-    }
+    const event = new CustomEvent('popular-route-select', {
+      detail: { fromCity, toCity }
+    });
+    window.dispatchEvent(event);
   };
 
   return (
@@ -74,12 +40,50 @@ export const HomePage: React.FC = () => {
           </div>
 
           {/* Floating Search Panel */}
-          <SearchPanel />
+          <div id="search-panel">
+            <SearchPanel />
+          </div>
+        </div>
+      </section>
+
+      {/* Deals Section */}
+      <section className="deals-section">
+        <div className="section-container">
+          <div className="deals-column">
+            {/* Capital Explorer Deal Card */}
+            <div className="deal-card">
+              <div className="voucher-glow-shape voucher-shape-2" />
+              <div className="voucher-glow-shape voucher-shape-3" />
+              <div className="voucher-glow-shape voucher-shape-4" />
+              <div className="deal-card-header">
+                <h2 className="deal-card-section-title"><span className="text-brand-navy">Omnibus</span> offers</h2>
+              </div>
+              <div className="deal-card-body">
+                <div className="deal-info">
+                  <h3>Capital Explorer Challenge</h3>
+                  <p className="deal-tagline">Collect capitals, earn a free journey!</p>
+                  <p className="deal-description">
+                    Embark on an Omnibus adventure across Europe. Travel to <strong>3 different capital cities</strong> within 3 months, collect your journey stamps, and we will give you a ticket for the <strong>4th trip absolutely free</strong>.
+                  </p>
+                </div>
+                <div className="deal-voucher-container">
+                  <div className="deal-voucher">
+                    <div className="voucher-badge">Travel Reward</div>
+                    <div className="voucher-amount">100% FREE</div>
+                    <div className="voucher-label">4th trip voucher</div>
+                    <button className="voucher-btn" type="button" onClick={() => handleQuickSearch('Prague', 'Budapest')}>
+                      Start Your Challenge
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Popular Routes Section */}
-      <section className="popular-routes-section">
+      <section className="popular-routes-section" id="popular-routes">
         <div className="section-container">
           <h2 className="section-title">Popular Routes</h2>
           <p className="section-subtitle">Quick access to the most popular destinations in Europe</p>
@@ -127,25 +131,80 @@ export const HomePage: React.FC = () => {
 
           <div className="features-grid">
             <div className="feature-card">
-              <div className="feature-icon">💰</div>
+              <div className="feature-icon">
+                <svg viewBox="0 0 24 24" width="44" height="44" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" />
+                  <path d="M12 6v12M15 9H11.5a2.5 2.5 0 0 0 0 5h2a2.5 2.5 0 0 1 0 5H9" />
+                </svg>
+              </div>
               <h3>Best Prices</h3>
               <p>Competitive prices with no hidden fees. Save money on every trip.</p>
             </div>
 
             <div className="feature-card">
-              <div className="feature-icon">🛋️</div>
+              <div className="feature-icon">
+                <svg viewBox="11 12 78 78" width="44" height="44" fill="currentColor">
+                  {/* Headrest Left Segment */}
+                  <path d="M 40,13 H 42.5 V 25 H 40 C 38.9,25 38,24.1 38,23 V 15 C 38,13.9 38.9,13 40,13 Z" />
+                  {/* Headrest Middle Segment */}
+                  <rect x="45.5" y="13" width="9" height="12" rx="1.5" />
+                  {/* Headrest Right Segment */}
+                  <path d="M 57.5,13 H 60 C 61.1,13 62,13.9 62,15 V 23 C 62,24.1 61.1,25 60,25 H 57.5 V 13 Z" />
+
+                  {/* Backrest Wings */}
+                  <path d="M 34,27 C 35.5,27 36.5,28 37,29 C 35.8,35 35,45 35,79 H 28.2 C 28.2,70 28.5,50 31,38 C 32,33 33,29 34,27 Z" />
+                  <path d="M 66,27 C 64.5,27 63.5,28 63,29 C 64.2,35 65,45 65,79 H 71.8 C 71.8,70 71.5,50 69,38 C 68,33 67,29 66,27 Z" />
+
+                  {/* Backrest Center Section */}
+                  {/* Top block with slot */}
+                  <path fillRule="evenodd" d="M 40,27 H 60 C 60.5,29 60.8,32 61,39 H 39 C 39.2,32 39.5,29 40,27 Z M 56,33 H 44 C 43.2,33 42.5,33.7 42.5,34.5 C 42.5,35.3 43.2,36 44,36 H 56 C 56.8,36 57.5,35.3 57.5,34.5 C 57.5,33.7 56.8,33 56,33 Z" />
+                  {/* Second block */}
+                  <path d="M 38.8,41 H 61.2 V 51 H 38.8 Z" />
+                  {/* Third block */}
+                  <path d="M 38.3,53 H 61.7 V 63 H 38.3 Z" />
+                  {/* Fourth block */}
+                  <path d="M 38,65 H 62 V 79 H 38 Z" />
+
+                  {/* Bottom Cradle */}
+                  <path d="M 30,71 A 3,3 0 0 0 24,71 V 81 C 24,85.4 27.6,89 32,89 H 68 C 72.4,89 76,85.4 76,81 V 71 A 3,3 0 0 0 70,71 V 77 C 70,79.8 67.8,82 65,82 H 35 C 32.2,82 30,79.8 30,77 Z" />
+                </svg>
+              </div>
               <h3>Comfort First</h3>
               <p>Modern buses with spacious seats, WiFi, and power outlets.</p>
             </div>
 
             <div className="feature-card">
-              <div className="feature-icon">🕐</div>
+              <div className="feature-icon">
+                <svg viewBox="0 0 24 24" width="44" height="44" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21.5 2v6h-6" />
+                  <path d="M21.34 15.57a10 10 0 1 1-.57-8.38l.73-.73" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+              </div>
               <h3>On Time</h3>
               <p>Reliable schedules with real-time tracking of your bus.</p>
             </div>
 
             <div className="feature-card">
-              <div className="feature-icon">🌍</div>
+              <div className="feature-icon">
+                <svg viewBox="15 15 72 72" width="44" height="44" fill="currentColor">
+                  {/* Connectors */}
+                  <line x1="36" y1="56" x2="70" y2="62" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
+                  <line x1="70" y1="62" x2="45" y2="78" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
+
+                  {/* Top-left Crescent */}
+                  <path d="M 20,52 C 18,55 22,61 30,61 C 38,61 42,55 40,52 C 39,50.5 37.5,50.5 36.5,52 C 35,54 33,55 30,55 C 27,55 25,54 23.5,52 C 22.5,50.5 21,50.5 20,52 Z" />
+
+                  {/* Right Ellipse */}
+                  <ellipse cx="70" cy="62" rx="13" ry="7" />
+
+                  {/* Bottom Ellipse */}
+                  <ellipse cx="45" cy="78" rx="14" ry="8" />
+
+                  {/* Map Pin */}
+                  <path fillRule="evenodd" d="M 30,50 C 26,42 19,37 19,28 C 19,21.9 23.9,17 30,17 C 36.1,17 41,21.9 41,28 C 41,37 34,42 30,50 Z M 30,23.5 C 27.5,23.5 25.5,25.5 25.5,28 C 25.5,30.5 27.5,32.5 30,32.5 C 32.5,32.5 34.5,30.5 34.5,28 C 34.5,25.5 32.5,23.5 30,23.5 Z" />
+                </svg>
+              </div>
               <h3>Wide Network</h3>
               <p>Travel to hundreds of destinations across Europe.</p>
             </div>
@@ -153,16 +212,31 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="cta-section">
-        <div className="cta-content">
-          <h2>Ready to explore?</h2>
-          <p>Join thousands of travelers who trust us for their journeys.</p>
-          <Button variant="primary" size="lg" onClick={() => navigate('/register')} className="cta-button-coral">
-            Get Started — It's Free
-          </Button>
+
+      {/* Video Section */}
+      <section className="fleet-section">
+        <div className="section-container">
+          <h2 className="section-title"><span className="text-brand-navy">Omnibus</span> is constantly expanding its fleet!</h2>
+          <p className="section-subtitle">Take a look inside one of our modern buses</p>
+
+          <div className="fleet-video-wrapper">
+            <video
+              src={fleetVideo}
+              preload="metadata"
+              controls
+              onPlay={() => setIsVideoPlaying(true)}
+              onPause={() => setIsVideoPlaying(false)}
+              onEnded={() => setIsVideoPlaying(false)}
+              className="fleet-video"
+            />
+            <div className={`fleet-video-title ${isVideoPlaying ? 'fade-out' : ''}`}>
+              2020 Setra S515 HD Walkaround
+            </div>
+          </div>
         </div>
       </section>
+
+
     </div>
   );
 };
