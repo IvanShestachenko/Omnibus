@@ -39,6 +39,7 @@
   align-items: center;
   text-decoration: none;
   z-index: 10;
+  flex-shrink: 0;
 }
 
 .logo-image {
