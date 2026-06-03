@@ -311,13 +311,7 @@
   }
 }
 
-/* Adjust desktop hero text overlay bottom position between mobile breakpoint (900px) and the resolution where banner min-height takes effect (1280px) */
-@media (min-width: 901px) and (max-width: 1280px) {
-  .hero-text-overlay {
-    /* Formula: (Parent min-height 420px) - (Visual Image height 32.8vw) + (Desired bottom clearance 110px) */
-    bottom: calc(490px - 32.8vw);
-  }
-}
+
 
 @media (max-width: 600px) {
   .route-shortcut-card {

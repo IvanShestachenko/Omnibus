@@ -296,11 +296,3 @@
     /* Swapped vertical flip */
   }
 }
-
-/* Dynamic negative margin adjustments between mobile breakpoint (900px) and the resolution where banner min-height takes effect (1280px) */
-@media (min-width: 901px) and (max-width: 1280px) {
-  .search-card {
-    /* Formula: (Visual Image height 32.8vw) - (Parent min-height 420px) - (Desired overlap 66px) */
-    margin-top: calc(32.8vw - 486px);
-  }
-}
