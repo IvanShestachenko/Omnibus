@@ -128,6 +128,7 @@ export const HomePage: React.FC = () => {
       <section className="features-section">
         <div className="features-container">
           <h2 className="section-title">Why Choose <span className="text-brand-navy">Omnibus</span></h2>
+          <p className="section-subtitle">Discover what makes us the preferred choice for millions of travelers</p>
 
           <div className="features-grid">
             <div className="feature-card">
@@ -215,22 +216,104 @@ export const HomePage: React.FC = () => {
 
       {/* Video Section */}
       <section className="fleet-section">
-        <div className="section-container">
-          <h2 className="section-title"><span className="text-brand-navy">Omnibus</span> is constantly expanding its fleet!</h2>
-          <p className="section-subtitle">Take a look inside one of our modern buses</p>
+        <div className="fleet-container">
+          <div className="fleet-header">
+            <h2 className="section-title">Our Fleet</h2>
+            <p className="section-subtitle">Take a look inside our modern and fully-equipped long-distance buses</p>
+          </div>
 
-          <div className="fleet-video-wrapper">
-            <video
-              src={fleetVideo}
-              preload="metadata"
-              controls
-              onPlay={() => setIsVideoPlaying(true)}
-              onPause={() => setIsVideoPlaying(false)}
-              onEnded={() => setIsVideoPlaying(false)}
-              className="fleet-video"
-            />
-            <div className={`fleet-video-title ${isVideoPlaying ? 'fade-out' : ''}`}>
-              2020 Setra S515 HD Walkaround
+          <div className="fleet-content-grid">
+            <div className="fleet-video-column">
+              <div className="fleet-video-glow" />
+              <div className="fleet-video-wrapper">
+                <video
+                  src={fleetVideo}
+                  preload="metadata"
+                  controls
+                  onPlay={() => setIsVideoPlaying(true)}
+                  onPause={() => setIsVideoPlaying(false)}
+                  onEnded={() => setIsVideoPlaying(false)}
+                  className="fleet-video"
+                />
+                <div className={`fleet-video-title ${isVideoPlaying ? 'fade-out' : ''}`}>
+                  2020 Setra S515 HD Walkaround
+                </div>
+              </div>
+            </div>
+
+            <div className="fleet-text-column">
+              <h3>Setra S515 HD: The Comfort Standard</h3>
+              <p className="fleet-description">
+                Experience a new level of travel comfort on our long-distance European routes. 
+                The Setra S515 HD combines first-class engineering with premium amenities to ensure your journey is as relaxing as it is safe.
+              </p>
+              
+              <div className="fleet-features-list">
+                <div className="fleet-feature-item">
+                  <div className="fleet-feature-icon">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 12.55a11 11 0 0 1 14.08 0" />
+                      <path d="M1.42 9a16 16 0 0 1 21.16 0" />
+                      <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+                      <line x1="12" y1="20" x2="12.01" y2="20" />
+                    </svg>
+                  </div>
+                  <div className="fleet-feature-text">
+                    <h4>High-speed Wi-Fi</h4>
+                    <p>Stay connected, work, or stream content seamlessly.</p>
+                  </div>
+                </div>
+
+                <div className="fleet-feature-item">
+                  <div className="fleet-feature-icon">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="6" y="2" width="12" height="20" rx="2" />
+                      <line x1="11" y1="5" x2="13" y2="5" />
+                      <path d="M13 8.5 L9.5 13 h5 L11 17.5" />
+                      <circle cx="12" cy="20" r="0.5" fill="currentColor" stroke="none" />
+                    </svg>
+                  </div>
+                  <div className="fleet-feature-text">
+                    <h4>USB & Power Outlets</h4>
+                    <p>Keep all your devices fully charged throughout the ride.</p>
+                  </div>
+                </div>
+
+                <div className="fleet-feature-item">
+                  <div className="fleet-feature-icon">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="9.5" y="2.5" width="5" height="3.5" rx="1.2" />
+                      <path d="M11 6 v1.5 M13 6 v1.5" />
+                      <rect x="6.5" y="7.5" width="11" height="9.5" rx="2" />
+                      <rect x="5" y="17" width="14" height="3.5" rx="1.2" />
+                      <path d="M9 21 h6" />
+                    </svg>
+                  </div>
+                  <div className="fleet-feature-text">
+                    <h4>Adjustable Seats</h4>
+                    <p>Spacious seating with extra legroom for maximum comfort.</p>
+                  </div>
+                </div>
+
+                <div className="fleet-feature-item">
+                  <div className="fleet-feature-icon">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="2" y1="12" x2="22" y2="12" />
+                      <line x1="12" y1="2" x2="12" y2="22" />
+                      <path d="m20 16-4-4 4-4" />
+                      <path d="m4 8 4 4-4 4" />
+                      <path d="m16 4-4 4-4-4" />
+                      <path d="m8 20 4-4 4 4" />
+                      <line x1="19" y1="5" x2="5" y2="19" />
+                      <line x1="19" y1="19" x2="5" y2="5" />
+                    </svg>
+                  </div>
+                  <div className="fleet-feature-text">
+                    <h4>Climate Control</h4>
+                    <p>Individually controlled ventilation and temperature settings.</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
