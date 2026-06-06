@@ -17,6 +17,11 @@ export const HomePage: React.FC = () => {
       detail: { fromCity, toCity }
     });
     window.dispatchEvent(event);
+
+    const element = document.getElementById('search-panel');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   };
 
   return (
@@ -42,42 +47,6 @@ export const HomePage: React.FC = () => {
           {/* Floating Search Panel */}
           <div id="search-panel">
             <SearchPanel />
-          </div>
-        </div>
-      </section>
-
-      {/* Deals Section */}
-      <section className="deals-section">
-        <div className="section-container">
-          <div className="deals-column">
-            {/* Capital Explorer Deal Card */}
-            <div className="deal-card">
-              <div className="voucher-glow-shape voucher-shape-2" />
-              <div className="voucher-glow-shape voucher-shape-3" />
-              <div className="voucher-glow-shape voucher-shape-4" />
-              <div className="deal-card-header">
-                <h2 className="deal-card-section-title"><span className="text-brand-navy">Omnibus</span> offers</h2>
-              </div>
-              <div className="deal-card-body">
-                <div className="deal-info">
-                  <h3>Capital Explorer Challenge</h3>
-                  <p className="deal-tagline">Collect capitals, earn a free journey!</p>
-                  <p className="deal-description">
-                    Embark on an Omnibus adventure across Europe. Travel to <strong>3 different capital cities</strong> within 3 months, collect your journey stamps, and we will give you a ticket for the <strong>4th trip absolutely free</strong>.
-                  </p>
-                </div>
-                <div className="deal-voucher-container">
-                  <div className="deal-voucher">
-                    <div className="voucher-badge">Travel Reward</div>
-                    <div className="voucher-amount">100% FREE</div>
-                    <div className="voucher-label">4th trip voucher</div>
-                    <button className="voucher-btn" type="button" onClick={() => handleQuickSearch('Prague', 'Budapest')}>
-                      Start Your Challenge
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -119,6 +88,66 @@ export const HomePage: React.FC = () => {
                 <h3>Brno ➔ Bratislava</h3>
                 <span className="route-shortcut-price">from $14.99</span>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Deals Section */}
+      <section className="deals-section">
+        <div className="section-container">
+          <div className="deals-column">
+            {/* Capital Explorer Deal Card */}
+            <div className="deal-card">
+              <div className="voucher-glow-shape voucher-shape-2" />
+              <div className="voucher-glow-shape voucher-shape-3" />
+              <div className="voucher-glow-shape voucher-shape-4" />
+              <div className="deal-card-header">
+                <h2 className="deal-card-section-title"><span className="text-brand-navy">Omnibus</span> offers</h2>
+              </div>
+              <div className="deal-card-body">
+                <div className="deal-info">
+                  <h3>Capital Explorer Challenge</h3>
+                  <p className="deal-tagline">Collect capitals, earn a free journey!</p>
+                  <p className="deal-description">
+                    Embark on an Omnibus adventure across Europe. Travel to <strong>3 different capital cities</strong> within 3 months, collect your journey stamps, and we will give you a ticket for the <strong>4th trip absolutely free</strong>.
+                  </p>
+                </div>
+                <div className="deal-voucher-container">
+                  <div className="deal-voucher">
+                    <div className="voucher-badge">Travel Reward</div>
+                    <div className="voucher-amount">100% FREE</div>
+                    <div className="voucher-label">4th trip voucher</div>
+                    <button className="voucher-btn" type="button" onClick={() => handleQuickSearch('Prague', 'Budapest')}>
+                      Start Your Challenge
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Statistics Section */}
+      <section className="stats-section">
+        <div className="section-container">
+          <div className="stats-grid">
+            <div className="stat-item">
+              <div className="stat-number">100+</div>
+              <div className="stat-label">European Cities</div>
+            </div>
+            <div className="stat-item">
+              <div className="stat-number">53</div>
+              <div className="stat-label">Active Routes</div>
+            </div>
+            <div className="stat-item">
+              <div className="stat-number">19M+</div>
+              <div className="stat-label">Happy Travelers</div>
+            </div>
+            <div className="stat-item">
+              <div className="stat-number">250+</div>
+              <div className="stat-label">Daily Connections</div>
             </div>
           </div>
         </div>
@@ -244,10 +273,10 @@ export const HomePage: React.FC = () => {
             <div className="fleet-text-column">
               <h3>Setra S515 HD: The Comfort Standard</h3>
               <p className="fleet-description">
-                Experience a new level of travel comfort on our long-distance European routes. 
+                Experience a new level of travel comfort on our long-distance European routes.
                 The Setra S515 HD combines first-class engineering with premium amenities to ensure your journey is as relaxing as it is safe.
               </p>
-              
+
               <div className="fleet-features-list">
                 <div className="fleet-feature-item">
                   <div className="fleet-feature-icon">
