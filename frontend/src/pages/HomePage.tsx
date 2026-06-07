@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SearchPanel } from '../components/common';
 import layer1Img from '../assets/layer_1_cut.webp';
 import layer2Img from '../assets/layer_2_cut.webp';
@@ -10,6 +10,21 @@ import './HomePage.css';
 
 export const HomePage: React.FC = () => {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [videoSrc, setVideoSrc] = useState<string>('');
+
+  // Defer video loading until the main page is fully loaded
+  useEffect(() => {
+    const loadVideo = () => {
+      setVideoSrc(fleetVideo);
+    };
+
+    if (document.readyState === 'complete') {
+      loadVideo();
+    } else {
+      window.addEventListener('load', loadVideo);
+      return () => window.removeEventListener('load', loadVideo);
+    }
+  }, []);
 
   // Populates the Search Panel inputs with the selected popular route cities
   const handleQuickSearch = (fromCity: string, toCity: string) => {
@@ -256,8 +271,8 @@ export const HomePage: React.FC = () => {
               <div className="fleet-video-glow" />
               <div className="fleet-video-wrapper">
                 <video
-                  src={fleetVideo}
-                  preload="metadata"
+                  src={videoSrc || undefined}
+                  preload="auto"
                   controls
                   onPlay={() => setIsVideoPlaying(true)}
                   onPause={() => setIsVideoPlaying(false)}
