@@ -78,6 +78,8 @@ public class SecurityConfig {
                                         .permitAll()
                                         .requestMatchers("/api/routes/**")
                                         .permitAll()
+                                        .requestMatchers("/api/terminals/**")
+                                        .permitAll()
                                         .requestMatchers("/error")
                                         .permitAll()
                                         .anyRequest()

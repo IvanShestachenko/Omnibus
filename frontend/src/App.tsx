@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { Header, Footer } from './components/layout';
 import { ProtectedRoute } from './components/common';
@@ -42,11 +43,31 @@ const NotFoundPage = () => (
   </div>
 );
 
+const ScrollToHash = () => {
+  const { pathname, hash } = useLocation();
+
+  useEffect(() => {
+    if (hash) {
+      const timer = setTimeout(() => {
+        const id = hash.replace('#', '');
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [pathname, hash]);
+
+  return null;
+};
+
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <div className="app">
+          <ScrollToHash />
           <Header />
           <main className="main">
             <Routes>

@@ -3,16 +3,17 @@ import api from './client';
 export interface RouteResponse {
   id: number;
   name: string;
-  description: string;
+  isActive: boolean;
   stops: RouteStopResponse[];
 }
 
 export interface RouteStopResponse {
-  id: number;
-  terminalId: number;
   terminalName: string;
-  stopOrder: number;
-  distanceFromStart: number;
+  city: string;
+  sequenceOrder: number;
+  arrivalOffsetMinutes: number;
+  departureOffsetMinutes: number;
+  distanceFromOrigin: number;
 }
 
 export const routesApi = {
