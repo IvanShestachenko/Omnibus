@@ -3,13 +3,13 @@
    =================================== */
 
 .search-card {
-  max-width: 1040px;
+  max-width: 1050px;
   width: 92%;
   margin: -66px auto 0 auto;
   /* Vertical center perfectly aligned with bottom edge of banner */
   background: #FFFFFF;
   border: none;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   box-shadow: 0 12px 28px rgba(19, 41, 104, 0.24);
   padding: var(--space-lg);
   position: relative;
@@ -89,7 +89,8 @@
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
-  right: 0;
+  width: max-content;
+  min-width: 125%;
   background: var(--bg-surface);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
@@ -111,14 +112,49 @@
 
 .suggestion-item {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
   padding: var(--space-sm) var(--space-md);
   cursor: pointer;
   transition: background var(--transition-fast);
+  border-bottom: 1px solid var(--border-default);
+  white-space: nowrap;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
 }
 
 .suggestion-item:hover {
   background: var(--bg-elevated);
+}
+
+.suggestion-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background-color: rgba(19, 41, 104, 0.06);
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
+.suggestion-separator {
+  color: var(--text-muted);
+  font-weight: var(--font-normal);
+}
+
+.suggestion-terminal {
+  color: var(--text-secondary);
+  font-weight: var(--font-medium);
+}
+
+.suggestion-details {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .suggestion-city {
@@ -258,7 +294,7 @@
 }
 
 /* Responsive Styles */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .search-card {
     margin: -20px auto 0 auto;
     /* Reduced overlap for an elegant, spacious transition */
