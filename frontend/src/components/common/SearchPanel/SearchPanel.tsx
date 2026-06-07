@@ -5,6 +5,74 @@ import { routesApi, type RouteResponse } from '../../../api/routes';
 import { terminalsApi, type TerminalResponse } from '../../../api/terminals';
 import './SearchPanel.css';
 
+// Suggestion Icons
+const PinIcon: React.FC = () => (
+  <svg
+    viewBox="0 0 24 24"
+    width="16"
+    height="16"
+    stroke="currentColor"
+    strokeWidth="1.25"
+    fill="none"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{ flexShrink: 0, color: 'var(--secondary)' }}
+  >
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+);
+
+const BusIcon: React.FC = () => (
+  <svg
+    viewBox="0 0 24 24"
+    width="20"
+    height="20"
+    stroke="currentColor"
+    strokeWidth="1.1"
+    fill="none"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{ flexShrink: 0, color: 'var(--secondary)' }}
+  >
+    <rect x="4" y="3" width="16" height="15" rx="3" />
+    <rect x="6" y="6" width="12" height="5" rx="1" />
+    <circle cx="8" cy="15" r="1" />
+    <circle cx="16" cy="15" r="1" />
+    <path d="M6 18v3" />
+    <path d="M18 21v-3" />
+  </svg>
+);
+
+// Diacritic & Accent Normalization
+const normalizeText = (text: string): string => {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+};
+
+// Word-boundary Prefix Search
+const matchesSearch = (text: string, query: string): boolean => {
+  const normalizedText = normalizeText(text);
+  const normalizedQuery = normalizeText(query);
+  if (!normalizedQuery) return true;
+  
+  const words = normalizedText.split(/[\s,.-]+/);
+  return words.some(word => word.startsWith(normalizedQuery));
+};
+
+// Clean terminal name by stripping the city name prefix
+const getCleanTerminalName = (cityName: string, terminalName: string): string => {
+  const cityLower = cityName.toLowerCase();
+  const nameLower = terminalName.toLowerCase();
+  
+  if (nameLower.startsWith(cityLower)) {
+    return terminalName.substring(cityName.length).replace(/^[\s,.-]+/, '');
+  }
+  return terminalName;
+};
+
 export const SearchPanel: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -103,20 +171,21 @@ export const SearchPanel: React.FC = () => {
   // Caching Terminal retrieval in LocalStorage (24h TTL)
   useEffect(() => {
     const loadTerminals = async () => {
-      const cached = localStorage.getItem('cached_terminals');
-      const cacheTime = localStorage.getItem('cached_terminals_time');
+      const cachedStr = localStorage.getItem('cached_terminals');
       const now = new Date().getTime();
       const oneDay = 24 * 60 * 60 * 1000;
 
       let freshTerminals: TerminalResponse[] = [];
 
       // 1. Try valid cache first
-      if (cached && cacheTime && (now - parseInt(cacheTime)) < oneDay) {
+      if (cachedStr) {
         try {
-          const parsed = JSON.parse(cached);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setTerminals(parsed);
-            freshTerminals = parsed;
+          const parsed = JSON.parse(cachedStr);
+          if (parsed && Array.isArray(parsed.data) && typeof parsed.expiry === 'number') {
+            if (now < parsed.expiry) {
+              setTerminals(parsed.data);
+              freshTerminals = parsed.data;
+            }
           }
         } catch (e) {
           console.warn('Failed to parse cached terminals', e);
@@ -129,17 +198,24 @@ export const SearchPanel: React.FC = () => {
           const data = await terminalsApi.getAll();
           setTerminals(data);
           freshTerminals = data;
-          localStorage.setItem('cached_terminals', JSON.stringify(data));
-          localStorage.setItem('cached_terminals_time', now.toString());
+          
+          const cacheWrapper = {
+            data,
+            expiry: now + oneDay
+          };
+          localStorage.setItem('cached_terminals', JSON.stringify(cacheWrapper));
         } catch (err) {
           console.error('Failed to load terminals from API', err);
           // Fallback to expired cache if API is offline
-          if (cached) {
+          if (cachedStr) {
             try {
-              const parsed = JSON.parse(cached);
-              if (Array.isArray(parsed) && parsed.length > 0) {
-                setTerminals(parsed);
-                freshTerminals = parsed;
+              const parsed = JSON.parse(cachedStr);
+              if (parsed) {
+                const fallbackData = Array.isArray(parsed) ? parsed : parsed.data;
+                if (Array.isArray(fallbackData) && fallbackData.length > 0) {
+                  setTerminals(fallbackData);
+                  freshTerminals = fallbackData;
+                }
               }
             } catch (e) {
               console.error('Failed to parse fallback cached terminals', e);
@@ -175,31 +251,130 @@ export const SearchPanel: React.FC = () => {
   const getFilteredSuggestions = (search: string, excludedTerminal: TerminalResponse | null) => {
     const cleanSearch = search.trim().toLowerCase();
 
-    // If search is empty, suggest first 5 terminals
-    if (cleanSearch === '') {
-      return terminals
-        .filter(t => t.id !== excludedTerminal?.id)
-        .slice(0, 5);
+    // Show popular destinations when less than 2 characters are entered
+    if (cleanSearch.length < 2) {
+      const popularCityNames = ['Prague', 'Brno', 'Bratislava', 'Budapest', 'Wrocław'];
+      const suggested: TerminalResponse[] = [];
+
+      popularCityNames.forEach(cityName => {
+        const cityLower = cityName.toLowerCase();
+        if (excludedTerminal && excludedTerminal.city.toLowerCase() === cityLower) {
+          return;
+        }
+
+        const sampleTerm = terminals.find(t => t.city.toLowerCase() === cityLower);
+        const country = sampleTerm ? sampleTerm.country : (
+          cityName === 'Prague' || cityName === 'Brno' ? 'Czech Republic' :
+          cityName === 'Bratislava' ? 'Slovakia' :
+          cityName === 'Budapest' ? 'Hungary' :
+          'Poland'
+        );
+
+        const termIndex = terminals.findIndex(term => term.city.toLowerCase() === cityLower);
+        const id = termIndex !== -1 ? -1000 - termIndex : -2000 - popularCityNames.indexOf(cityName);
+
+        suggested.push({
+          id,
+          name: 'All stations',
+          city: cityName,
+          country
+        });
+      });
+
+      return suggested;
     }
 
-    return terminals.filter(t =>
-      t.id !== excludedTerminal?.id && (
-        t.name.toLowerCase().includes(cleanSearch) ||
-        t.city.toLowerCase().includes(cleanSearch) ||
-        t.country.toLowerCase().includes(cleanSearch)
+    // Helper to determine if a terminal belongs to the excluded selection (same terminal OR same city)
+    const isExcluded = (t: TerminalResponse) => {
+      if (!excludedTerminal) return false;
+      return t.id === excludedTerminal.id || t.city.toLowerCase() === excludedTerminal.city.toLowerCase();
+    };
+
+    // Filter terminals matching prefix word-boundaries
+    const matches = terminals.filter(t =>
+      !isExcluded(t) && (
+        matchesSearch(t.city, cleanSearch) ||
+        matchesSearch(t.name, cleanSearch) ||
+        matchesSearch(t.country, cleanSearch)
       )
     );
+
+    // Group matches into: City matches vs other matches (only terminal/country matched)
+    const matchedCities = Array.from(new Set(matches.map(t => t.city)));
+    
+    // Split into priority cities (where city name itself matches query) and secondary cities
+    const priorityCities = matchedCities.filter(cityName => matchesSearch(cityName, cleanSearch));
+    const secondaryCities = matchedCities.filter(cityName => !matchesSearch(cityName, cleanSearch));
+
+    const suggested: TerminalResponse[] = [];
+    const addedCities = new Set<string>();
+
+    // 1. Process priority cities first: add city header and ALL of its terminals
+    priorityCities.forEach(cityName => {
+      const cityLower = cityName.toLowerCase();
+      if (addedCities.has(cityLower)) return;
+      addedCities.add(cityLower);
+
+      // Find first real terminal to get the country name
+      const sampleTerm = terminals.find(t => t.city.toLowerCase() === cityLower);
+      if (!sampleTerm) return;
+
+      // Add the city header (virtual terminal)
+      suggested.push({
+        id: -1000 - terminals.findIndex(term => term.city.toLowerCase() === cityLower),
+        name: 'All stations',
+        city: cityName,
+        country: sampleTerm.country
+      });
+
+      // Add ALL terminals of this city in the database (except excluded ones)
+      const cityTerminals = terminals.filter(t => t.city.toLowerCase() === cityLower && !isExcluded(t));
+      suggested.push(...cityTerminals);
+    });
+
+    // 2. Process secondary cities next: add city header and ONLY the terminals that matched
+    secondaryCities.forEach(cityName => {
+      const cityLower = cityName.toLowerCase();
+      if (addedCities.has(cityLower)) return;
+      addedCities.add(cityLower);
+
+      // Find first real terminal to get the country name
+      const sampleTerm = terminals.find(t => t.city.toLowerCase() === cityLower);
+      if (!sampleTerm) return;
+
+      // Add the city header (virtual terminal)
+      suggested.push({
+        id: -1000 - terminals.findIndex(term => term.city.toLowerCase() === cityLower),
+        name: 'All stations',
+        city: cityName,
+        country: sampleTerm.country
+      });
+
+      // Add ONLY the matching terminals of this city
+      const cityMatchingTerminals = matches.filter(t => t.city.toLowerCase() === cityLower);
+      suggested.push(...cityMatchingTerminals);
+    });
+
+    return suggested;
   };
 
   const handleSelectFrom = (terminal: TerminalResponse) => {
     setFromTerminal(terminal);
-    setFromSearch(`${terminal.city}, ${terminal.name}`);
+    const cleanName = getCleanTerminalName(terminal.city, terminal.name);
+    const displayText = terminal.name === 'All stations' 
+      ? `${terminal.city}, ${terminal.country}` 
+      : `${terminal.city} – ${cleanName}`;
+    setFromSearch(displayText);
     setShowFromSuggestions(false);
   };
 
   const handleSelectTo = (terminal: TerminalResponse) => {
     setToTerminal(terminal);
-    setToSearch(`${terminal.city}, ${terminal.name}`);
+    const cleanName = getCleanTerminalName(terminal.city, terminal.name);
+    const displayText = terminal.name === 'All stations' 
+      ? `${terminal.city}, ${terminal.country}` 
+      : `${terminal.city} – ${cleanName}`;
+    setToSearch(displayText);
     setShowToSuggestions(false);
   };
 
@@ -293,19 +468,37 @@ export const SearchPanel: React.FC = () => {
             {showFromSuggestions && (
               <div className="autocomplete-suggestions">
                 <div className="suggestions-header">
-                  {fromSearch.trim() === '' ? '📍 Popular Stations' : '📍 Matching Locations'}
+                  {fromSearch.trim().length < 2 ? 'Popular Destinations' : 'Matching Locations'}
                 </div>
                 {getFilteredSuggestions(fromSearch, toTerminal).length > 0 ? (
-                  getFilteredSuggestions(fromSearch, toTerminal).map((term) => (
-                    <div
-                      key={term.id}
-                      className="suggestion-item"
-                      onClick={() => handleSelectFrom(term)}
-                    >
-                      <span className="suggestion-city">{term.city}</span>
-                      <span className="suggestion-name">{term.name}, {term.country}</span>
-                    </div>
-                  ))
+                  getFilteredSuggestions(fromSearch, toTerminal).map((term) => {
+                    const cleanName = getCleanTerminalName(term.city, term.name);
+                    return (
+                      <div
+                        key={term.id}
+                        className="suggestion-item"
+                        style={term.name !== 'All stations' ? { paddingLeft: '44px' } : undefined}
+                        onClick={() => handleSelectFrom(term)}
+                      >
+                        <div className="suggestion-icon-wrapper">
+                          {term.name === 'All stations' ? <PinIcon /> : <BusIcon />}
+                        </div>
+                        <div className="suggestion-details">
+                          {term.name === 'All stations' ? (
+                            <span className="suggestion-city">
+                              {term.city}<span className="suggestion-separator">, {term.country}</span>
+                            </span>
+                          ) : (
+                            <span className="suggestion-city">
+                              {term.city}
+                              <span className="suggestion-separator"> – </span>
+                              <span className="suggestion-terminal">{cleanName}</span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
                 ) : (
                   <div className="suggestions-empty">No locations found</div>
                 )}
@@ -331,19 +524,37 @@ export const SearchPanel: React.FC = () => {
             {showToSuggestions && (
               <div className="autocomplete-suggestions">
                 <div className="suggestions-header">
-                  {toSearch.trim() === '' ? '📍 Popular Stations' : '📍 Matching Locations'}
+                  {toSearch.trim().length < 2 ? 'Popular Destinations' : 'Matching Locations'}
                 </div>
                 {getFilteredSuggestions(toSearch, fromTerminal).length > 0 ? (
-                  getFilteredSuggestions(toSearch, fromTerminal).map((term) => (
-                    <div
-                      key={term.id}
-                      className="suggestion-item"
-                      onClick={() => handleSelectTo(term)}
-                    >
-                      <span className="suggestion-city">{term.city}</span>
-                      <span className="suggestion-name">{term.name}, {term.country}</span>
-                    </div>
-                  ))
+                  getFilteredSuggestions(toSearch, fromTerminal).map((term) => {
+                    const cleanName = getCleanTerminalName(term.city, term.name);
+                    return (
+                      <div
+                        key={term.id}
+                        className="suggestion-item"
+                        style={term.name !== 'All stations' ? { paddingLeft: '44px' } : undefined}
+                        onClick={() => handleSelectTo(term)}
+                      >
+                        <div className="suggestion-icon-wrapper">
+                          {term.name === 'All stations' ? <PinIcon /> : <BusIcon />}
+                        </div>
+                        <div className="suggestion-details">
+                          {term.name === 'All stations' ? (
+                            <span className="suggestion-city">
+                              {term.city}<span className="suggestion-separator">, {term.country}</span>
+                            </span>
+                          ) : (
+                            <span className="suggestion-city">
+                              {term.city}
+                              <span className="suggestion-separator"> – </span>
+                              <span className="suggestion-terminal">{cleanName}</span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
                 ) : (
                   <div className="suggestions-empty">No locations found</div>
                 )}
