@@ -147,16 +147,30 @@ export const SearchPanel: React.FC = () => {
       const { fromCity, toCity } = customEvent.detail;
 
       if (terminals.length > 0) {
-        const fromTerm = terminals.find(t => t.city.toLowerCase() === fromCity.toLowerCase());
-        const toTerm = terminals.find(t => t.city.toLowerCase() === toCity.toLowerCase());
+        const fromSample = terminals.find(t => t.city.toLowerCase() === fromCity.toLowerCase());
+        const toSample = terminals.find(t => t.city.toLowerCase() === toCity.toLowerCase());
 
-        if (fromTerm) {
-          setFromTerminal(fromTerm);
-          setFromSearch(`${fromTerm.city}, ${fromTerm.name}`);
+        if (fromSample) {
+          const fromIndex = terminals.findIndex(t => t.city.toLowerCase() === fromCity.toLowerCase());
+          const virtualFrom: TerminalResponse = {
+            id: -1000 - fromIndex,
+            name: 'All stations',
+            city: fromSample.city,
+            country: fromSample.country
+          };
+          setFromTerminal(virtualFrom);
+          setFromSearch(`${virtualFrom.city}, ${virtualFrom.country}`);
         }
-        if (toTerm) {
-          setToTerminal(toTerm);
-          setToSearch(`${toTerm.city}, ${toTerm.name}`);
+        if (toSample) {
+          const toIndex = terminals.findIndex(t => t.city.toLowerCase() === toCity.toLowerCase());
+          const virtualTo: TerminalResponse = {
+            id: -1000 - toIndex,
+            name: 'All stations',
+            city: toSample.city,
+            country: toSample.country
+          };
+          setToTerminal(virtualTo);
+          setToSearch(`${virtualTo.city}, ${virtualTo.country}`);
         }
         setIsSwapped(false); // Reset visual swap flip state
       }

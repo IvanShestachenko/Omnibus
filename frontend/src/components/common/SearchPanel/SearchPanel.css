@@ -155,12 +155,17 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .suggestion-city {
   font-size: var(--text-base);
   font-weight: var(--font-semibold);
   color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .suggestion-name {
@@ -315,6 +320,14 @@
   .search-action-container {
     flex: none;
     width: 100%;
+  }
+
+  /* In vertical version, dropdown panel shouldn't exceed search panel width */
+  .autocomplete-suggestions {
+    width: 100% !important;
+    min-width: 100% !important;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
 
   /* Mobile Inline Swap Button Adjustment */
