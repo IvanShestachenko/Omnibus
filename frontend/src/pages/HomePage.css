@@ -104,7 +104,7 @@
 }
 
 .popular-routes-section {
-  padding: 48px var(--space-lg) var(--space-3xl) var(--space-lg);
+  padding: 40px var(--space-lg) 53px var(--space-lg);
   background-color: #F2F5F8;
   /* Soft Blue-Gray Section background for alternating layout */
 }
@@ -137,7 +137,7 @@
 
 .routes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--space-lg);
   margin-top: 30px;
 }
@@ -192,7 +192,7 @@
 
 /* Features Section */
 .features-section {
-  padding: var(--space-3xl) var(--space-lg);
+  padding: calc(var(--space-3xl) / 1.2) var(--space-lg);
   background-color: #FFFFFF;
   /* Pure White background for alternating layout */
 }
@@ -204,7 +204,7 @@
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--space-xl);
   margin-top: var(--space-xl);
 }
@@ -267,7 +267,7 @@
 }
 
 /* Responsive Styles */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .hero-banner-container {
     height: 38vw;
     /* Highly responsive horizontal rectangular aspect ratio to show the full bus and bridge journey scene */
@@ -339,7 +339,7 @@
 
 /* We are constantly expanding our fleet! Video Section */
 .fleet-section {
-  padding: 60px var(--space-lg) 73px var(--space-lg);
+  padding: 50px var(--space-lg) 61px var(--space-lg);
   background-color: #F2F5F8;
   /* Soft Blue-Gray Section background for alternating layout */
 }
@@ -477,7 +477,7 @@
 }
 
 /* Responsive grid for video section */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .fleet-content-grid {
     grid-template-columns: 1fr;
     gap: 40px;
@@ -494,7 +494,7 @@
 
 /* Deals Section */
 .deals-section {
-  padding: 24px var(--space-lg) 64px var(--space-lg);
+  padding: 24px var(--space-lg) 29px var(--space-lg);
   background-color: #FFFFFF;
   /* Pure White background for alternating layout */
   text-align: center;
@@ -714,7 +714,7 @@
 
 /* Statistics Section */
 .stats-section {
-  padding: 56px var(--space-lg);
+  padding: 47px var(--space-lg);
   background-color: #F2F5F8;
   border-top: 1px solid var(--border-default);
   border-bottom: 1px solid var(--border-default);
