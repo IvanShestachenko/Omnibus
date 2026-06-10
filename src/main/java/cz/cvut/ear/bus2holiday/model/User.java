@@ -30,6 +30,15 @@ public class User extends BaseEntity {
     @Column(unique = true, length = 20)
     private String phone;
 
+    @Column(name = "preferred_currency", nullable = false, length = 10)
+    private String preferredCurrency = "EUR";
+
+    @Column(name = "country", length = 100)
+    private String country;
+
+    @Column(name = "avatar_data", columnDefinition = "TEXT")
+    private String avatarData;
+
     @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
 
@@ -86,6 +95,30 @@ public class User extends BaseEntity {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getPreferredCurrency() {
+        return preferredCurrency;
+    }
+
+    public void setPreferredCurrency(String preferredCurrency) {
+        this.preferredCurrency = preferredCurrency;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getAvatarData() {
+        return avatarData;
+    }
+
+    public void setAvatarData(String avatarData) {
+        this.avatarData = avatarData;
     }
 
     public String getFirstName() {

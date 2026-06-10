@@ -37,8 +37,13 @@ public class Reservation extends BaseEntity {
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private ReservationStatus status = ReservationStatus.PENDING;
 
-    @Column(name = "booking_date", nullable = false)
-    private OffsetDateTime bookingDate = OffsetDateTime.now();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "origin_route_stop_id", nullable = false)
+    private RouteStop originRouteStop;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "target_route_stop_id", nullable = false)
+    private RouteStop targetRouteStop;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -94,12 +99,20 @@ public class Reservation extends BaseEntity {
         this.status = status;
     }
 
-    public OffsetDateTime getBookingDate() {
-        return bookingDate;
+    public RouteStop getOriginRouteStop() {
+        return originRouteStop;
     }
 
-    public void setBookingDate(OffsetDateTime bookingDate) {
-        this.bookingDate = bookingDate;
+    public void setOriginRouteStop(RouteStop originRouteStop) {
+        this.originRouteStop = originRouteStop;
+    }
+
+    public RouteStop getTargetRouteStop() {
+        return targetRouteStop;
+    }
+
+    public void setTargetRouteStop(RouteStop targetRouteStop) {
+        this.targetRouteStop = targetRouteStop;
     }
 
     public OffsetDateTime getCreatedAt() {
