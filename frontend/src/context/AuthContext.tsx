@@ -7,6 +7,10 @@ interface User {
   firstName: string;
   lastName: string;
   role: string;
+  phone?: string;
+  preferredCurrency?: string;
+  country?: string;
+  avatarData?: string;
 }
 
 interface AuthContextType {
@@ -15,34 +19,38 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
+  register: (
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+    phone?: string,
+    preferredCurrency?: string,
+    country?: string,
+    avatarData?: string
+  ) => Promise<void>;
   logout: () => void;
+  updateUser: (userData: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Check for existing token on mount
-    const storedToken = localStorage.getItem('token');
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
+  const [user, setUser] = useState<User | null>(() => {
     const storedUser = localStorage.getItem('user');
-
-    if (storedToken && storedUser) {
+    if (storedUser) {
       try {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
+        return JSON.parse(storedUser);
       } catch {
-        // Invalid data in localStorage — clear it
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       }
     }
-    setIsLoading(false);
-  }, []);
+    return null;
+  });
+  const [isLoading] = useState(false);
+
 
   // Sync React state when Axios interceptor clears localStorage on 401
   useEffect(() => {
@@ -66,8 +74,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('user', JSON.stringify(response.user));
   };
 
-  const register = async (email: string, password: string, firstName: string, lastName: string) => {
-    await authApi.register({ email, password, firstName, lastName });
+  const register = async (
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+    phone?: string,
+    preferredCurrency?: string,
+    country?: string,
+    avatarData?: string
+  ) => {
+    const response: AuthResponse = await authApi.register({
+      email,
+      password,
+      firstName,
+      lastName,
+      phone,
+      preferredCurrency,
+      country,
+      avatarData,
+    });
+
+    setToken(response.accessToken);
+    setUser(response.user);
+
+    localStorage.setItem('token', response.accessToken);
+    localStorage.setItem('user', JSON.stringify(response.user));
   };
 
   const logout = () => {
@@ -75,6 +107,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+  };
+
+  const updateUser = (userData: User) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
   return (
@@ -87,6 +124,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         login,
         register,
         logout,
+        updateUser,
       }}
     >
       {children}
@@ -94,6 +132,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
