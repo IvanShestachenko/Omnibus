@@ -4,4 +4,5 @@ export { tripsApi } from './trips';
 export { routesApi } from './routes';
 export { reservationsApi } from './reservations';
 export { terminalsApi } from './terminals';
+export { usersApi } from './users';
 
