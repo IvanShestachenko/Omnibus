@@ -12,11 +12,11 @@ public record ReservationResponse(
         BigDecimal totalAmount,
         LocalDate createdAt,
         TripSummary trip,
+        String originTerminalName,
+        String targetTerminalName,
         List<PassengerResponse> passengers) {
     public record TripSummary(Long id, String routeName, LocalDateTime departure) {}
 
     public record PassengerResponse(
-            String firstName, String lastName, List<SegmentInfo> segments) {}
-
-    public record SegmentInfo(String seatNumber, int fromStop, int toStop) {}
+            String firstName, String lastName, String seatNumber) {}
 }

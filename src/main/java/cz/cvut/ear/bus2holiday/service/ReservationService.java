@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
@@ -29,20 +30,19 @@ import java.util.UUID;
 public class ReservationService {
 
     private final ReservationRepository reservationRepo;
-
-    private final BookedSegmentRepository segmentRepo;
+    private final ReservationPassengerRepository passengerRepo;
     private final TripRepository tripRepo;
     private final UserRepository userRepo;
     private final RouteStopRepository routeStopRepo;
 
     public ReservationService(
             ReservationRepository reservationRepo,
-            BookedSegmentRepository segmentRepo,
+            ReservationPassengerRepository passengerRepo,
             TripRepository tripRepo,
             UserRepository userRepo,
             RouteStopRepository routeStopRepo) {
         this.reservationRepo = reservationRepo;
-        this.segmentRepo = segmentRepo;
+        this.passengerRepo = passengerRepo;
         this.tripRepo = tripRepo;
         this.userRepo = userRepo;
         this.routeStopRepo = routeStopRepo;
@@ -56,7 +56,6 @@ public class ReservationService {
 
     @Transactional
     public Reservation createReservation(ReservationRequest request) {
-
         User user =
                 userRepo.findById(request.userId())
                         .orElseThrow(
@@ -70,13 +69,27 @@ public class ReservationService {
                                         new EntityNotFoundException(
                                                 "Trip not found: " + request.tripId()));
 
-        for (PassengerSeatRequest psr : request.passengers()) {
-            if (psr.fromStopOrder() >= psr.toStopOrder()) {
-                throw new IllegalArgumentException("fromStopOrder must be less than toStopOrder");
-            }
+        if (request.passengers().isEmpty()) {
+            throw new IllegalArgumentException("Reservation must have at least one passenger");
+        }
 
-            if (!isSeatAvailable(
-                    trip.getId(), psr.seatNumber(), psr.fromStopOrder(), psr.toStopOrder())) {
+        // Validate seats and acquire lock
+        PassengerSeatRequest firstPsr = request.passengers().get(0);
+        int fromStopOrder = firstPsr.fromStopOrder();
+        int toStopOrder = firstPsr.toStopOrder();
+
+        RouteStop originStop =
+                routeStopRepo
+                        .findByRouteIdAndSequenceOrder(trip.getRoute().getId(), fromStopOrder)
+                        .orElseThrow(() -> new EntityNotFoundException("Origin RouteStop not found"));
+
+        RouteStop targetStop =
+                routeStopRepo
+                        .findByRouteIdAndSequenceOrder(trip.getRoute().getId(), toStopOrder)
+                        .orElseThrow(() -> new EntityNotFoundException("Target RouteStop not found"));
+
+        for (PassengerSeatRequest psr : request.passengers()) {
+            if (!isSeatAvailable(trip, psr.seatNumber(), fromStopOrder, toStopOrder)) {
                 throw new SeatUnavailableException(
                         "Seat " + psr.seatNumber() + " is not available for the selected segment.");
             }
@@ -85,41 +98,42 @@ public class ReservationService {
         Reservation reservation = new Reservation();
         reservation.setUser(user);
         reservation.setTrip(trip);
+        reservation.setOriginRouteStop(originStop);
+        reservation.setTargetRouteStop(targetStop);
         reservation.setStatus(ReservationStatus.PENDING);
-
-        BigDecimal totalAmount =
-                trip.getPrice().multiply(BigDecimal.valueOf(request.passengers().size()));
-        reservation.setTotalAmount(totalAmount);
         reservation.setBookingReference(UUID.randomUUID().toString().substring(0, 8).toUpperCase());
 
+        BigDecimal basePrice = targetStop.getBasePriceFromOrigin()
+                .subtract(originStop.getBasePriceFromOrigin())
+                .abs();
+
+        BigDecimal segmentDistance = targetStop.getDistanceFromOrigin()
+                .subtract(originStop.getDistanceFromOrigin())
+                .abs();
+
+        BigDecimal totalAmount = BigDecimal.ZERO;
         Set<ReservationPassenger> passengers = new HashSet<>();
 
         for (PassengerSeatRequest psr : request.passengers()) {
-            RouteStop fromStop =
-                    routeStopRepo
-                            .findByRouteIdAndSequenceOrder(
-                                    trip.getRoute().getId(), psr.fromStopOrder())
-                            .orElseThrow(() -> new EntityNotFoundException("RouteStop not found"));
-
             ReservationPassenger passenger = new ReservationPassenger();
             passenger.setReservation(reservation);
             passenger.setFirstName(psr.firstName());
             passenger.setLastName(psr.lastName());
             passenger.setCheckedIn(false);
+            passenger.setSeatNumber(psr.seatNumber());
 
-            BookedSegment segment = new BookedSegment();
-            segment.setTrip(trip);
-            segment.setPassenger(passenger);
-            segment.setSeatNumber(psr.seatNumber());
-            segment.setFromStopOrder(psr.fromStopOrder());
-            segment.setToStopOrder(psr.toStopOrder());
-            segment.setFromStop(fromStop);
+            BigDecimal passengerPrice = basePrice.multiply(trip.getPriceKoefficient());
+            if (isPanoramicSeat(trip.getBus(), psr.seatNumber())) {
+                BigDecimal surcharge = segmentDistance.multiply(new BigDecimal("0.004"))
+                        .setScale(2, RoundingMode.HALF_UP);
+                passengerPrice = passengerPrice.add(surcharge);
+            }
 
-            passenger.getBookedSegments().add(segment);
-
+            totalAmount = totalAmount.add(passengerPrice);
             passengers.add(passenger);
         }
 
+        reservation.setTotalAmount(totalAmount);
         reservation.setPassengers(passengers);
 
         return reservationRepo.save(reservation);
@@ -155,32 +169,88 @@ public class ReservationService {
         }
 
         reservation.setStatus(ReservationStatus.CANCELLED);
-        reservation.getPassengers().forEach(p -> p.getBookedSegments().clear());
         reservationRepo.save(reservation);
     }
 
     private boolean isSeatAvailable(
-            Long tripId, String seatNumber, int requestedFrom, int requestedTo) {
+            Trip trip, String seatNumber, int requestedFrom, int requestedTo) {
 
-        // Uses PESSIMISTIC_WRITE lock to prevent race conditions with concurrent bookings
-        List<BookedSegment> existingSegments =
-                segmentRepo.findByTripIdAndSeatNumberForUpdate(tripId, seatNumber);
+        // Acquire advisory lock to prevent concurrent bookings for this specific seat on this trip
+        passengerRepo.acquireAdvisoryLockForSeat(trip.getId(), seatNumber);
 
-        if (existingSegments.isEmpty()) {
+        List<ReservationPassenger> existingPassengers =
+                passengerRepo.findActivePassengersByTripAndSeat(trip.getId(), seatNumber);
+
+        if (existingPassengers.isEmpty()) {
             return true;
         }
 
-        for (BookedSegment existing : existingSegments) {
-            int existingFrom = existing.getFromStopOrder();
-            int existingTo = existing.getToStopOrder();
+        List<RouteStop> stops = trip.getRoute().getStops();
+        if (trip.isReverse()) {
+            stops = new java.util.ArrayList<>(stops);
+            java.util.Collections.reverse(stops);
+        }
 
-            boolean overlaps = (requestedFrom < existingTo) && (existingFrom < requestedTo);
+        int requestedFromIdx = -1;
+        int requestedToIdx = -1;
+        for (int i = 0; i < stops.size(); i++) {
+            if (stops.get(i).getSequenceOrder() == requestedFrom) {
+                requestedFromIdx = i;
+            }
+            if (stops.get(i).getSequenceOrder() == requestedTo) {
+                requestedToIdx = i;
+            }
+        }
 
-            if (overlaps) {
-                return false;
+        if (requestedFromIdx == -1 || requestedToIdx == -1 || requestedFromIdx >= requestedToIdx) {
+            throw new IllegalArgumentException("Invalid stops selected for the segment");
+        }
+
+        for (ReservationPassenger passenger : existingPassengers) {
+            Reservation existingRes = passenger.getReservation();
+            int existingFrom = existingRes.getOriginRouteStop().getSequenceOrder();
+            int existingTo = existingRes.getTargetRouteStop().getSequenceOrder();
+
+            int existingFromIdx = -1;
+            int existingToIdx = -1;
+            for (int i = 0; i < stops.size(); i++) {
+                if (stops.get(i).getSequenceOrder() == existingFrom) {
+                    existingFromIdx = i;
+                }
+                if (stops.get(i).getSequenceOrder() == existingTo) {
+                    existingToIdx = i;
+                }
+            }
+
+            if (existingFromIdx != -1 && existingToIdx != -1) {
+                boolean overlaps = (requestedFromIdx < existingToIdx) && (existingFromIdx < requestedToIdx);
+                if (overlaps) {
+                    return false;
+                }
             }
         }
 
         return true;
+    }
+
+    private boolean isPanoramicSeat(Bus bus, String seatNumber) {
+        try {
+            com.fasterxml.jackson.databind.JsonNode root =
+                    new com.fasterxml.jackson.databind.ObjectMapper().readTree(bus.getSeatLayout());
+            com.fasterxml.jackson.databind.JsonNode categories = root.path("categories");
+            if (categories.isObject()) {
+                com.fasterxml.jackson.databind.JsonNode panoramic = categories.path("PANORAMIC");
+                if (panoramic.isArray()) {
+                    for (com.fasterxml.jackson.databind.JsonNode node : panoramic) {
+                        if (node.asText().equals(seatNumber)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Fallback
+        }
+        return false;
     }
 }

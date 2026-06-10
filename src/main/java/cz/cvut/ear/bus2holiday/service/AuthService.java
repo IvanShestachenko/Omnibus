@@ -56,7 +56,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void register(RegisterRequest request) {
+    public AuthResponse register(RegisterRequest request) {
         if (userRepository.findByEmail(request.email()).isPresent()) {
             throw new IllegalArgumentException("Email already exists");
         }
@@ -65,10 +65,46 @@ public class AuthService {
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         user.setEmail(request.email());
-        user.setPhone(request.phone());
+        
+        // Save phone as null if blank to avoid violating unique constraint
+        user.setPhone(request.phone() == null || request.phone().isBlank() ? null : request.phone());
         user.setPasswordHash(passwordEncoder.encode(request.password()));
         user.setRole(UserRole.user);
 
-        userRepository.save(user);
+        // Map country to currency if currency is not specified
+        String currency = request.preferredCurrency();
+        if (currency == null || currency.isBlank()) {
+            if ("Ukraine".equals(request.country())) {
+                currency = "UAH";
+            } else if ("Czech Republic".equals(request.country())) {
+                currency = "CZK";
+            } else if ("United Kingdom".equals(request.country())) {
+                currency = "GBP";
+            } else {
+                currency = "EUR";
+            }
+        }
+        user.setPreferredCurrency(currency);
+
+        // Save country as null if blank or unlisted
+        String country = request.country();
+        if (country == null || country.isBlank() || "not_in_list".equals(country)) {
+            country = null;
+        }
+        user.setCountry(country);
+        user.setAvatarData(request.avatarData());
+
+        userRepository.saveAndFlush(user);
+
+        // Authenticate immediately after register
+        Authentication authentication =
+                authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                request.email(), request.password()));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = tokenProvider.generateToken(authentication);
+
+        return new AuthResponse(jwt, userMapper.toResponse(user));
     }
 }

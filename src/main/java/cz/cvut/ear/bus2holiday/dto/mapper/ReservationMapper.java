@@ -25,16 +25,7 @@ public class ReservationMapper {
                                         new ReservationResponse.PassengerResponse(
                                                 p.getFirstName(),
                                                 p.getLastName(),
-                                                p.getBookedSegments().stream()
-                                                        .map(
-                                                                s ->
-                                                                        new ReservationResponse
-                                                                                .SegmentInfo(
-                                                                                s.getSeatNumber(),
-                                                                                s
-                                                                                        .getFromStopOrder(),
-                                                                                s.getToStopOrder()))
-                                                        .toList()))
+                                                p.getSeatNumber()))
                         .toList();
 
         return new ReservationResponse(
@@ -42,8 +33,10 @@ public class ReservationMapper {
                 reservation.getBookingReference(),
                 reservation.getStatus().name(),
                 reservation.getTotalAmount(),
-                reservation.getCreatedAt().toLocalDate(),
+                reservation.getCreatedAt() != null ? reservation.getCreatedAt().toLocalDate() : java.time.LocalDate.now(),
                 tripSummary,
+                reservation.getOriginRouteStop().getTerminal().getName(),
+                reservation.getTargetRouteStop().getTerminal().getName(),
                 passengerResponses);
     }
 }
