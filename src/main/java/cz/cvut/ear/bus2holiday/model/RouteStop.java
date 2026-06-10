@@ -33,6 +33,9 @@ public class RouteStop extends BaseEntity {
     @Column(name = "distance_from_origin", nullable = false, precision = 8, scale = 2)
     private BigDecimal distanceFromOrigin;
 
+    @Column(name = "base_price_from_origin", nullable = false, precision = 10, scale = 2)
+    private BigDecimal basePriceFromOrigin;
+
     public Route getRoute() {
         return route;
     }
@@ -79,5 +82,13 @@ public class RouteStop extends BaseEntity {
 
     public void setDistanceFromOrigin(BigDecimal distanceFromOrigin) {
         this.distanceFromOrigin = distanceFromOrigin;
+    }
+
+    public BigDecimal getBasePriceFromOrigin() {
+        return basePriceFromOrigin;
+    }
+
+    public void setBasePriceFromOrigin(BigDecimal basePriceFromOrigin) {
+        this.basePriceFromOrigin = basePriceFromOrigin;
     }
 }

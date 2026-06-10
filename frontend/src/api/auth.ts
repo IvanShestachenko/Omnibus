@@ -11,6 +11,9 @@ export interface RegisterRequest {
   firstName: string;
   lastName: string;
   phone?: string;
+  preferredCurrency?: string;
+  country?: string;
+  avatarData?: string;
 }
 
 export interface AuthResponse {
@@ -22,6 +25,10 @@ export interface AuthResponse {
     firstName: string;
     lastName: string;
     role: string;
+    phone?: string;
+    preferredCurrency?: string;
+    country?: string;
+    avatarData?: string;
   };
 }
 
@@ -31,8 +38,9 @@ export const authApi = {
     return response.data;
   },
 
-  register: async (data: RegisterRequest): Promise<void> => {
-    await api.post('/auth/register', data);
+  register: async (data: RegisterRequest): Promise<AuthResponse> => {
+    const response = await api.post<AuthResponse>('/auth/register', data);
+    return response.data;
   },
 };
 

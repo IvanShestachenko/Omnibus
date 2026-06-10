@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { SearchPanel } from '../components/common';
+import { useCurrency } from '../context/CurrencyContext';
+import { useAuth } from '../context/AuthContext';
+import { routesApi } from '../api/routes';
+import { terminalsApi } from '../api/terminals';
 import layer1Img from '../assets/layer_1_cut.webp';
 import layer2Img from '../assets/layer_2_cut.webp';
 import layer3Img from '../assets/layer_3_cut.webp';
@@ -8,9 +12,208 @@ import fleetVideo from '../assets/2020_Setra_S515_HD_Walkaround.mp4';
 import { ParallaxBanner } from '../components/common/ParallaxBanner/ParallaxBanner';
 import './HomePage.css';
 
+interface TripInfo {
+  from: string;
+  to: string;
+  price: number;
+  fromCountry: string;
+  toCountry: string;
+}
+
+const backupTrips: TripInfo[] = [
+  { from: 'Prague', to: 'Brno', price: 9.27, fromCountry: 'Czech Republic', toCountry: 'Czech Republic' },
+  { from: 'Berlin', to: 'Munich', price: 23.41, fromCountry: 'Germany', toCountry: 'Germany' },
+  { from: 'Paris', to: 'Marseille', price: 29.93, fromCountry: 'France', toCountry: 'France' },
+  { from: 'Warsaw', to: 'Kraków', price: 11.30, fromCountry: 'Poland', toCountry: 'Poland' }
+];
+
+const getUnloggedInTrips = (trips: TripInfo[]): TripInfo[] => {
+  const targetPairs = [
+    { from: 'Prague', to: 'Brno' },
+    { from: 'Berlin', to: 'Munich' },
+    { from: 'Paris', to: 'Marseille' },
+    { from: 'Warsaw', to: 'Kraków' }
+  ];
+  
+  // Try to find exact matches for target pairs first
+  const selected = targetPairs
+    .map(pair => trips.find(t => t.from.toLowerCase() === pair.from.toLowerCase() && t.to.toLowerCase() === pair.to.toLowerCase()))
+    .filter((t): t is TripInfo => !!t);
+    
+  // If we don't have 4, find any trip starting in each country to fill it up
+  if (selected.length < 4) {
+    const countries = ['Czech Republic', 'Germany', 'France', 'Poland'];
+    countries.forEach(country => {
+      if (selected.length >= 4) return;
+      if (selected.some(s => s.fromCountry.toLowerCase() === country.toLowerCase())) return;
+      
+      const fallbackTrip = trips.find(t => 
+        t.fromCountry.toLowerCase() === country.toLowerCase() && 
+        !selected.some(s => s.from.toLowerCase() === t.from.toLowerCase() && s.to.toLowerCase() === t.to.toLowerCase())
+      );
+      if (fallbackTrip) {
+        selected.push(fallbackTrip);
+      }
+    });
+  }
+  
+  // If we still don't have 4, fill up with any available trips
+  let idx = 0;
+  while (selected.length < 4 && idx < trips.length) {
+    const trip = trips[idx++];
+    if (!selected.some(s => s.from.toLowerCase() === trip.from.toLowerCase() && s.to.toLowerCase() === trip.to.toLowerCase())) {
+      selected.push(trip);
+    }
+  }
+  
+  return selected.slice(0, 4);
+};
+
 export const HomePage: React.FC = () => {
+  const { user } = useAuth();
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [videoSrc, setVideoSrc] = useState<string>('');
+  const { formatPrice } = useCurrency();
+  const [popularTrips, setPopularTrips] = useState<TripInfo[]>(backupTrips);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+
+  const handleVideoClick = () => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+    } else {
+      videoRef.current.pause();
+    }
+  };
+
+  useEffect(() => {
+    const fetchPopularTrips = async () => {
+      try {
+        const [routesData, terminalsData] = await Promise.all([
+          routesApi.getAll(),
+          terminalsApi.getAll()
+        ]);
+
+        // Build city to country mapping
+        const cityToCountry: Record<string, string> = {};
+        terminalsData.forEach(t => {
+          if (t.city && t.country) {
+            cityToCountry[t.city.toLowerCase()] = t.country;
+          }
+        });
+
+        // Collect all unique connections from active routes in both directions
+        const allTrips: TripInfo[] = [];
+        const seenPairs = new Set<string>();
+
+        routesData.forEach(route => {
+          if (!route.isActive || !route.stops || route.stops.length < 2) return;
+          
+          const sortedStops = [...route.stops].sort((a, b) => a.sequenceOrder - b.sequenceOrder);
+          for (let i = 0; i < sortedStops.length; i++) {
+            for (let j = i + 1; j < sortedStops.length; j++) {
+              const stopA = sortedStops[i];
+              const stopB = sortedStops[j];
+              
+              if (!stopA.city || !stopB.city) continue;
+              if (stopA.city.toLowerCase() === stopB.city.toLowerCase()) continue;
+              
+              const distance = Math.abs(stopB.distanceFromOrigin - stopA.distanceFromOrigin);
+              const price = Math.round(distance * 0.045 * 100) / 100;
+              if (price <= 0) continue;
+
+              const countryA = cityToCountry[stopA.city.toLowerCase()] || '';
+              const countryB = cityToCountry[stopB.city.toLowerCase()] || '';
+              if (!countryA || !countryB) continue;
+
+              // 1. Forward connection (stopA -> stopB)
+              const keyForward = `${stopA.city.toLowerCase()}->${stopB.city.toLowerCase()}`;
+              if (!seenPairs.has(keyForward)) {
+                seenPairs.add(keyForward);
+                allTrips.push({
+                  from: stopA.city,
+                  to: stopB.city,
+                  price,
+                  fromCountry: countryA,
+                  toCountry: countryB
+                });
+              }
+
+              // 2. Backward connection (stopB -> stopA)
+              const keyBackward = `${stopB.city.toLowerCase()}->${stopA.city.toLowerCase()}`;
+              if (!seenPairs.has(keyBackward)) {
+                seenPairs.add(keyBackward);
+                allTrips.push({
+                  from: stopB.city,
+                  to: stopA.city,
+                  price,
+                  fromCountry: countryB,
+                  toCountry: countryA
+                });
+              }
+            }
+          }
+        });
+
+        // Determine popular trips to display
+        const activeCountry = user?.country;
+        const selected: TripInfo[] = [];
+
+        if (activeCountry) {
+          // Logged-in user with a country selected
+          const domestic = allTrips.filter(t => 
+            t.fromCountry.toLowerCase() === activeCountry.toLowerCase() && 
+            t.toCountry.toLowerCase() === activeCountry.toLowerCase()
+          );
+          const international = allTrips.filter(t => 
+            t.fromCountry.toLowerCase() === activeCountry.toLowerCase() && 
+            t.toCountry.toLowerCase() !== activeCountry.toLowerCase()
+          );
+
+          // Take 2 domestic and 2 international
+          selected.push(...domestic.slice(0, 2));
+          selected.push(...international.slice(0, 2));
+
+          // Fallback: if we don't have enough, fill up with any trips starting in this country
+          if (selected.length < 4) {
+            const remainingFromCountry = [
+              ...domestic.filter(t => !selected.includes(t)),
+              ...international.filter(t => !selected.includes(t))
+            ];
+            selected.push(...remainingFromCountry.slice(0, 4 - selected.length));
+          }
+        }
+
+        // Fallback or unlogged-in: load defaults
+        if (selected.length < 4) {
+          const defaults = getUnloggedInTrips(allTrips);
+          for (const def of defaults) {
+            if (selected.length >= 4) break;
+            if (!selected.some(s => s.from.toLowerCase() === def.from.toLowerCase() && s.to.toLowerCase() === def.to.toLowerCase())) {
+              selected.push(def);
+            }
+          }
+        }
+
+        // Double check we have 4, otherwise use backups
+        if (selected.length < 4) {
+          for (const backup of backupTrips) {
+            if (selected.length >= 4) break;
+            if (!selected.some(s => s.from.toLowerCase() === backup.from.toLowerCase() && s.to.toLowerCase() === backup.to.toLowerCase())) {
+              selected.push(backup);
+            }
+          }
+        }
+
+        setPopularTrips(selected);
+      } catch (err) {
+        console.error('Failed to calculate popular trips, using backups', err);
+        setPopularTrips(backupTrips);
+      }
+    };
+
+    fetchPopularTrips();
+  }, [user]);
 
   // Defer video loading until the main page is fully loaded
   useEffect(() => {
@@ -66,47 +269,33 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Popular Routes Section */}
+      {/* Popular Trips Section */}
       <section className="popular-routes-section" id="popular-routes">
         <div className="section-container">
-          <h2 className="section-title">Popular Routes</h2>
-          <p className="section-subtitle">Quick access to the most popular destinations in Europe</p>
+          <h2 className="section-title">
+            {user?.country ? `Popular Trips in & from ${user.country}` : 'Popular Trips'}
+          </h2>
+          <p className="section-subtitle">
+            {user?.country 
+              ? `Quick access to the most popular journeys in and from ${user.country}` 
+              : 'Quick access to the most popular destinations in Europe'}
+          </p>
 
           <div className="routes-grid">
-            <div className="route-shortcut-card" onClick={() => handleQuickSearch('Prague', 'Brno')}>
-              <div className="route-shortcut-overlay" />
-              <div className="route-shortcut-content">
-                <h3>Prague ➔ Brno</h3>
-                <span className="route-shortcut-price">from $19.99</span>
+            {popularTrips.map((route, idx) => (
+              <div key={idx} className="route-shortcut-card" onClick={() => handleQuickSearch(route.from, route.to)}>
+                <div className="route-shortcut-overlay" />
+                <div className="route-shortcut-content">
+                  <h3>{route.from} ➔ {route.to}</h3>
+                  <span className="route-shortcut-price">from {formatPrice(route.price)}</span>
+                </div>
               </div>
-            </div>
-
-            <div className="route-shortcut-card" onClick={() => handleQuickSearch('Prague', 'Vienna')}>
-              <div className="route-shortcut-overlay" />
-              <div className="route-shortcut-content">
-                <h3>Prague ➔ Vienna</h3>
-                <span className="route-shortcut-price">from $29.99</span>
-              </div>
-            </div>
-
-            <div className="route-shortcut-card" onClick={() => handleQuickSearch('Prague', 'Budapest')}>
-              <div className="route-shortcut-overlay" />
-              <div className="route-shortcut-content">
-                <h3>Prague ➔ Budapest</h3>
-                <span className="route-shortcut-price">from $34.99</span>
-              </div>
-            </div>
-
-            <div className="route-shortcut-card" onClick={() => handleQuickSearch('Brno', 'Bratislava')}>
-              <div className="route-shortcut-overlay" />
-              <div className="route-shortcut-content">
-                <h3>Brno ➔ Bratislava</h3>
-                <span className="route-shortcut-price">from $14.99</span>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
+
+
 
       {/* Deals Section */}
       <section className="deals-section">
@@ -271,16 +460,22 @@ export const HomePage: React.FC = () => {
               <div className="fleet-video-glow" />
               <div className="fleet-video-wrapper">
                 <video
+                  ref={videoRef}
                   src={videoSrc || undefined}
-                  preload="auto"
+                  preload="metadata"
                   controls
                   onPlay={() => setIsVideoPlaying(true)}
                   onPause={() => setIsVideoPlaying(false)}
                   onEnded={() => setIsVideoPlaying(false)}
                   className="fleet-video"
                 />
-                <div className={`fleet-video-title ${isVideoPlaying ? 'fade-out' : ''}`}>
-                  2020 Setra S515 HD Walkaround
+                <div 
+                  className="fleet-video-click-overlay" 
+                  onClick={handleVideoClick}
+                >
+                  <div className={`fleet-video-title ${isVideoPlaying ? 'fade-out' : ''}`}>
+                    2020 Setra S515 HD Walkaround
+                  </div>
                 </div>
               </div>
             </div>

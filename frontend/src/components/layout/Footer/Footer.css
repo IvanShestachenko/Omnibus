@@ -50,6 +50,7 @@
 
 .footer-section a {
   display: block;
+  width: fit-content;
   color: rgba(255, 255, 255, 0.8);
   margin-bottom: var(--space-sm);
   transition: color var(--transition-fast);

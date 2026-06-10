@@ -419,6 +419,17 @@
   transform: translateY(-8px);
 }
 
+.fleet-video-click-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(100% - 70px); /* Leaves space at the bottom for native browser controls (timeline hover zone, seek bar, etc.) */
+  z-index: 2;
+  cursor: pointer;
+  background: transparent;
+}
+
 .fleet-text-column {
   display: flex;
   flex-direction: column;

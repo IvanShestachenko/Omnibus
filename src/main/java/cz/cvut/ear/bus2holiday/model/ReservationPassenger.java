@@ -22,8 +22,8 @@ public class ReservationPassenger extends BaseEntity {
     @Column(name = "is_checked_in", nullable = false)
     private boolean isCheckedIn = false;
 
-    @OneToMany(mappedBy = "passenger", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<BookedSegment> bookedSegments = new HashSet<>();
+    @Column(name = "seat_number", nullable = false, length = 10)
+    private String seatNumber;
 
     public Reservation getReservation() {
         return reservation;
@@ -57,11 +57,11 @@ public class ReservationPassenger extends BaseEntity {
         isCheckedIn = checkedIn;
     }
 
-    public Set<BookedSegment> getBookedSegments() {
-        return bookedSegments;
+    public String getSeatNumber() {
+        return seatNumber;
     }
 
-    public void setBookedSegments(Set<BookedSegment> bookedSegments) {
-        this.bookedSegments = bookedSegments;
+    public void setSeatNumber(String seatNumber) {
+        this.seatNumber = seatNumber;
     }
 }

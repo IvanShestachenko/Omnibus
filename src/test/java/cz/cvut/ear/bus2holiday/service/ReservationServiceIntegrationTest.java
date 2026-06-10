@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -31,7 +32,7 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
     @Autowired private TripRepository tripRepo;
     @Autowired private RouteRepository routeRepository;
     @Autowired private BusRepository busRepo;
-    @Autowired private BookedSegmentRepository segmentRepo;
+    @Autowired private DriverRepository driverRepo;
     @Autowired private TerminalRepository terminalRepository;
     @Autowired private RouteStopRepository routeStopRepository;
 
@@ -55,8 +56,23 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
         bus.setManufacturer("Daimler");
         bus.setYear((short) 2020);
         bus.setTotalSeats(50);
-        bus.setSeatLayout("{}");
+        bus.setSeatLayout("{\"categories\":{\"PANORAMIC\":[\"1A\",\"1B\"]}}");
         busRepo.save(bus);
+
+        User du = new User();
+        du.setEmail("driver@test.com");
+        du.setPasswordHash("hash");
+        du.setFirstName("Test");
+        du.setLastName("Driver");
+        du.setRole(UserRole.driver);
+        User savedDu = userRepo.save(du);
+
+        Driver driver = new Driver();
+        driver.setUser(savedDu);
+        driver.setLicenseNumber("DL-12345");
+        driver.setLicenseExpiry(LocalDate.now().plusYears(5));
+        driver.setAvailable(true);
+        Driver savedDriver = driverRepo.save(driver);
 
         Route route = new Route();
         route.setName("Test Route");
@@ -80,6 +96,7 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
         stop1.setArrivalOffsetMinutes(0);
         stop1.setDepartureOffsetMinutes(0);
         stop1.setDistanceFromOrigin(BigDecimal.ZERO);
+        stop1.setBasePriceFromOrigin(BigDecimal.ZERO);
         routeStopRepository.save(stop1);
 
         RouteStop stop2 = new RouteStop();
@@ -89,6 +106,7 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
         stop2.setArrivalOffsetMinutes(60);
         stop2.setDepartureOffsetMinutes(65);
         stop2.setDistanceFromOrigin(BigDecimal.valueOf(100));
+        stop2.setBasePriceFromOrigin(BigDecimal.valueOf(10));
         routeStopRepository.save(stop2);
 
         RouteStop stop3 = new RouteStop();
@@ -98,6 +116,7 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
         stop3.setArrivalOffsetMinutes(120);
         stop3.setDepartureOffsetMinutes(125);
         stop3.setDistanceFromOrigin(BigDecimal.valueOf(200));
+        stop3.setBasePriceFromOrigin(BigDecimal.valueOf(20));
         routeStopRepository.save(stop3);
 
         RouteStop stop4 = new RouteStop();
@@ -107,6 +126,7 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
         stop4.setArrivalOffsetMinutes(180);
         stop4.setDepartureOffsetMinutes(185);
         stop4.setDistanceFromOrigin(BigDecimal.valueOf(300));
+        stop4.setBasePriceFromOrigin(BigDecimal.valueOf(30));
         routeStopRepository.save(stop4);
 
         RouteStop stop5 = new RouteStop();
@@ -116,6 +136,7 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
         stop5.setArrivalOffsetMinutes(240);
         stop5.setDepartureOffsetMinutes(245);
         stop5.setDistanceFromOrigin(BigDecimal.valueOf(400));
+        stop5.setBasePriceFromOrigin(BigDecimal.valueOf(40));
         routeStopRepository.save(stop5);
 
         RouteStop stop6 = new RouteStop();
@@ -125,12 +146,14 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
         stop6.setArrivalOffsetMinutes(300);
         stop6.setDepartureOffsetMinutes(300);
         stop6.setDistanceFromOrigin(BigDecimal.valueOf(500));
+        stop6.setBasePriceFromOrigin(BigDecimal.valueOf(50));
         routeStopRepository.save(stop6);
 
         Trip t = new Trip();
         t.setRoute(savedRoute);
         t.setBus(bus);
-        t.setPrice(BigDecimal.valueOf(100));
+        t.setDriver(savedDriver);
+        t.setPriceKoefficient(BigDecimal.ONE);
         t.setDepartureDatetime(OffsetDateTime.now(ZoneOffset.UTC).plusDays(1));
         t.setArrivalDatetime(OffsetDateTime.now(ZoneOffset.UTC).plusDays(1).plusHours(5));
         testTrip = tripRepo.save(t);
@@ -148,7 +171,6 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
         assertNotNull(reservation);
         assertNotNull(reservation.getId());
         assertEquals(2, reservation.getPassengers().size());
-        assertEquals(2, segmentRepo.count());
     }
 
     @Test
@@ -159,8 +181,6 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
                 new ReservationRequest(
                         testUser.getId(), testTrip.getId(), List.of(initialPassenger));
         reservationService.createReservation(initialRequest);
-
-        assertEquals(1, segmentRepo.count());
 
         PassengerSeatRequest overlappingPassenger =
                 new PassengerSeatRequest("Late", "Booker", "2A", 4, 6);
@@ -173,8 +193,6 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
                 () -> {
                     reservationService.createReservation(overlappingRequest);
                 });
-
-        assertEquals(1, segmentRepo.count());
     }
 
     @Test
@@ -184,8 +202,6 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
                 new ReservationRequest(testUser.getId(), testTrip.getId(), List.of(p1));
         reservationService.createReservation(r1);
 
-        assertEquals(1, segmentRepo.count());
-
         PassengerSeatRequest p2 = new PassengerSeatRequest("Boris", "Second", "3B", 3, 5);
         ReservationRequest r2 =
                 new ReservationRequest(testUser.getId(), testTrip.getId(), List.of(p2));
@@ -194,7 +210,5 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
                 () -> {
                     reservationService.createReservation(r2);
                 });
-
-        assertEquals(2, segmentRepo.count());
     }
 }
