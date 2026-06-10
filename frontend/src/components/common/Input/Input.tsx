@@ -7,14 +7,14 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   icon?: React.ReactNode;
 }
 
-export const Input: React.FC<InputProps> = ({
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(({
   label,
   error,
   icon,
   className = '',
   id,
   ...props
-}) => {
+}, ref) => {
   const generatedId = React.useId();
   const inputId = id || generatedId;
 
@@ -29,6 +29,7 @@ export const Input: React.FC<InputProps> = ({
         {icon && <span className="input-icon">{icon}</span>}
         <input
           id={inputId}
+          ref={ref}
           className={`input ${icon ? 'input-with-icon' : ''}`}
           {...props}
         />
@@ -36,6 +37,8 @@ export const Input: React.FC<InputProps> = ({
       {error && <span className="input-error-message">{error}</span>}
     </div>
   );
-};
+});
+
+Input.displayName = 'Input';
 
 export default Input;

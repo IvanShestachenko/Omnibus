@@ -1,34 +1,81 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useAuth } from '../context/AuthContext';
 import { Button, Input, Card } from '../components/common';
 import './Auth.css';
 
+const loginSchema = z.object({
+  email: z.string().min(1, 'Email is required').email('Invalid email address'),
+  password: z.string().min(1, 'Password is required'),
+});
+
+type LoginFields = z.infer<typeof loginSchema>;
+
 export const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register: registerField,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFields>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  const scrollToErrorBanner = () => {
+    setTimeout(() => {
+      const banner = document.querySelector('.auth-error-banner');
+      if (banner) {
+        banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 50);
+  };
+
+  const onSubmit = async (data: LoginFields) => {
     setError('');
     setLoading(true);
 
     try {
-      await login(email, password);
+      await login(data.email, data.password);
       navigate('/');
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message || 'Login failed. Please check your credentials.');
-      } else {
-        setError('Login failed. Please check your credentials.');
-      }
+      const axiosError = err as {
+        response?: {
+          data?: {
+            message?: string;
+          };
+        };
+        message?: string;
+      };
+      const serverMessage = axiosError.response?.data?.message || axiosError.message || 'Login failed. Please check your credentials.';
+      setError(serverMessage);
+      scrollToErrorBanner();
     } finally {
       setLoading(false);
+    }
+  };
+
+  const onError = (formErrors: any) => {
+    const errorKeys = Object.keys(formErrors);
+    if (errorKeys.length > 0) {
+      const firstKey = errorKeys[0];
+      const element = document.getElementsByName(firstKey)[0] || document.getElementById(firstKey) || document.querySelector(`[name="${firstKey}"]`);
+      if (element) {
+        const wrapper = element.closest('.input-wrapper') || element;
+        wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        (element as HTMLElement).focus?.();
+      }
     }
   };
 
@@ -41,10 +88,21 @@ export const LoginPage: React.FC = () => {
             <p className="auth-subtitle">Sign in to continue your journey</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="auth-form">
+          <form onSubmit={handleSubmit(onSubmit, onError)} className="auth-form" noValidate>
             {error && (
-              <div className="auth-error">
-                {error}
+              <div className="auth-error-banner">
+                <span className="auth-error-message-text">{error}</span>
+                <button
+                  type="button"
+                  className="auth-error-close"
+                  onClick={() => setError('')}
+                  aria-label="Close error message"
+                >
+                  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2.5" fill="none">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
               </div>
             )}
 
@@ -52,18 +110,16 @@ export const LoginPage: React.FC = () => {
               label="Email"
               type="email"
               placeholder="your@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              error={errors.email?.message}
+              {...registerField('email')}
             />
 
             <Input
               label="Password"
               type="password"
               placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              error={errors.password?.message}
+              {...registerField('password')}
             />
 
             <Button
