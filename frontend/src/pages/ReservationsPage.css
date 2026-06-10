@@ -230,3 +230,35 @@
     width: 100%;
   }
 }
+
+/* Inner filter pills */
+.reservations-filters {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.filter-pill {
+  background: rgba(19, 41, 104, 0.05);
+  border: 1px solid rgba(19, 41, 104, 0.1);
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filter-pill:hover {
+  background: rgba(19, 41, 104, 0.1);
+  color: var(--secondary);
+}
+
+.filter-pill.active {
+  background: var(--secondary);
+  border-color: var(--secondary);
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(19, 41, 104, 0.2);
+}
+
