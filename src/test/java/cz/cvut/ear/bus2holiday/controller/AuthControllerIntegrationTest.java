@@ -48,7 +48,10 @@ public class AuthControllerIntegrationTest extends TestContainerConfig {
                         "Winchester",
                         "johnwinchester@example.com",
                         "password123",
-                        "123456789");
+                        "123456789",
+                        null,
+                        null,
+                        null);
 
         mockMvc.perform(
                         post("/api/auth/register")
