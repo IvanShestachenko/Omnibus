@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, Card } from '../index';
 import { routesApi, type RouteResponse } from '../../../api/routes';
 import { terminalsApi, type TerminalResponse } from '../../../api/terminals';
+import { useAuth } from '../../../context/AuthContext';
 import './SearchPanel.css';
 
 // Suggestion Icons
@@ -74,6 +75,7 @@ const getCleanTerminalName = (cityName: string, terminalName: string): string =>
 };
 
 export const SearchPanel: React.FC = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -267,31 +269,71 @@ export const SearchPanel: React.FC = () => {
 
     // Show popular destinations when less than 2 characters are entered
     if (cleanSearch.length < 2) {
-      const popularCityNames = ['Prague', 'Brno', 'Bratislava', 'Budapest', 'Wrocław'];
-      const suggested: TerminalResponse[] = [];
+      let suggestedCities: { city: string; country: string }[] = [];
 
-      popularCityNames.forEach(cityName => {
-        const cityLower = cityName.toLowerCase();
-        if (excludedTerminal && excludedTerminal.city.toLowerCase() === cityLower) {
+      if (user?.country) {
+        // Logged in user with a selected country
+        const activeCountry = user.country;
+        
+        // Get all unique cities from the active country
+        const domesticCities = Array.from(new Set(
+          terminals.filter(t => t.country && t.country.toLowerCase() === activeCountry.toLowerCase()).map(t => t.city)
+        ));
+        
+        // Get all unique cities from other countries
+        const foreignCities = Array.from(new Set(
+          terminals.filter(t => t.country && t.country.toLowerCase() !== activeCountry.toLowerCase()).map(t => t.city)
+        ));
+        
+        // Select up to 3 domestic cities (or fewer if not enough exist)
+        const selectedDomestic = domesticCities.slice(0, 3);
+        const neededForeignCount = 6 - selectedDomestic.length;
+        
+        // Select foreign cities to fill the remaining count up to 6
+        const popularForeign = ['Prague', 'Berlin', 'Paris', 'Warsaw', 'Bratislava', 'Budapest']
+          .filter(c => c.toLowerCase() !== activeCountry.toLowerCase());
+        const selectedForeign = [
+          ...popularForeign.filter(c => foreignCities.some(fc => fc.toLowerCase() === c.toLowerCase())),
+          ...foreignCities.filter(c => !popularForeign.some(pf => pf.toLowerCase() === c.toLowerCase()))
+        ].slice(0, neededForeignCount);
+        
+        // Combine them: up to 6 cities total (3 domestic + 3 foreign, or more foreign if fewer domestic)
+        const combinedCities = [...selectedDomestic, ...selectedForeign];
+        
+        // Map to their country names
+        suggestedCities = combinedCities.map(city => {
+          const term = terminals.find(t => t.city.toLowerCase() === city.toLowerCase());
+          return { city, country: term ? term.country : '' };
+        });
+      } else {
+        // Unlogged-in user
+        // Diverse mix of 6 cities from Czech Republic, Poland, France, Germany
+        const defaultCities = [
+          { city: 'Prague', country: 'Czech Republic' },
+          { city: 'Warsaw', country: 'Poland' },
+          { city: 'Paris', country: 'France' },
+          { city: 'Berlin', country: 'Germany' },
+          { city: 'Munich', country: 'Germany' },
+          { city: 'Kraków', country: 'Poland' }
+        ];
+        suggestedCities = defaultCities;
+      }
+
+      const suggested: TerminalResponse[] = [];
+      suggestedCities.forEach((item, index) => {
+        // Exclude the currently selected terminal on the other field
+        if (excludedTerminal && excludedTerminal.city.toLowerCase() === item.city.toLowerCase()) {
           return;
         }
-
-        const sampleTerm = terminals.find(t => t.city.toLowerCase() === cityLower);
-        const country = sampleTerm ? sampleTerm.country : (
-          cityName === 'Prague' || cityName === 'Brno' ? 'Czech Republic' :
-          cityName === 'Bratislava' ? 'Slovakia' :
-          cityName === 'Budapest' ? 'Hungary' :
-          'Poland'
-        );
-
-        const termIndex = terminals.findIndex(term => term.city.toLowerCase() === cityLower);
-        const id = termIndex !== -1 ? -1000 - termIndex : -2000 - popularCityNames.indexOf(cityName);
-
+        
+        const termIndex = terminals.findIndex(term => term.city.toLowerCase() === item.city.toLowerCase());
+        const id = termIndex !== -1 ? -1000 - termIndex : -2000 - index;
+        
         suggested.push({
           id,
           name: 'All stations',
-          city: cityName,
-          country
+          city: item.city,
+          country: item.country
         });
       });
 
