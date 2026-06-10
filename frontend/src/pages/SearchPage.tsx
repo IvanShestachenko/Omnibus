@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, Button } from '../components/common';
+import { useCurrency } from '../context/CurrencyContext';
 import { tripsApi, type TripResponse } from '../api/trips';
 import { routesApi, type RouteResponse } from '../api/routes';
 import './SearchPage.css';
@@ -8,6 +9,7 @@ import './SearchPage.css';
 export const SearchPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { formatPrice } = useCurrency();
 
   const routeId = searchParams.get('routeId');
   const date = searchParams.get('date');
@@ -170,7 +172,7 @@ export const SearchPage: React.FC = () => {
                   </div>
 
                   <div className="trip-price">
-                    <span className="price">${trip.price.toFixed(2)}</span>
+                    <span className="price">{formatPrice(trip.price)}</span>
                     <span className="per-person">per person</span>
                   </div>
 

@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Button } from '../components/common';
+import { useCurrency } from '../context/CurrencyContext';
 import { reservationsApi, type ReservationResponse } from '../api/reservations';
 import './ReservationsPage.css';
 
 export const ReservationsPage: React.FC = () => {
   const navigate = useNavigate();
+  const { formatPrice } = useCurrency();
   const [reservations, setReservations] = useState<ReservationResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [cancellingId, setCancellingId] = useState<number | null>(null);
+  const [filter, setFilter] = useState<'upcoming' | 'all'>('upcoming');
 
   useEffect(() => {
     fetchReservations();
@@ -81,111 +84,148 @@ export const ReservationsPage: React.FC = () => {
     }
   };
 
+  // Filter reservations based on selected pill
+  const filteredReservations = reservations.filter(r => {
+    if (filter === 'all') return true;
+    // 'upcoming' filter: departure in the future and not cancelled
+    const isFuture = new Date(r.trip.departure) >= new Date();
+    const isNotCancelled = r.status.toLowerCase() !== 'cancelled';
+    return isFuture && isNotCancelled;
+  });
+
   if (loading) {
     return (
-      <div className="reservations-page">
-        <div className="loading-state">
-          <div className="loading-spinner" />
-          <p>Loading your reservations...</p>
+      <div className="dashboard-page">
+        <div className="reservations-page">
+          <div className="loading-state">
+            <div className="loading-spinner" />
+            <p>Loading your reservations...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="reservations-page">
-      <div className="page-header">
-        <h1>My Reservations</h1>
-        <Button variant="primary" onClick={() => navigate('/search')}>
-          Book New Trip
-        </Button>
-      </div>
-
-      {error && (
-        <div className="error-message">{error}</div>
-      )}
-
-      {reservations.length === 0 ? (
-        <Card className="empty-state">
-          <div className="empty-icon">🎫</div>
-          <h3>No reservations yet</h3>
-          <p>Start exploring amazing destinations and book your first trip!</p>
+    <div className="dashboard-page">
+      <div className="reservations-page">
+        <div className="page-header">
+          <h1>My Reservations</h1>
           <Button variant="primary" onClick={() => navigate('/search')}>
-            Find Trips
+            Book New Trip
           </Button>
-        </Card>
-      ) : (
-        <div className="reservations-list">
-          {reservations.map((reservation) => (
-            <Card key={reservation.id} className="reservation-card">
-              <div className="reservation-header">
-                <div className="booking-ref">
-                  <span className="ref-label">Booking Reference</span>
-                  <span className="ref-value">{reservation.bookingReference}</span>
-                </div>
-                <span className={`status-badge ${getStatusClass(reservation.status)}`}>
-                  {reservation.status}
-                </span>
-              </div>
+        </div>
 
-              <div className="reservation-content">
-                <div className="trip-info">
-                  <h3>{reservation.trip.routeName}</h3>
-                  <div className="trip-datetime">
-                    <span className="date">{formatDate(reservation.trip.departure)}</span>
-                    <span className="time">{formatTime(reservation.trip.departure)}</span>
+        {error && (
+          <div className="error-message">{error}</div>
+        )}
+
+        {/* Inner Filter Pills */}
+        {reservations.length > 0 && (
+          <div className="reservations-filters">
+            <button
+              type="button"
+              className={`filter-pill ${filter === 'upcoming' ? 'active' : ''}`}
+              onClick={() => setFilter('upcoming')}
+            >
+              Upcoming
+            </button>
+            <button
+              type="button"
+              className={`filter-pill ${filter === 'all' ? 'active' : ''}`}
+              onClick={() => setFilter('all')}
+            >
+              All Reservations
+            </button>
+          </div>
+        )}
+
+        {filteredReservations.length === 0 ? (
+          <Card className="empty-state">
+            <div className="empty-icon">🎫</div>
+            <h3>No reservations found</h3>
+            <p>
+              {filter === 'upcoming'
+                ? "You don't have any upcoming reservations. Check 'All Reservations' or book a new trip!"
+                : 'Start exploring amazing destinations and book your first trip!'}
+            </p>
+            <Button variant="primary" onClick={() => navigate('/search')}>
+              Find Trips
+            </Button>
+          </Card>
+        ) : (
+          <div className="reservations-list">
+            {filteredReservations.map((reservation) => (
+              <Card key={reservation.id} className="reservation-card">
+                <div className="reservation-header">
+                  <div className="booking-ref">
+                    <span className="ref-label">Booking Reference</span>
+                    <span className="ref-value">{reservation.bookingReference}</span>
+                  </div>
+                  <span className={`status-badge ${getStatusClass(reservation.status)}`}>
+                    {reservation.status}
+                  </span>
+                </div>
+
+                <div className="reservation-content">
+                  <div className="trip-info">
+                    <h3>{reservation.trip.routeName}</h3>
+                    <div className="trip-datetime">
+                      <span className="date">{formatDate(reservation.trip.departure)}</span>
+                      <span className="time">{formatTime(reservation.trip.departure)}</span>
+                    </div>
+                  </div>
+
+                  <div className="passengers-info">
+                    <span className="passengers-label">Passengers</span>
+                    <div className="passengers-list">
+                      {reservation.passengers.map((p, i) => (
+                        <span key={i} className="passenger-name">
+                          {p.firstName} {p.lastName}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="price-info">
+                    <span className="price-label">Total</span>
+                    <span className="price-amount">{formatPrice(reservation.totalAmount)}</span>
                   </div>
                 </div>
 
-                <div className="passengers-info">
-                  <span className="passengers-label">Passengers</span>
-                  <div className="passengers-list">
-                    {reservation.passengers.map((p, i) => (
-                      <span key={i} className="passenger-name">
-                        {p.firstName} {p.lastName}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="price-info">
-                  <span className="price-label">Total</span>
-                  <span className="price-amount">${reservation.totalAmount.toFixed(2)}</span>
-                </div>
-              </div>
-
-              <div className="reservation-actions">
-                {reservation.status.toLowerCase() === 'pending' && (
-                  <>
+                <div className="reservation-actions">
+                  {reservation.status.toLowerCase() === 'pending' && (
+                    <>
+                      <Button
+                        variant="primary"
+                        onClick={() => handlePay(reservation.id)}
+                      >
+                        Pay Now
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        onClick={() => handleCancel(reservation.id)}
+                        loading={cancellingId === reservation.id}
+                      >
+                        Cancel
+                      </Button>
+                    </>
+                  )}
+                  {reservation.status.toLowerCase() === 'confirmed' && (
                     <Button
-                      variant="primary"
-                      onClick={() => handlePay(reservation.id)}
-                    >
-                      Pay Now
-                    </Button>
-                    <Button
-                      variant="ghost"
+                      variant="outline"
                       onClick={() => handleCancel(reservation.id)}
                       loading={cancellingId === reservation.id}
                     >
-                      Cancel
+                      Cancel Reservation
                     </Button>
-                  </>
-                )}
-                {reservation.status.toLowerCase() === 'confirmed' && (
-                  <Button
-                    variant="outline"
-                    onClick={() => handleCancel(reservation.id)}
-                    loading={cancellingId === reservation.id}
-                  >
-                    Cancel Reservation
-                  </Button>
-                )}
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
