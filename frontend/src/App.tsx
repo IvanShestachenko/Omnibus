@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { AuthProvider } from './context/AuthContext';
+import { CurrencyProvider } from './context/CurrencyContext';
 import { Header, Footer } from './components/layout';
 import { ProtectedRoute } from './components/common';
 import {
@@ -9,18 +10,14 @@ import {
   HomePage,
   SearchPage,
   TripDetailsPage,
-  ReservationsPage
+  ReservationsPage,
+  ProfilePage
 } from './pages';
 import './index.css';
 import './App.css';
 
 // Placeholder pages (to be implemented)
-const ProfilePage = () => (
-  <div className="page">
-    <h1>Profile</h1>
-    <p className="text-secondary">Coming soon...</p>
-  </div>
-);
+
 
 const AdminPage = () => (
   <div className="page">
@@ -42,6 +39,16 @@ const NotFoundPage = () => (
     <p className="text-secondary">Page not found</p>
   </div>
 );
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
 
 const ScrollToHash = () => {
   const { pathname, hash } = useLocation();
@@ -66,62 +73,65 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <div className="app">
-          <ScrollToHash />
-          <Header />
-          <main className="main">
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<HomePage />} />
-              <Route path="/search" element={<SearchPage />} />
-              <Route path="/trip/:id" element={<TripDetailsPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
+        <CurrencyProvider>
+          <div className="app">
+            <ScrollToTop />
+            <ScrollToHash />
+            <Header />
+            <main className="main">
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<HomePage />} />
+                <Route path="/search" element={<SearchPage />} />
+                <Route path="/trip/:id" element={<TripDetailsPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
 
-              {/* Protected routes - User */}
-              <Route
-                path="/reservations"
-                element={
-                  <ProtectedRoute>
-                    <ReservationsPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <ProfilePage />
-                  </ProtectedRoute>
-                }
-              />
+                {/* Protected routes - User */}
+                <Route
+                  path="/reservations"
+                  element={
+                    <ProtectedRoute>
+                      <ReservationsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <ProfilePage />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Protected routes - Admin */}
-              <Route
-                path="/admin/*"
-                element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <AdminPage />
-                  </ProtectedRoute>
-                }
-              />
+                {/* Protected routes - Admin */}
+                <Route
+                  path="/admin/*"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <AdminPage />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Protected routes - Driver */}
-              <Route
-                path="/driver/*"
-                element={
-                  <ProtectedRoute allowedRoles={['driver']}>
-                    <DriverPage />
-                  </ProtectedRoute>
-                }
-              />
+                {/* Protected routes - Driver */}
+                <Route
+                  path="/driver/*"
+                  element={
+                    <ProtectedRoute allowedRoles={['driver']}>
+                      <DriverPage />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* 404 */}
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
+                {/* 404 */}
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
+        </CurrencyProvider>
       </AuthProvider>
     </BrowserRouter>
   );

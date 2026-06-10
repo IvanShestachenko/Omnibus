@@ -4,11 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import cz.cvut.ear.bus2holiday.TestContainerConfig;
-import cz.cvut.ear.bus2holiday.model.Bus;
-import cz.cvut.ear.bus2holiday.model.Route;
-import cz.cvut.ear.bus2holiday.model.Terminal;
-import cz.cvut.ear.bus2holiday.model.Trip;
-import cz.cvut.ear.bus2holiday.model.User;
+import cz.cvut.ear.bus2holiday.model.*;
 import cz.cvut.ear.bus2holiday.model.enums.UserRole;
 
 import jakarta.persistence.EntityManager;
@@ -20,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -35,6 +32,7 @@ public class NamedQueriesTest extends TestContainerConfig {
     @Autowired private TerminalRepository terminalRepository;
     @Autowired private TripRepository tripRepository;
     @Autowired private BusRepository busRepository;
+    @Autowired private DriverRepository driverRepository;
 
     @Test
     public void findByRole_ShouldReturnUsersWithSpecifiedRole() {
@@ -133,20 +131,34 @@ public class NamedQueriesTest extends TestContainerConfig {
         routeRepository.save(route2);
 
         Bus bus = new Bus();
-        bus.setTotalSeats(50);
-        bus.setRegistrationNumber("ABC-123");
-        bus.setModel("Mercedes");
         bus.setRegistrationNumber("1A2-3456");
+        bus.setModel("Mercedes");
         bus.setManufacturer("Daimler");
         bus.setYear((short) 2020);
         bus.setTotalSeats(50);
         bus.setSeatLayout("{}");
         busRepository.save(bus);
 
+        User du = new User();
+        du.setEmail("driver.queries@test.com");
+        du.setPasswordHash("hash");
+        du.setFirstName("Driver");
+        du.setLastName("Queries");
+        du.setRole(UserRole.driver);
+        User savedDu = userRepository.save(du);
+
+        Driver driver = new Driver();
+        driver.setUser(savedDu);
+        driver.setLicenseNumber("DL-queries");
+        driver.setLicenseExpiry(LocalDate.now().plusYears(5));
+        driver.setAvailable(true);
+        Driver savedDriver = driverRepository.save(driver);
+
         Trip trip1 = new Trip();
         trip1.setRoute(route1);
         trip1.setBus(bus);
-        trip1.setPrice(new BigDecimal("100.00"));
+        trip1.setDriver(savedDriver);
+        trip1.setPriceKoefficient(BigDecimal.ONE);
         trip1.setDepartureDatetime(OffsetDateTime.now(ZoneOffset.UTC).plusDays(1));
         trip1.setArrivalDatetime(OffsetDateTime.now(ZoneOffset.UTC).plusDays(1).plusHours(2));
         tripRepository.save(trip1);
@@ -154,7 +166,8 @@ public class NamedQueriesTest extends TestContainerConfig {
         Trip trip2 = new Trip();
         trip2.setRoute(route2);
         trip2.setBus(bus);
-        trip2.setPrice(new BigDecimal("200.00"));
+        trip2.setDriver(savedDriver);
+        trip2.setPriceKoefficient(BigDecimal.ONE);
         trip2.setDepartureDatetime(OffsetDateTime.now(ZoneOffset.UTC).plusDays(2));
         trip2.setArrivalDatetime(OffsetDateTime.now(ZoneOffset.UTC).plusDays(2).plusHours(2));
         tripRepository.save(trip2);

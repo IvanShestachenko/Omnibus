@@ -58,7 +58,7 @@ class UserServiceTest {
         when(userRepo.findById(1L)).thenReturn(Optional.of(testUser));
         when(userRepo.save(any(User.class))).thenReturn(testUser);
 
-        User result = userService.update(1L, "NewName", null, null, 1L, false);
+        User result = userService.update(1L, "NewName", null, null, null, null, null, 1L, false);
 
         assertEquals("NewName", result.getFirstName());
         assertEquals("Doe", result.getLastName());
@@ -70,7 +70,7 @@ class UserServiceTest {
 
         assertThrows(
                 ForbiddenException.class,
-                () -> userService.update(1L, "Hacker", null, null, 999L, false));
+                () -> userService.update(1L, "Hacker", null, null, null, null, null, 999L, false));
     }
 
     @Test
@@ -78,7 +78,7 @@ class UserServiceTest {
         when(userRepo.findById(1L)).thenReturn(Optional.of(testUser));
         when(userRepo.save(any(User.class))).thenReturn(testUser);
 
-        User result = userService.update(1L, "AdminEdit", null, null, 999L, true);
+        User result = userService.update(1L, "AdminEdit", null, null, null, null, null, 999L, true);
 
         assertEquals("AdminEdit", result.getFirstName());
     }

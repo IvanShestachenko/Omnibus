@@ -29,7 +29,7 @@ public class Terminal extends BaseEntity {
     @Column(nullable = false, length = 20)
     private String postcode;
 
-    @Column(length = 255)
+    @Column(unique = true, length = 255)
     private String name;
 
     @Column(nullable = false, precision = 10, scale = 8)

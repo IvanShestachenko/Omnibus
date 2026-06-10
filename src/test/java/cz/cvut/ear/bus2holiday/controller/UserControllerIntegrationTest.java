@@ -104,7 +104,7 @@ public class UserControllerIntegrationTest extends TestContainerConfig {
 
     @Test
     void updateSelf_ShouldSucceed() throws Exception {
-        UpdateUserRequest request = new UpdateUserRequest("NewFirst", "NewLast", "+420111222333");
+        UpdateUserRequest request = new UpdateUserRequest("NewFirst", "NewLast", "+420111222333", null, null, null);
 
         mockMvc.perform(
                         put("/api/users/" + testUser.getId())
@@ -119,7 +119,7 @@ public class UserControllerIntegrationTest extends TestContainerConfig {
 
     @Test
     void updateOtherUser_AsRegular_ShouldFail403() throws Exception {
-        UpdateUserRequest request = new UpdateUserRequest("Hacker", "Attack", null);
+        UpdateUserRequest request = new UpdateUserRequest("Hacker", "Attack", null, null, null, null);
 
         mockMvc.perform(
                         put("/api/users/" + adminUser.getId())
@@ -131,7 +131,7 @@ public class UserControllerIntegrationTest extends TestContainerConfig {
 
     @Test
     void updateOtherUser_AsAdmin_ShouldSucceed() throws Exception {
-        UpdateUserRequest request = new UpdateUserRequest("AdminEdited", null, null);
+        UpdateUserRequest request = new UpdateUserRequest("AdminEdited", null, null, null, null, null);
 
         mockMvc.perform(
                         put("/api/users/" + testUser.getId())

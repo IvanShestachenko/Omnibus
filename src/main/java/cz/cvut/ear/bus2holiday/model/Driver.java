@@ -42,6 +42,14 @@ public class Driver {
     @OneToMany(mappedBy = "driver")
     private Set<Trip> trips = new HashSet<>();
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @ManyToMany
+    @JoinTable(
+            name = "drivers_on_routes",
+            joinColumns = @JoinColumn(name = "driver_id"),
+            inverseJoinColumns = @JoinColumn(name = "route_id"))
+    private Set<Route> routes = new HashSet<>();
+
     public Long getUserId() {
         return userId;
     }
@@ -92,6 +100,14 @@ public class Driver {
 
     public void setTrips(Set<Trip> trips) {
         this.trips = trips;
+    }
+
+    public Set<Route> getRoutes() {
+        return routes;
+    }
+
+    public void setRoutes(Set<Route> routes) {
+        this.routes = routes;
     }
 
     @Override

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Button } from '../components/common';
+import { useCurrency } from '../context/CurrencyContext';
 import { tripsApi, type TripResponse } from '../api/trips';
 import { routesApi, type RouteResponse } from '../api/routes';
 import { useAuth } from '../context/AuthContext';
@@ -10,6 +11,7 @@ export const TripDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { formatPrice } = useCurrency();
 
   const [trip, setTrip] = useState<TripResponse | null>(null);
   const [route, setRoute] = useState<RouteResponse | null>(null);
@@ -169,14 +171,14 @@ export const TripDetailsPage: React.FC = () => {
             <Card className="stops-card">
               <h3>Route Stops</h3>
               <div className="stops-list">
-                {route.stops.sort((a, b) => a.stopOrder - b.stopOrder).map((stop, index) => (
-                  <div key={stop.id} className="stop-item">
+                {[...route.stops].sort((a, b) => a.sequenceOrder - b.sequenceOrder).map((stop, index) => (
+                  <div key={`${stop.terminalName}-${index}`} className="stop-item">
                     <div className="stop-marker">
                       {index === 0 ? '🚍' : index === route.stops.length - 1 ? '🏁' : '📍'}
                     </div>
                     <div className="stop-info">
                       <span className="stop-name">{stop.terminalName}</span>
-                      <span className="stop-distance">{stop.distanceFromStart} km from start</span>
+                      <span className="stop-distance">{stop.distanceFromOrigin} km from start</span>
                     </div>
                   </div>
                 ))}
@@ -258,11 +260,11 @@ export const TripDetailsPage: React.FC = () => {
             <div className="price-summary">
               <div className="price-row">
                 <span>{passengers.length}x Passenger</span>
-                <span>${trip.price.toFixed(2)} each</span>
+                <span>{formatPrice(trip.price)} each</span>
               </div>
               <div className="price-total">
                 <span>Total</span>
-                <span className="total-amount">${totalPrice.toFixed(2)}</span>
+                <span className="total-amount">{formatPrice(totalPrice)}</span>
               </div>
             </div>
 

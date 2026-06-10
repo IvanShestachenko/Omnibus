@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.HashSet;
@@ -46,6 +47,7 @@ public class ReservationControllerIntegrationTest extends TestContainerConfig {
     @Autowired private TripRepository tripRepo;
     @Autowired private ReservationRepository reservationRepo;
     @Autowired private BusRepository busRepo;
+    @Autowired private DriverRepository driverRepo;
     @Autowired private RouteRepository routeRepo;
     @Autowired private TerminalRepository terminalRepo;
     @Autowired private RouteStopRepository routeStopRepo;
@@ -90,8 +92,23 @@ public class ReservationControllerIntegrationTest extends TestContainerConfig {
         bus.setRegistrationNumber("BUS-001");
         bus.setYear((short) 2024);
         bus.setTotalSeats(50);
-        bus.setSeatLayout("{}");
+        bus.setSeatLayout("{\"categories\":{\"PANORAMIC\":[\"1A\",\"1B\"]}}");
         busRepo.save(bus);
+
+        User du = new User();
+        du.setEmail("driver@test.com");
+        du.setPasswordHash(passwordEncoder.encode("password123"));
+        du.setFirstName("Driver");
+        du.setLastName("Test");
+        du.setRole(UserRole.driver);
+        User savedDu = userRepo.save(du);
+
+        Driver driver = new Driver();
+        driver.setUser(savedDu);
+        driver.setLicenseNumber("DL-12345");
+        driver.setLicenseExpiry(LocalDate.now().plusYears(5));
+        driver.setAvailable(true);
+        Driver savedDriver = driverRepo.save(driver);
 
         Terminal terminalPrague = new Terminal();
         terminalPrague.setName("Prague Main");
@@ -127,6 +144,7 @@ public class ReservationControllerIntegrationTest extends TestContainerConfig {
         stop1.setArrivalOffsetMinutes(0);
         stop1.setDepartureOffsetMinutes(0);
         stop1.setDistanceFromOrigin(BigDecimal.ZERO);
+        stop1.setBasePriceFromOrigin(BigDecimal.ZERO);
         routeStopRepo.save(stop1);
 
         RouteStop stop2 = new RouteStop();
@@ -136,12 +154,14 @@ public class ReservationControllerIntegrationTest extends TestContainerConfig {
         stop2.setArrivalOffsetMinutes(120);
         stop2.setDepartureOffsetMinutes(130);
         stop2.setDistanceFromOrigin(BigDecimal.valueOf(200));
+        stop2.setBasePriceFromOrigin(BigDecimal.valueOf(15));
         routeStopRepo.save(stop2);
 
         testTrip = new Trip();
         testTrip.setRoute(route);
         testTrip.setBus(bus);
-        testTrip.setPrice(BigDecimal.valueOf(500));
+        testTrip.setDriver(savedDriver);
+        testTrip.setPriceKoefficient(BigDecimal.ONE);
         testTrip.setDepartureDatetime(OffsetDateTime.now(ZoneOffset.UTC).plusDays(5));
         testTrip.setArrivalDatetime(OffsetDateTime.now(ZoneOffset.UTC).plusDays(5).plusHours(2));
         testTrip.setStatus(TripStatus.SCHEDULED);
@@ -150,8 +170,9 @@ public class ReservationControllerIntegrationTest extends TestContainerConfig {
         testReservation = new Reservation();
         testReservation.setUser(testUser);
         testReservation.setTrip(testTrip);
-        testReservation.setBookingDate(OffsetDateTime.now(ZoneOffset.UTC));
-        testReservation.setTotalAmount(BigDecimal.valueOf(500));
+        testReservation.setOriginRouteStop(stop1);
+        testReservation.setTargetRouteStop(stop2);
+        testReservation.setTotalAmount(BigDecimal.valueOf(15));
         testReservation.setStatus(ReservationStatus.CONFIRMED);
         testReservation.setBookingReference("SETUP-REF");
 
@@ -159,6 +180,7 @@ public class ReservationControllerIntegrationTest extends TestContainerConfig {
         passenger.setReservation(testReservation);
         passenger.setFirstName("John");
         passenger.setLastName("Doe");
+        passenger.setSeatNumber("1A");
         testReservation.setPassengers(new HashSet<>(List.of(passenger)));
 
         reservationRepo.save(testReservation);
@@ -178,7 +200,7 @@ public class ReservationControllerIntegrationTest extends TestContainerConfig {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value("PENDING"))
                 .andExpect(jsonPath("$.passengers[0].firstName").value("Alice"))
-                .andExpect(jsonPath("$.passengers[0].segments[0].seatNumber").value("1A"));
+                .andExpect(jsonPath("$.passengers[0].seatNumber").value("1A"));
 
         assertEquals(2, reservationRepo.count());
     }
