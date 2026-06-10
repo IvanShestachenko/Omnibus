@@ -15,6 +15,13 @@ public class TripMapper {
                                 + trip.getDriver().getUser().getLastName()
                         : null;
 
+        java.math.BigDecimal defaultPrice = java.math.BigDecimal.ZERO;
+        if (trip.getRoute().getStops() != null && !trip.getRoute().getStops().isEmpty()) {
+            var stops = trip.getRoute().getStops();
+            var lastStop = stops.get(stops.size() - 1);
+            defaultPrice = lastStop.getBasePriceFromOrigin().multiply(trip.getPriceKoefficient());
+        }
+
         return new TripResponse(
                 trip.getId(),
                 trip.getRoute().getId(),
@@ -22,7 +29,7 @@ public class TripMapper {
                 trip.getBus().getRegistrationNumber(),
                 trip.getDepartureDatetime(),
                 trip.getArrivalDatetime(),
-                trip.getPrice(),
+                defaultPrice,
                 trip.getStatus(),
                 driverName);
     }

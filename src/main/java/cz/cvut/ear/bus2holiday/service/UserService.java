@@ -35,6 +35,9 @@ public class UserService {
             String firstName,
             String lastName,
             String phone,
+            String preferredCurrency,
+            String country,
+            String avatarData,
             Long currentUserId,
             boolean isAdmin) {
         User user = findById(id);
@@ -45,7 +48,21 @@ public class UserService {
 
         if (firstName != null) user.setFirstName(firstName);
         if (lastName != null) user.setLastName(lastName);
-        if (phone != null) user.setPhone(phone);
+        
+        // Handle empty phone mapping to null to prevent unique constraint failures
+        if (phone != null) {
+            user.setPhone(phone.isBlank() ? null : phone);
+        }
+        
+        if (preferredCurrency != null) user.setPreferredCurrency(preferredCurrency);
+        
+        // Handle empty or unlisted country mapping to null
+        if (country == null || country.isBlank() || "not_in_list".equals(country)) {
+            user.setCountry(null);
+        } else {
+            user.setCountry(country);
+        }
+        user.setAvatarData(avatarData);
 
         return userRepo.save(user);
     }

@@ -57,7 +57,8 @@ public class TripService {
         trip.setRoute(tripDetails.getRoute());
         trip.setBus(tripDetails.getBus());
         trip.setDriver(tripDetails.getDriver());
-        trip.setPrice(tripDetails.getPrice());
+        trip.setPriceKoefficient(tripDetails.getPriceKoefficient());
+        trip.setReverse(tripDetails.isReverse());
         trip.setDepartureDatetime(tripDetails.getDepartureDatetime());
         trip.setArrivalDatetime(tripDetails.getArrivalDatetime());
         return tripRepository.save(trip);
@@ -79,11 +80,46 @@ public class TripService {
     public int getAvailableSeats(Long tripId) {
         Trip trip = findById(tripId);
         int totalSeats = trip.getBus().getTotalSeats();
-        long distinctBookedSeats =
-                trip.getBookedSegments().stream()
-                        .map(segment -> segment.getSeatNumber())
-                        .distinct()
-                        .count();
-        return totalSeats - (int) distinctBookedSeats;
+        List<cz.cvut.ear.bus2holiday.model.RouteStop> stops = trip.getRoute().getStops();
+        if (stops.size() < 2) {
+            return totalSeats;
+        }
+        int numSegments = stops.size() - 1;
+        int[] bookedCount = new int[numSegments];
+
+        for (cz.cvut.ear.bus2holiday.model.Reservation res : trip.getReservations()) {
+            if (res.getStatus() == cz.cvut.ear.bus2holiday.model.enums.ReservationStatus.CANCELLED) {
+                continue;
+            }
+            int start = res.getOriginRouteStop().getSequenceOrder();
+            int end = res.getTargetRouteStop().getSequenceOrder();
+
+            int startIdx = -1;
+            int endIdx = -1;
+            for (int i = 0; i < stops.size(); i++) {
+                if (stops.get(i).getSequenceOrder() == start) {
+                    startIdx = i;
+                }
+                if (stops.get(i).getSequenceOrder() == end) {
+                    endIdx = i;
+                }
+            }
+
+            if (startIdx != -1 && endIdx != -1) {
+                int from = Math.min(startIdx, endIdx);
+                int to = Math.max(startIdx, endIdx);
+                for (int s = from; s < to; s++) {
+                    bookedCount[s] += res.getPassengers().size();
+                }
+            }
+        }
+
+        int maxBooked = 0;
+        for (int count : bookedCount) {
+            if (count > maxBooked) {
+                maxBooked = count;
+            }
+        }
+        return totalSeats - maxBooked;
     }
 }

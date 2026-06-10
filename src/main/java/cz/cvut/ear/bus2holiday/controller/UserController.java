@@ -57,6 +57,9 @@ public class UserController {
                         request.firstName(),
                         request.lastName(),
                         request.phone(),
+                        request.preferredCurrency(),
+                        request.country(),
+                        request.avatarData(),
                         currentUserId,
                         isAdmin);
         return ResponseEntity.ok(userMapper.toResponse(updatedUser));
