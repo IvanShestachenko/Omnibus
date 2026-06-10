@@ -18,7 +18,7 @@ import java.util.Set;
 @Table(name = "route")
 public class Route extends BaseEntity {
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, unique = true, length = 255)
     private String name;
 
     @Column(name = "is_active", nullable = false)
@@ -47,6 +47,10 @@ public class Route extends BaseEntity {
     @JsonIgnore
     @ManyToMany(mappedBy = "routes")
     private Set<Bus> buses = new HashSet<>();
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "routes")
+    private Set<Driver> drivers = new HashSet<>();
 
     public String getName() {
         return name;
@@ -102,5 +106,13 @@ public class Route extends BaseEntity {
 
     public void setBuses(Set<Bus> buses) {
         this.buses = buses;
+    }
+
+    public Set<Driver> getDrivers() {
+        return drivers;
+    }
+
+    public void setDrivers(Set<Driver> drivers) {
+        this.drivers = drivers;
     }
 }

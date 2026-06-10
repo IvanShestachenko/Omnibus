@@ -28,11 +28,14 @@ public class Trip extends BaseEntity {
     private Bus bus;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "driver_id")
+    @JoinColumn(name = "driver_id", nullable = false)
     private Driver driver;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+    @Column(name = "price_koefficient", nullable = false, precision = 3, scale = 2)
+    private BigDecimal priceKoefficient = BigDecimal.ONE;
+
+    @Column(name = "reverse", nullable = false)
+    private boolean reverse = false;
 
     @Column(name = "departure_datetime", nullable = false)
     private OffsetDateTime departureDatetime;
@@ -55,9 +58,6 @@ public class Trip extends BaseEntity {
 
     @OneToMany(mappedBy = "trip")
     private Set<Reservation> reservations = new HashSet<>();
-
-    @OneToMany(mappedBy = "trip")
-    private Set<BookedSegment> bookedSegments = new HashSet<>();
 
     public Route getRoute() {
         return route;
@@ -83,12 +83,20 @@ public class Trip extends BaseEntity {
         this.driver = driver;
     }
 
-    public BigDecimal getPrice() {
-        return price;
+    public BigDecimal getPriceKoefficient() {
+        return priceKoefficient;
     }
 
-    public void setPrice(BigDecimal price) {
-        this.price = price;
+    public void setPriceKoefficient(BigDecimal priceKoefficient) {
+        this.priceKoefficient = priceKoefficient;
+    }
+
+    public boolean isReverse() {
+        return reverse;
+    }
+
+    public void setReverse(boolean reverse) {
+        this.reverse = reverse;
     }
 
     public OffsetDateTime getDepartureDatetime() {
@@ -137,13 +145,5 @@ public class Trip extends BaseEntity {
 
     public void setReservations(Set<Reservation> reservations) {
         this.reservations = reservations;
-    }
-
-    public Set<BookedSegment> getBookedSegments() {
-        return bookedSegments;
-    }
-
-    public void setBookedSegments(Set<BookedSegment> bookedSegments) {
-        this.bookedSegments = bookedSegments;
     }
 }
