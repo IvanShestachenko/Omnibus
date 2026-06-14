@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -32,6 +32,8 @@ const registerSchema = z.object({
 type RegisterFields = z.infer<typeof registerSchema>;
 
 export const RegisterPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get('redirectTo');
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -101,10 +103,11 @@ export const RegisterPage: React.FC = () => {
       } else {
         setValue('country', 'not_in_list');
       }
-    } catch (err: any) {
-      if (err.message === 'TIMEOUT') {
+    } catch (err) {
+      const error = err as Error;
+      if (error.message === 'TIMEOUT') {
         setGeoError('Location request timed out. Please try again.');
-      } else if (err.message === 'PERMISSION_DENIED') {
+      } else if (error.message === 'PERMISSION_DENIED') {
         setGeoError('Location access denied. Please enable location permissions in browser settings.');
       } else {
         setGeoError('Could not detect location. Please select manually.');
@@ -220,7 +223,7 @@ export const RegisterPage: React.FC = () => {
       );
       // Mark login history
       localStorage.setItem('has_previously_logged_in', 'true');
-      navigate('/');
+      navigate(redirectTo || '/');
     } catch (err: unknown) {
       const axiosError = err as {
         response?: {
@@ -258,7 +261,7 @@ export const RegisterPage: React.FC = () => {
     }
   };
 
-  const onError = (formErrors: any) => {
+  const onError = (formErrors: Record<string, unknown>) => {
     const errorKeys = Object.keys(formErrors);
     if (errorKeys.length > 0) {
       const firstKey = errorKeys[0];
@@ -344,30 +347,38 @@ export const RegisterPage: React.FC = () => {
 
             <div className="auth-row">
               <Input
+                id="firstName"
                 label="First Name"
                 placeholder="John"
+                autoComplete="given-name"
                 error={errors.firstName?.message}
                 {...registerField('firstName')}
               />
               <Input
+                id="lastName"
                 label="Last Name"
                 placeholder="Doe"
+                autoComplete="family-name"
                 error={errors.lastName?.message}
                 {...registerField('lastName')}
               />
             </div>
 
             <Input
+              id="email"
               label="Email"
               type="email"
               placeholder="your@email.com"
+              autoComplete="email"
               error={errors.email?.message}
               {...registerField('email')}
             />
 
             <Input
+              id="phone"
               label="Phone Number"
               placeholder="e.g. +420123456789"
+              autoComplete="tel"
               error={errors.phone?.message}
               {...registerField('phone')}
             />
@@ -385,6 +396,7 @@ export const RegisterPage: React.FC = () => {
                   id="country-select"
                   className="input"
                   style={{ flex: 1 }}
+                  autoComplete="country-name"
                   {...registerField('country')}
                 >
                   <option value="">Not specified</option>
@@ -426,9 +438,11 @@ export const RegisterPage: React.FC = () => {
 
             <div>
               <Input
+                id="password"
                 label="Password"
                 type="password"
                 placeholder="••••••••"
+                autoComplete="new-password"
                 error={errors.password?.message}
                 {...registerField('password')}
               />
@@ -531,9 +545,11 @@ export const RegisterPage: React.FC = () => {
             </div>
 
             <Input
+              id="confirmPassword"
               label="Confirm Password"
               type="password"
               placeholder="••••••••"
+              autoComplete="new-password"
               error={errors.confirmPassword?.message}
               {...registerField('confirmPassword')}
             />
@@ -552,7 +568,7 @@ export const RegisterPage: React.FC = () => {
           <div className="auth-footer">
             <p>
               Already have an account?{' '}
-              <Link to="/login" className="auth-link">Sign in</Link>
+              <Link to={redirectTo ? `/login?redirectTo=${encodeURIComponent(redirectTo)}` : '/login'} className="auth-link">Sign in</Link>
             </p>
           </div>
         </Card>

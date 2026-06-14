@@ -3,7 +3,7 @@
    =================================== */
 
 .auth-page {
-  min-height: 100vh;
+  min-height: calc(100vh - 94px - 50px); /* Fills viewport space below header and above visible footer top */
   display: flex;
   align-items: center;
   justify-content: center;

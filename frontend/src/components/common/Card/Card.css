@@ -13,11 +13,13 @@
 
 .card-default {
   background: var(--bg-surface);
+  backdrop-filter: none;
 }
 
 .card-elevated {
   background: var(--bg-elevated);
   box-shadow: var(--shadow-md);
+  backdrop-filter: none;
 }
 
 .card-outline {
