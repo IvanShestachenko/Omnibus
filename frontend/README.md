@@ -1,5 +1,7 @@
 # Omnibus
 
+**Live Demo:** [omnibus-frontend.vercel.app](https://omnibus-frontend.vercel.app/)
+
 ## Table of Contents
 1. [Motivation](#motivation)
 2. [Project Architecture](#project-architecture)
@@ -153,3 +155,7 @@ This file describes the project's goal, motivation, tech stack, and structural d
   - [src/pages/TripDetailsPage.tsx](src/pages/TripDetailsPage.tsx#L731-L891) — Renders dynamic bus seat states (`circle`, `rect`, etc.) and binds click callbacks dynamically using React.
 - **Web Component:**
   - [src/components/layout/Footer/Footer.tsx](src/components/layout/Footer/Footer.tsx#L6-L17) — Declares class `OmnibusFooterInfo` extending `HTMLElement`, defines the custom element via `customElements.define`, and instantiates it dynamically inside a `useEffect` mount hook (lines 35-42) to place in the footer container.
+
+---
+
+Ivan Shestachenko, 2026, B0B39KAJ @ FEE CTU
