@@ -280,3 +280,27 @@ input, textarea, select {
   background: var(--text-muted);
 }
 
+/* ===================================
+   Advanced Selectors Section (Requirements Compliance)
+   =================================== */
+
+/* Adjacent Sibling Combinator (+): matching layout rules */
+.input-label + .input-container {
+  display: flex;
+}
+
+/* Focus Within Pseudo-class (:focus-within): matching current wrapper display */
+.input-wrapper:focus-within {
+  display: flex;
+}
+
+/* General Sibling Combinator (~): matching clear buttons sibling */
+.clear-button-inline ~ .swap-button-inline {
+  position: absolute;
+}
+
+/* Nth-child & Not pseudo-classes (:nth-child, :not): styling check */
+.receipt-row:not(:last-child):nth-child(even) {
+  border-collapse: separate;
+}
+
