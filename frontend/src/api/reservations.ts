@@ -19,20 +19,25 @@ export interface ReservationResponse {
   status: string;
   totalAmount: number;
   createdAt: string;
+  originTerminalName: string;
+  targetTerminalName: string;
   trip: {
     id: number;
     routeName: string;
     departure: string;
+    arrivalDatetime: string;
+    driverName: string | null;
+    busName: string;
+    busRegistrationNumber: string;
+    seatLayout: string;
   };
   passengers: {
     firstName: string;
     lastName: string;
-    segments: {
-      seatNumber: string;
-      fromStop: number;
-      toStop: number;
-    }[];
+    seatNumber: string;
+    checkedIn: boolean;
   }[];
+  distance: number;
 }
 
 export const reservationsApi = {
