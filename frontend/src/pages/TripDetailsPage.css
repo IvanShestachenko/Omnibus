@@ -1,326 +1,849 @@
 /* ===================================
-   Trip Details Page Styles
+   Trip Details & Booking Page Styles
    =================================== */
 
 .trip-details-page {
-  padding: var(--space-xl);
-  max-width: 1200px;
+  width: 100%;
+  padding: var(--space-xl) clamp(24px, calc((100vw - 1118px) / 2), calc(var(--space-2xl) * 1.2));
+  max-width: 1920px;
+  /* Standard widescreen wrapper */
   margin: 0 auto;
+  min-height: calc(100vh - 94px - 50px);
 }
 
 .trip-details-grid {
   display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: var(--space-xl);
+  grid-template-columns: 1fr 368px;
+  /* Left column takes the rest (up to grid max-width), right is 368px */
+  gap: var(--space-lg);
   align-items: start;
+  max-width: 1118px;
+  /* Capped entire grid width to 1118px to keep left column 726px and right column 368px */
+  margin: 0 auto;
+  /* Center the grid container to expand outer page margins */
+  width: 100%;
 }
 
-/* Main Content */
-.trip-main {
+.trip-main-column {
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
 }
 
-/* Trip Header Card */
-.trip-header-card {
-  padding: var(--space-xl);
+.trip-sidebar-column {
+  align-self: stretch;
 }
 
-.trip-header {
+/* Disable card hover reactions on this page */
+.trip-details-page .card:hover {
+  border-color: var(--border-default) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* ===================================
+   1. Trip Header Card
+   =================================== */
+.trip-header-card {
+  padding: var(--space-xl) var(--space-lg);
+}
+
+.trip-header-main-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-xl);
+  margin-bottom: var(--space-lg);
 }
 
-.trip-header h1 {
+.trip-header-main-row h1 {
   font-size: var(--text-2xl);
   font-weight: var(--font-bold);
+  color: var(--secondary);
   margin: 0;
 }
 
-.status-badge {
-  padding: var(--space-xs) var(--space-md);
-  border-radius: var(--radius-full);
+/* Timeline Layout */
+.trip-header-timeline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-top: var(--space-lg);
+  margin-bottom: var(--space-2xl);
+  /* more vertical space at bottom */
+  padding: var(--space-md) 0;
+  /* reduced horizontal padding to sit closer to card edges */
+  gap: var(--space-md);
+}
+
+.timeline-station-point {
+  flex: none;
+  width: 140px;
+  /* fixed width to center labels perfectly under times, reduced to spread times and content */
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.station-time {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary) !important;
+  /* Forces black text color per requirements */
+  display: block;
+}
+
+.station-date {
   font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-top: var(--space-sm);
+  /* more vertical space below time */
+  white-space: nowrap;
+}
+
+.station-name-label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: var(--font-bold);
+  margin-top: var(--space-sm);
+  /* more vertical space below date */
+  display: block;
+  white-space: nowrap;
+}
+
+.trip-header-timeline .trip-duration-line-container {
+  flex: 1;
+  /* stretches to take all remaining horizontal space */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 15px;
+  /* aligns vertically slightly above the bottom edge of times */
+  margin-left: -15px;
+  /* slight negative margin to pull dots closer to times without overlap */
+  margin-right: -15px;
+  grid-column: auto;
+  /* overrides SearchPage.css */
+  grid-row: auto;
+  align-self: auto;
+  min-width: 60px;
+}
+
+.trip-duration-line-container .duration-label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
   font-weight: var(--font-medium);
+}
+
+.duration-line-horizontal {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+.duration-line-horizontal .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary) !important;
+  flex-shrink: 0;
+}
+
+.duration-line-horizontal .line-connector {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--border-default) 50%, var(--primary) 100%);
+}
+
+/* Route details at bottom of header card */
+.trip-header-route-details {
+  border-top: 1px solid var(--border-default);
+  padding-top: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.route-number-badge {
+  font-weight: var(--font-bold);
+  color: var(--text-primary) !important;
+  /* our black color */
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.route-stops-vertical {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-sm);
+  padding-left: 24px;
+  /* larger left horizontal offset */
+}
+
+.stop-vertical-item {
+  display: flex;
+  align-items: flex-start;
+  /* top-align to align stops with first line of text */
+  position: relative;
+  padding-bottom: var(--space-md);
+}
+
+.stop-vertical-item:last-child {
+  padding-bottom: 0;
+}
+
+.stop-marker-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 16px;
+  margin-right: var(--space-md);
+  align-self: stretch;
+  /* span the entire height of the item including padding-bottom */
+}
+
+.stop-circle {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 2px solid var(--border-hover);
+  /* 2px thick circle line */
+  background: var(--bg-surface);
+  /* hollow */
+  z-index: 2;
+  margin-top: 5px;
+  /* centers circle vertically with first line of text */
+  box-sizing: border-box;
+}
+
+.stop-circle.booked {
+  border-color: var(--primary);
+  background: var(--bg-surface);
+  /* hollow with orange border */
+}
+
+.stop-line-segment {
+  position: absolute;
+  top: 9.5px;
+  /* starts at the center of the current circle */
+  bottom: -9.5px;
+  /* extends to the center of the next circle */
+  width: 2px;
+  /* 2px thick connecting line matching circle border */
+  background: var(--border-default);
+  z-index: 1;
+}
+
+.stop-line-segment.booked {
+  background: var(--primary);
+}
+
+.stop-name-text {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  /* default grey text for all stops */
+  font-weight: var(--font-medium);
+}
+
+/* Bus & Features Horizontal Row */
+.bus-features-section {
+  margin-top: var(--space-lg);
+  border-top: 1px solid var(--border-default);
+  padding-top: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.bus-label-text {
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  /* our black color */
+  font-weight: var(--font-bold);
+}
+
+.bus-details-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 24px;
+  /* same left offset as stops */
+}
+
+.bus-model-name {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  /* default grey */
+  font-weight: var(--font-semibold);
+}
+
+.trip-features-icons {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.feature-icon-badge-only {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--primary-light);
+  color: var(--primary);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+
+/* ===================================
+   2. Contact Information Card
+   =================================== */
+.contact-info-card {
+  padding: var(--space-lg);
+}
+
+.contact-info-card h3,
+.passengers-card h3,
+.seat-map-card h3 {
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--secondary);
+  margin-bottom: var(--space-md);
+}
+
+.contact-fields-row {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.contact-field-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.contact-field-group label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-bold);
+  color: var(--text-muted);
   text-transform: uppercase;
 }
 
-.status-scheduled {
-  background: var(--primary-light);
-  color: var(--primary);
+.contact-input-readonly {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: 10px var(--space-sm);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+  outline: none;
+  width: 100%;
 }
 
-.status-completed {
-  background: rgba(107, 114, 128, 0.2);
+/* ===================================
+   3. Passengers Card
+   =================================== */
+.passengers-card {
+  padding: var(--space-lg);
+}
+
+.passengers-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.passenger-input-row {
+  display: grid;
+  grid-template-columns: 1fr 180px;
+  gap: var(--space-md);
+  align-items: center;
+}
+
+.passenger-name-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.passenger-name-field label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-bold);
   color: var(--text-muted);
 }
 
-.status-cancelled {
-  background: rgba(255, 68, 68, 0.1);
-  color: var(--error);
+.passenger-fullname-input {
+  width: 100%;
+  padding: 10px var(--space-sm);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  transition: border-color var(--transition-fast);
 }
 
-/* Journey Visualization */
-.trip-journey {
+.passenger-fullname-input:focus {
+  outline: none;
+  border-color: var(--secondary);
+}
+
+.passenger-seat-indicator {
   display: flex;
   align-items: center;
-  gap: var(--space-lg);
+  gap: var(--space-xs);
+  background: var(--bg-elevated);
+  padding: 10px var(--space-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  height: 42px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all var(--transition-fast);
 }
 
-.journey-point {
-  text-align: center;
-  min-width: 140px;
+.passenger-seat-indicator.assigned {
+  background: rgba(19, 41, 104, 0.06);
+  border-color: var(--secondary);
+  color: var(--secondary);
+  font-weight: var(--font-semibold);
 }
 
-.point-time {
-  font-size: var(--text-3xl);
-  font-weight: var(--font-bold);
+.seat-indicator-icon {
+  color: var(--text-muted);
+}
+
+.passenger-seat-indicator.assigned .seat-indicator-icon {
   color: var(--primary);
 }
 
-.point-date {
+/* Validation styling for passenger inputs */
+.passenger-fullname-input.input-error,
+.passenger-seat-indicator.input-error {
+  border-color: var(--error) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+  background: #FFF5F5 !important;
+}
+
+/* Sidebar Validation Error Message */
+.booking-validation-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 6.5px;
+  color: var(--error);
+  font-size: 10.5px;
+  margin-top: var(--space-md);
+  font-weight: var(--font-medium);
+  line-height: 1.4;
+}
+
+.booking-validation-error-msg .error-msg-icon {
+  flex-shrink: 0;
+}
+
+
+
+
+/* ===================================
+   4. Seat Map Card
+   =================================== */
+.seat-map-card {
+  padding: var(--space-lg);
+}
+
+.seat-map-legend {
+  display: flex;
+  gap: var(--space-lg);
+  justify-content: center;
+  margin-bottom: var(--space-lg);
   font-size: var(--text-sm);
   color: var(--text-secondary);
-  margin-top: var(--space-xs);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 1px solid var(--border-default);
+}
+
+
+.legend-color.available {
+  background: white;
+}
+
+.legend-color.occupied {
+  background: var(--border-default);
+}
+
+.legend-color.panoramic {
+  border-color: var(--border-default);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.legend-color.panoramic::after {
+  content: '★';
+  font-size: 8px;
+  color: var(--text-muted);
+}
+
+.legend-color.selected {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.seat-map-scroll-area {
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
+  padding: var(--space-md) 0;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+}
+
+/* SVG seat map styling */
+.bus-svg-container {
+  display: block;
+  user-select: none;
+}
+
+.bus-body-outline {
+  fill: #FFFFFF;
+  stroke: var(--border-hover);
+  stroke-width: 2.5;
+}
+
+/* Interactive SVG seat styles */
+.seat-element-group {
+  cursor: pointer;
+}
+
+.seat-rect {
+  transition: all var(--transition-fast);
+  stroke-width: 1.5;
+}
+
+.seat-element-group.available:hover .seat-rect {
+  fill: var(--primary-light);
+  stroke: var(--primary);
+}
+
+.seat-element-group.occupied {
+  cursor: not-allowed;
+}
+
+.seat-element-group.panoramic .seat-rect {
+  stroke: var(--border-default);
+  stroke-width: 1.5;
+}
+
+.seat-element-group.selected .seat-rect {
+  fill: var(--primary);
+  stroke: var(--primary);
+}
+
+.seat-text {
+  font-size: 11px;
+  font-weight: var(--font-bold);
+  pointer-events: none;
+  transition: fill var(--transition-fast);
+}
+
+.seat-element-group.selected .seat-text {
+  fill: white;
+}
+
+/* ===================================
+   5. Checkout Sidebar Card
+   =================================== */
+.checkout-receipt-card {
+  padding: var(--space-xl);
+  border-radius: var(--radius-lg);
+  position: sticky;
+  top: var(--space-md);
+}
+
+.checkout-receipt-card h3 {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--secondary);
+  margin-top: 0;
+  margin-bottom: var(--space-md);
+  border-bottom: 2px solid var(--border-default);
+  padding-bottom: var(--space-xs);
+}
+
+.checkout-timer-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.receipt-route-info {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+  gap: var(--space-md);
+}
+
+.receipt-route-point {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  position: relative;
+  z-index: 2;
+}
+
+.point-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.point-dot.departure-dot {
+  background: var(--secondary);
+}
+
+.point-dot.arrival-dot {
+  background: var(--primary);
+}
+
+.receipt-route-connector {
+  position: absolute;
+  left: 20px;
+  top: 28px;
+  bottom: 28px;
+  width: 2px;
+  border-left: 2px dashed var(--border-hover);
+  z-index: 1;
+}
+
+.point-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .point-label {
   font-size: var(--text-xs);
   color: var(--text-muted);
   text-transform: uppercase;
-  margin-top: var(--space-sm);
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.5px;
 }
 
-.journey-line {
-  flex: 1;
-  position: relative;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary) 0%, var(--bg-elevated) 50%, var(--primary) 100%);
-  border-radius: var(--radius-full);
+.point-value {
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  font-weight: var(--font-semibold);
+  line-height: 1.3;
 }
 
-.journey-line::before,
-.journey-line::after {
-  content: '';
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  background: var(--primary);
-  border-radius: 50%;
-  top: 50%;
-  transform: translateY(-50%);
+
+.receipt-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
 }
 
-.journey-line::before { left: -6px; }
-.journey-line::after { right: -6px; }
-
-.journey-duration {
-  position: absolute;
-  top: -30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--bg-surface);
-  padding: var(--space-xs) var(--space-md);
-  border-radius: var(--radius-full);
+.receipt-item-row {
+  display: flex;
+  justify-content: space-between;
   font-size: var(--text-sm);
   color: var(--text-secondary);
-  border: 1px solid var(--border-default);
 }
 
-/* Stops Card */
-.stops-card h3,
-.info-card h3 {
-  font-size: var(--text-lg);
-  font-weight: var(--font-semibold);
-  margin-bottom: var(--space-lg);
+.receipt-item-row.surcharge-row {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  padding-left: var(--space-md);
+  margin-top: -4px;
 }
 
-.stops-list {
+.receipt-seats-breakdown {
   display: flex;
   flex-direction: column;
+  gap: 4px;
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  margin-top: calc(var(--space-xs) * -1);
+  margin-bottom: var(--space-xs);
 }
 
-.stop-item {
+.receipt-seat-group-detail {
   display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-md) 0;
-  border-left: 2px solid var(--border-default);
-  margin-left: var(--space-md);
-  padding-left: var(--space-lg);
-  position: relative;
+  justify-content: space-between;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
 }
 
-.stop-item:first-child {
-  border-color: var(--primary);
-}
-
-.stop-item:last-child {
-  border-color: var(--primary);
-}
-
-.stop-marker {
-  font-size: 1.5rem;
-  position: absolute;
-  left: -18px;
-  background: var(--bg-surface);
-}
-
-.stop-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.stop-name {
+.receipt-seat-group-detail .label {
   font-weight: var(--font-medium);
-}
-
-.stop-distance {
-  font-size: var(--text-sm);
   color: var(--text-muted);
 }
 
-/* Info Grid */
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: var(--space-lg);
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-}
-
-.info-label {
-  font-size: var(--text-sm);
-  color: var(--text-muted);
-}
-
-.info-value {
-  font-size: var(--text-lg);
-  font-weight: var(--font-medium);
-}
-
-.info-value.seats {
-  color: var(--primary);
-}
-
-/* Booking Sidebar */
-.booking-sidebar {
-  position: sticky;
-  top: 100px;
-}
-
-.booking-card {
-  padding: var(--space-xl);
-}
-
-.booking-card h3 {
-  font-size: var(--text-xl);
+.receipt-seat-group-detail .values {
   font-weight: var(--font-semibold);
-  margin-bottom: var(--space-lg);
+  color: var(--secondary);
 }
 
-/* Passengers Section */
-.passengers-section {
+.receipt-total-section {
+  border-top: 1px solid var(--border-default);
+  padding-top: var(--space-md);
   margin-bottom: var(--space-xl);
 }
 
-.passengers-header {
+.receipt-total-row {
   display: flex;
   justify-content: space-between;
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+}
+
+.receipt-total-row .total-price-val {
+  font-size: var(--text-2xl);
+  color: var(--primary);
+}
+
+/* ===================================
+   6. Toast Notifications System
+   =================================== */
+.toast-container-fixed {
+  position: fixed;
+  top: 20px;
+  /* Raised by 80px (approx 2 heights) */
+  right: -15px;
+  /* Partially hidden behind the right edge */
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  pointer-events: none;
+}
+
+.toast-item-notification {
+  pointer-events: auto;
+  padding: 0;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: stretch;
+  cursor: pointer;
+  transform: translateX(110%);
+  animation: toastSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+  min-width: 320px;
+  /* Longer toast */
+  max-width: 450px;
+  overflow: hidden;
+}
+
+.toast-icon-wrapper {
+  display: flex;
   align-items: center;
-  margin-bottom: var(--space-md);
+  justify-content: center;
+  width: 44px;
+  /* Solid block for the icon */
+  color: white;
+  flex-shrink: 0;
+}
+
+.toast-item-notification span {
+  flex: 1;
+  padding: 12px 24px 12px 16px;
+  /* Right padding slightly larger due to container right offset */
+  display: flex;
+  align-items: center;
+  font-size: var(--text-sm);
   font-weight: var(--font-medium);
 }
 
-.passenger-form {
-  background: var(--bg-secondary);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  margin-bottom: var(--space-md);
+.toast-item-notification.success {
+  border-color: rgba(16, 185, 129, 0.2);
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.08);
 }
 
-.passenger-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-sm);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
+.toast-item-notification.success .toast-icon-wrapper {
+  background: #10B981;
 }
 
-.remove-btn {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: var(--text-sm);
+.toast-item-notification.success span {
+  background: #ECFDF5;
+  color: #065F46;
 }
 
-.remove-btn:hover {
-  color: var(--error);
+.toast-item-notification.error {
+  border-color: rgba(239, 68, 68, 0.2);
+  box-shadow: 0 8px 16px rgba(239, 68, 68, 0.08);
 }
 
-.passenger-input {
-  width: 100%;
-  padding: var(--space-sm);
-  margin-bottom: var(--space-sm);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  font-size: var(--text-sm);
+.toast-item-notification.error .toast-icon-wrapper {
+  background: #EF4444;
 }
 
-.passenger-input:focus {
-  outline: none;
-  border-color: var(--primary);
+.toast-item-notification.error span {
+  background: #FEF2F2;
+  color: #991B1B;
 }
 
-/* Price Summary */
-.price-summary {
-  border-top: 1px solid var(--border-default);
-  padding-top: var(--space-lg);
-  margin-bottom: var(--space-lg);
+.toast-item-notification:hover {
+  opacity: 0.95;
+  transform: scale(0.98);
 }
 
-.price-row {
-  display: flex;
-  justify-content: space-between;
-  color: var(--text-secondary);
-  margin-bottom: var(--space-sm);
+@keyframes toastSlideIn {
+  from {
+    transform: translateX(110%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
 }
 
-.price-total {
-  display: flex;
-  justify-content: space-between;
-  font-weight: var(--font-semibold);
-  font-size: var(--text-lg);
-  margin-top: var(--space-md);
-}
 
-.total-amount {
-  color: var(--primary);
-  font-size: var(--text-2xl);
-}
-
-.sold-out-msg {
-  text-align: center;
-  color: var(--error);
-  font-size: var(--text-sm);
-  margin-top: var(--space-md);
-}
-
-/* Loading/Error States */
+/* ===================================
+   7. Loading/Error States
+   =================================== */
 .loading-state,
 .error-state {
-  min-height: 50vh;
+  min-height: calc(100vh - 94px - 50px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -338,39 +861,201 @@
   animation: spin 0.8s linear infinite;
 }
 
-/* Responsive */
-@media (max-width: 900px) {
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===================================
+   8. Responsive Viewport Adaptations
+   =================================== */
+@media (max-width: 1166px) {
+  .trip-details-page {
+    padding: var(--space-xl) calc(var(--space-2xl) * 1.44);
+  }
+
   .trip-details-grid {
     grid-template-columns: 1fr;
+    gap: var(--space-lg);
   }
 
-  .booking-sidebar {
+  .trip-sidebar-column {
+    position: static;
+    align-self: auto;
+  }
+
+  .checkout-receipt-card {
     position: static;
   }
+}
 
-  .trip-journey {
+@media (max-width: 900px) {
+  .trip-details-page {
+    padding: var(--space-md);
+  }
+
+  .contact-fields-row {
     flex-direction: column;
-    text-align: center;
+    gap: var(--space-sm);
   }
 
-  .journey-line {
+  .passenger-input-row {
+    grid-template-columns: 1fr 130px;
+    gap: var(--space-sm);
+    align-items: flex-end;
+  }
+}
+
+@media (max-height: 800px) {
+  .trip-details-page {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  .checkout-receipt-card {
+    padding: 12px;
+    top: 10px;
+    font-size: var(--text-sm);
+  }
+
+  .checkout-receipt-card h3 {
+    font-size: var(--text-lg);
+    margin-bottom: 4px;
+    padding-bottom: 4px;
+  }
+
+  .checkout-timer-badge {
+    margin-bottom: 8px;
+    padding: 4px 10px;
+    font-size: var(--text-xs);
+  }
+
+  .receipt-route-info {
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    gap: 6px;
+  }
+
+  .point-label {
+    font-size: 9px;
+  }
+
+  .point-value {
+    font-size: 11px;
+  }
+
+  .receipt-route-connector {
+    left: 14px;
+    top: 20px;
+    bottom: 20px;
+  }
+
+  .receipt-items-list {
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  .receipt-item-row {
+    font-size: var(--text-xs);
+  }
+
+  .receipt-seats-breakdown {
+    padding: 4px 6px;
+    margin-top: -2px;
+    margin-bottom: 1px;
+    gap: 1px;
+  }
+
+  .receipt-seat-group-detail {
+    font-size: 10px;
+  }
+
+  .receipt-total-section {
+    margin-bottom: 8px;
+    padding-top: 4px;
+  }
+
+  .receipt-total-row {
+    font-size: var(--text-sm);
+  }
+
+  .receipt-total-row .total-price-val {
+    font-size: var(--text-base);
+  }
+
+  .checkout-receipt-card button {
+    padding: 8px 14px !important;
+    font-size: var(--text-sm) !important;
+  }
+
+  .booking-validation-error-msg {
+    margin-top: 4px;
+    font-size: 9.5px;
+    gap: 3px;
+  }
+}
+
+@media (max-height: 800px) and (min-width: 1167px) {
+  .trip-details-grid {
+    grid-template-columns: 1fr 310px;
+  }
+}
+
+@media (max-width: 500px) {
+  .trip-header-timeline {
+    gap: var(--space-xs);
+    padding: var(--space-sm) 0;
+    margin-bottom: var(--space-lg);
+  }
+
+  .timeline-station-point {
+    width: 110px;
+  }
+
+  .timeline-station-point .station-time {
+    font-size: var(--text-xl) !important;
+  }
+
+  .timeline-station-point .station-date {
+    font-size: 11px;
+    white-space: normal !important;
+    margin-top: 4px;
+    line-height: 1.2;
+  }
+
+  .timeline-station-point .station-name-label {
+    font-size: 10px;
+    white-space: normal !important;
+    margin-top: 4px;
+    line-height: 1.2;
+  }
+
+  .trip-header-timeline .trip-duration-line-container {
+    min-width: 30px;
+    margin-left: -5px;
+    margin-right: -5px;
+    margin-top: 8px;
+  }
+
+  .trip-duration-line-container .duration-label {
+    font-size: 10px;
+  }
+
+  .duration-line-horizontal .dot {
     width: 4px;
-    height: 60px;
-    background: linear-gradient(180deg, var(--primary) 0%, var(--bg-elevated) 50%, var(--primary) 100%);
+    height: 4px;
   }
 
-  .journey-line::before,
-  .journey-line::after {
-    left: 50%;
-    transform: translateX(-50%);
+  .passenger-input-row {
+    grid-template-columns: 1fr 110px;
+    gap: var(--space-xs);
+    align-items: flex-end;
   }
 
-  .journey-line::before { top: -6px; }
-  .journey-line::after { bottom: -6px; top: auto; }
-
-  .journey-duration {
-    top: 50%;
-    left: 30px;
-    transform: translateY(-50%);
+  .passenger-seat-indicator {
+    padding: 10px 4px;
+    font-size: 11px;
+    gap: 4px;
   }
 }
