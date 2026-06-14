@@ -2,72 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { SearchPanel } from '../components/common';
 import { useCurrency } from '../context/CurrencyContext';
 import { useAuth } from '../context/AuthContext';
-import { routesApi } from '../api/routes';
-import { terminalsApi } from '../api/terminals';
+import { routesApi, type TripInfo } from '../api/routes';
 import layer1Img from '../assets/layer_1_cut.webp';
 import layer2Img from '../assets/layer_2_cut.webp';
 import layer3Img from '../assets/layer_3_cut.webp';
 import layer4Img from '../assets/layer_4_cut.webp';
 import fleetVideo from '../assets/2020_Setra_S515_HD_Walkaround.mp4';
+import videoPoster from '../assets/video_poster.webp';
 import { ParallaxBanner } from '../components/common/ParallaxBanner/ParallaxBanner';
 import './HomePage.css';
 
-interface TripInfo {
-  from: string;
-  to: string;
-  price: number;
-  fromCountry: string;
-  toCountry: string;
-}
-
 const backupTrips: TripInfo[] = [
-  { from: 'Prague', to: 'Brno', price: 9.27, fromCountry: 'Czech Republic', toCountry: 'Czech Republic' },
+  { from: 'Prague', to: 'Brno', price: 8.36, fromCountry: 'Czech Republic', toCountry: 'Czech Republic' },
   { from: 'Berlin', to: 'Munich', price: 23.41, fromCountry: 'Germany', toCountry: 'Germany' },
   { from: 'Paris', to: 'Marseille', price: 29.93, fromCountry: 'France', toCountry: 'France' },
   { from: 'Warsaw', to: 'Kraków', price: 11.30, fromCountry: 'Poland', toCountry: 'Poland' }
 ];
-
-const getUnloggedInTrips = (trips: TripInfo[]): TripInfo[] => {
-  const targetPairs = [
-    { from: 'Prague', to: 'Brno' },
-    { from: 'Berlin', to: 'Munich' },
-    { from: 'Paris', to: 'Marseille' },
-    { from: 'Warsaw', to: 'Kraków' }
-  ];
-  
-  // Try to find exact matches for target pairs first
-  const selected = targetPairs
-    .map(pair => trips.find(t => t.from.toLowerCase() === pair.from.toLowerCase() && t.to.toLowerCase() === pair.to.toLowerCase()))
-    .filter((t): t is TripInfo => !!t);
-    
-  // If we don't have 4, find any trip starting in each country to fill it up
-  if (selected.length < 4) {
-    const countries = ['Czech Republic', 'Germany', 'France', 'Poland'];
-    countries.forEach(country => {
-      if (selected.length >= 4) return;
-      if (selected.some(s => s.fromCountry.toLowerCase() === country.toLowerCase())) return;
-      
-      const fallbackTrip = trips.find(t => 
-        t.fromCountry.toLowerCase() === country.toLowerCase() && 
-        !selected.some(s => s.from.toLowerCase() === t.from.toLowerCase() && s.to.toLowerCase() === t.to.toLowerCase())
-      );
-      if (fallbackTrip) {
-        selected.push(fallbackTrip);
-      }
-    });
-  }
-  
-  // If we still don't have 4, fill up with any available trips
-  let idx = 0;
-  while (selected.length < 4 && idx < trips.length) {
-    const trip = trips[idx++];
-    if (!selected.some(s => s.from.toLowerCase() === trip.from.toLowerCase() && s.to.toLowerCase() === trip.to.toLowerCase())) {
-      selected.push(trip);
-    }
-  }
-  
-  return selected.slice(0, 4);
-};
 
 export const HomePage: React.FC = () => {
   const { user } = useAuth();
@@ -89,122 +39,7 @@ export const HomePage: React.FC = () => {
   useEffect(() => {
     const fetchPopularTrips = async () => {
       try {
-        const [routesData, terminalsData] = await Promise.all([
-          routesApi.getAll(),
-          terminalsApi.getAll()
-        ]);
-
-        // Build city to country mapping
-        const cityToCountry: Record<string, string> = {};
-        terminalsData.forEach(t => {
-          if (t.city && t.country) {
-            cityToCountry[t.city.toLowerCase()] = t.country;
-          }
-        });
-
-        // Collect all unique connections from active routes in both directions
-        const allTrips: TripInfo[] = [];
-        const seenPairs = new Set<string>();
-
-        routesData.forEach(route => {
-          if (!route.isActive || !route.stops || route.stops.length < 2) return;
-          
-          const sortedStops = [...route.stops].sort((a, b) => a.sequenceOrder - b.sequenceOrder);
-          for (let i = 0; i < sortedStops.length; i++) {
-            for (let j = i + 1; j < sortedStops.length; j++) {
-              const stopA = sortedStops[i];
-              const stopB = sortedStops[j];
-              
-              if (!stopA.city || !stopB.city) continue;
-              if (stopA.city.toLowerCase() === stopB.city.toLowerCase()) continue;
-              
-              const distance = Math.abs(stopB.distanceFromOrigin - stopA.distanceFromOrigin);
-              const price = Math.round(distance * 0.045 * 100) / 100;
-              if (price <= 0) continue;
-
-              const countryA = cityToCountry[stopA.city.toLowerCase()] || '';
-              const countryB = cityToCountry[stopB.city.toLowerCase()] || '';
-              if (!countryA || !countryB) continue;
-
-              // 1. Forward connection (stopA -> stopB)
-              const keyForward = `${stopA.city.toLowerCase()}->${stopB.city.toLowerCase()}`;
-              if (!seenPairs.has(keyForward)) {
-                seenPairs.add(keyForward);
-                allTrips.push({
-                  from: stopA.city,
-                  to: stopB.city,
-                  price,
-                  fromCountry: countryA,
-                  toCountry: countryB
-                });
-              }
-
-              // 2. Backward connection (stopB -> stopA)
-              const keyBackward = `${stopB.city.toLowerCase()}->${stopA.city.toLowerCase()}`;
-              if (!seenPairs.has(keyBackward)) {
-                seenPairs.add(keyBackward);
-                allTrips.push({
-                  from: stopB.city,
-                  to: stopA.city,
-                  price,
-                  fromCountry: countryB,
-                  toCountry: countryA
-                });
-              }
-            }
-          }
-        });
-
-        // Determine popular trips to display
-        const activeCountry = user?.country;
-        const selected: TripInfo[] = [];
-
-        if (activeCountry) {
-          // Logged-in user with a country selected
-          const domestic = allTrips.filter(t => 
-            t.fromCountry.toLowerCase() === activeCountry.toLowerCase() && 
-            t.toCountry.toLowerCase() === activeCountry.toLowerCase()
-          );
-          const international = allTrips.filter(t => 
-            t.fromCountry.toLowerCase() === activeCountry.toLowerCase() && 
-            t.toCountry.toLowerCase() !== activeCountry.toLowerCase()
-          );
-
-          // Take 2 domestic and 2 international
-          selected.push(...domestic.slice(0, 2));
-          selected.push(...international.slice(0, 2));
-
-          // Fallback: if we don't have enough, fill up with any trips starting in this country
-          if (selected.length < 4) {
-            const remainingFromCountry = [
-              ...domestic.filter(t => !selected.includes(t)),
-              ...international.filter(t => !selected.includes(t))
-            ];
-            selected.push(...remainingFromCountry.slice(0, 4 - selected.length));
-          }
-        }
-
-        // Fallback or unlogged-in: load defaults
-        if (selected.length < 4) {
-          const defaults = getUnloggedInTrips(allTrips);
-          for (const def of defaults) {
-            if (selected.length >= 4) break;
-            if (!selected.some(s => s.from.toLowerCase() === def.from.toLowerCase() && s.to.toLowerCase() === def.to.toLowerCase())) {
-              selected.push(def);
-            }
-          }
-        }
-
-        // Double check we have 4, otherwise use backups
-        if (selected.length < 4) {
-          for (const backup of backupTrips) {
-            if (selected.length >= 4) break;
-            if (!selected.some(s => s.from.toLowerCase() === backup.from.toLowerCase() && s.to.toLowerCase() === backup.to.toLowerCase())) {
-              selected.push(backup);
-            }
-          }
-        }
-
+        const selected = await routesApi.getPopular(user?.country);
         setPopularTrips(selected);
       } catch (err) {
         console.error('Failed to calculate popular trips, using backups', err);
@@ -273,11 +108,11 @@ export const HomePage: React.FC = () => {
       <section className="popular-routes-section" id="popular-routes">
         <div className="section-container">
           <h2 className="section-title">
-            {user?.country ? `Popular Trips in & from ${user.country}` : 'Popular Trips'}
+            {user?.country ? `Trending Routes: ${user.country}` : 'Popular Trips'}
           </h2>
           <p className="section-subtitle">
             {user?.country 
-              ? `Quick access to the most popular journeys in and from ${user.country}` 
+              ? `Top domestic connections and international routes starting from ${user.country}` 
               : 'Quick access to the most popular destinations in Europe'}
           </p>
 
@@ -462,6 +297,7 @@ export const HomePage: React.FC = () => {
                 <video
                   ref={videoRef}
                   src={videoSrc || undefined}
+                  poster={videoPoster}
                   preload="metadata"
                   controls
                   onPlay={() => setIsVideoPlaying(true)}
@@ -505,11 +341,16 @@ export const HomePage: React.FC = () => {
 
                 <div className="fleet-feature-item">
                   <div className="fleet-feature-icon">
-                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="6" y="2" width="12" height="20" rx="2" />
-                      <line x1="11" y1="5" x2="13" y2="5" />
-                      <path d="M13 8.5 L9.5 13 h5 L11 17.5" />
-                      <circle cx="12" cy="20" r="0.5" fill="currentColor" stroke="none" />
+                    <svg viewBox="18 16 131 133" width="20" height="20" fill="none">
+                      <g transform="translate(0.000000,165.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
+                        <path d="M280 1410 c-19 -19 -20 -33 -20 -434 l0 -415 26 -20 c25 -20 39 -21 238 -21 200 0 214 1 234 20 22 21 22 22 22 435 0 402 -1 416 -20 435 -19 19 -33 20 -240 20 -207 0 -221 -1 -240 -20z m290 -40 c0 -5 -22 -10 -50 -10 -27 0 -50 5 -50 10 0 6 23 10 50 10 28 0 50 -4 50 -10z m180 -380 l0 -330 -230 0 -230 0 0 330 0 330 230 0 230 0 0 -330z m-206 -376 c9 -8 16 -19 16 -24 0 -11 -29 -40 -40 -40 -5 0 -16 10 -24 22 -14 20 -14 24 1 40 20 22 27 22 47 2z"/>
+                        <path d="M492 1082 c-39 -59 -72 -110 -72 -114 0 -5 18 -8 41 -8 34 0 39 -3 35 -17 -16 -54 -28 -113 -24 -124 4 -12 148 183 148 201 0 5 -18 10 -40 10 -46 0 -46 0 -24 82 8 33 14 64 12 69 -2 4 -36 -40 -76 -99z"/>
+                        <path d="M986 1334 c-24 -23 -24 -385 0 -408 8 -9 20 -16 25 -16 12 0 12 23 -1 36 -7 7 -9 77 -8 190 l3 179 170 0 170 0 3 -179 c1 -113 -1 -183 -8 -190 -13 -13 -13 -36 -1 -36 5 0 17 7 25 16 24 23 24 385 0 408 -13 13 -45 16 -189 16 -144 0 -176 -3 -189 -16z"/>
+                        <path d="M1107 1214 c-13 -13 -7 -71 8 -84 19 -16 28 4 23 51 -3 32 -17 46 -31 33z"/>
+                        <path d="M1217 1213 c-10 -10 -8 -81 2 -87 18 -11 32 22 25 58 -6 35 -14 43 -27 29z"/>
+                        <path d="M1052 1082 c-9 -7 -12 -47 -10 -168 l3 -159 130 0 130 0 3 159 c2 121 -1 161 -10 168 -7 4 -62 8 -123 8 -60 0 -116 -4 -123 -8z"/>
+                        <path d="M1130 692 c0 -35 4 -52 15 -56 12 -4 15 -29 15 -133 0 -70 -5 -144 -10 -164 -15 -54 -51 -101 -95 -126 -37 -21 -52 -23 -215 -23 -163 0 -178 2 -215 23 -26 14 -48 37 -62 67 -27 51 -30 115 -8 124 11 4 15 20 15 56 l0 50 -50 0 -50 0 0 -50 c0 -30 5 -52 13 -57 8 -4 17 -30 20 -57 13 -95 71 -163 160 -187 24 -6 106 -9 201 -7 173 3 211 13 263 70 51 54 63 103 63 258 0 134 2 147 21 163 15 13 19 27 17 55 -3 37 -4 37 -50 40 l-48 3 0 -49z"/>
+                      </g>
                     </svg>
                   </div>
                   <div className="fleet-feature-text">
@@ -520,12 +361,13 @@ export const HomePage: React.FC = () => {
 
                 <div className="fleet-feature-item">
                   <div className="fleet-feature-icon">
-                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="9.5" y="2.5" width="5" height="3.5" rx="1.2" />
-                      <path d="M11 6 v1.5 M13 6 v1.5" />
-                      <rect x="6.5" y="7.5" width="11" height="9.5" rx="2" />
-                      <rect x="5" y="17" width="14" height="3.5" rx="1.2" />
-                      <path d="M9 21 h6" />
+                    <svg viewBox="20 10 232 252" width="20" height="20" fill="none">
+                      <g transform="translate(0.000000,272.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
+                        <path d="M1008 2614 c-33 -17 -49 -46 -77 -137 -24 -80 -20 -115 20 -153 22 -21 41 -28 84 -32 l55 -4 0 -78 0 -77 -102 -5 c-63 -4 -118 -12 -141 -22 -45 -20 -109 -76 -136 -119 -19 -31 -146 -448 -195 -640 -35 -135 -41 -231 -26 -412 l13 -156 41 -21 c23 -11 67 -40 99 -64 33 -24 69 -44 80 -44 12 0 90 13 172 30 207 40 307 51 471 52 183 0 307 -15 531 -62 51 -11 104 -20 117 -20 13 0 50 20 83 44 32 24 76 53 99 64 l41 21 13 156 c15 181 9 277 -26 412 -49 192 -176 609 -195 640 -27 43 -91 99 -136 119 -23 10 -78 18 -140 22 l-103 5 0 77 0 78 55 4 c64 5 109 39 119 89 5 29 -23 138 -50 191 -29 56 -42 58 -406 58 -275 -1 -338 -3 -360 -16z m532 -404 l0 -80 -170 0 -170 0 0 80 0 80 170 0 170 0 0 -80z m32 -390 c80 -25 156 -74 181 -118 26 -45 43 -114 66 -277 21 -146 51 -488 51 -581 l0 -54 -53 0 -53 0 -12 190 c-13 202 -44 469 -68 585 -17 80 -36 105 -105 134 -144 62 -411 39 -488 -43 -37 -39 -81 -330 -103 -676 l-12 -190 -54 0 -55 0 7 138 c12 242 49 564 78 681 25 101 64 148 163 192 116 52 324 60 457 19z"/>
+                        <path d="M355 665 c-47 -17 -82 -57 -91 -103 -7 -36 11 -195 27 -248 5 -17 22 -42 37 -56 21 -21 277 -157 355 -190 16 -7 17 8 17 230 l0 238 -35 13 c-19 6 -53 28 -77 47 -83 70 -162 94 -233 69z"/>
+                        <path d="M2290 671 c-46 -10 -87 -32 -139 -75 -23 -19 -57 -41 -76 -47 l-35 -13 0 -238 0 -238 28 12 c15 7 92 46 172 87 143 72 182 98 202 135 11 21 38 184 38 236 0 95 -89 161 -190 141z"/>
+                        <path d="M1160 614 c-48 -6 -311 -53 -332 -60 -17 -5 -18 -26 -18 -250 l0 -244 560 0 560 0 0 244 c0 224 -1 245 -17 250 -10 3 -81 17 -158 32 -118 22 -172 27 -350 29 -115 2 -226 1 -245 -1z"/>
+                      </g>
                     </svg>
                   </div>
                   <div className="fleet-feature-text">
@@ -536,15 +378,12 @@ export const HomePage: React.FC = () => {
 
                 <div className="fleet-feature-item">
                   <div className="fleet-feature-icon">
-                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="2" y1="12" x2="22" y2="12" />
-                      <line x1="12" y1="2" x2="12" y2="22" />
-                      <path d="m20 16-4-4 4-4" />
-                      <path d="m4 8 4 4-4 4" />
-                      <path d="m16 4-4 4-4-4" />
-                      <path d="m8 20 4-4 4 4" />
-                      <line x1="19" y1="5" x2="5" y2="19" />
-                      <line x1="19" y1="19" x2="5" y2="5" />
+                    <svg viewBox="15 25 170 160" width="20" height="20" fill="none">
+                      <g transform="translate(0.000000,200.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
+                        <path d="M1222 1673 c-46 -25 -86 -52 -89 -60 -6 -15 9 -114 28 -185 10 -40 25 -46 78 -31 22 5 23 9 17 54 -4 27 -4 49 0 49 20 0 110 -68 156 -119 63 -68 110 -153 132 -237 20 -78 20 -213 1 -289 -46 -176 -189 -328 -368 -390 -62 -21 -62 -22 -61 -59 2 -58 14 -63 91 -38 189 61 350 217 419 405 104 289 -7 619 -266 786 l-61 40 30 16 c17 8 31 22 31 31 0 24 -29 74 -43 74 -6 -1 -49 -21 -95 -47z"/>
+                        <path d="M773 1626 c-136 -51 -271 -161 -342 -279 -185 -311 -93 -711 207 -905 l63 -41 -30 -16 c-17 -8 -31 -22 -31 -31 0 -21 29 -74 40 -74 20 0 182 93 187 108 6 14 -9 113 -28 185 -10 39 -25 45 -78 30 -22 -5 -23 -9 -17 -54 4 -27 4 -49 0 -49 -20 0 -110 68 -156 119 -63 68 -110 153 -132 237 -20 78 -20 213 -1 289 46 175 187 325 368 390 67 24 76 39 58 88 -13 33 -27 33 -108 3z"/>
+                        <path d="M957 1424 c-4 -4 -7 -48 -7 -98 l0 -91 -38 -16 -37 -16 -67 65 c-63 61 -69 65 -93 54 -14 -6 -31 -23 -37 -37 -11 -24 -7 -30 54 -93 l65 -67 -16 -37 -16 -37 -95 -3 -95 -3 0 -45 0 -45 95 -3 95 -3 16 -37 16 -37 -65 -67 c-61 -63 -65 -69 -54 -93 6 -14 23 -31 37 -37 24 -11 30 -7 93 54 l67 65 37 -16 37 -16 3 -95 3 -95 45 0 45 0 3 95 3 95 37 16 37 16 67 -65 c63 -61 69 -65 93 -54 14 6 31 23 37 37 11 24 7 30 -54 93 l-65 67 16 37 16 37 95 3 95 3 0 45 0 45 -95 3 -95 3 -16 37 -16 37 65 67 c61 63 65 69 54 93 -6 14 -23 31 -37 37 -24 11 -30 7 -93 -54 l-67 -65 -37 16 -37 16 -3 95 -3 95 -40 3 c-23 2 -44 0 -48 -4z m100 -303 c96 -44 102 -190 11 -237 -76 -39 -160 -9 -192 69 -20 47 -20 47 0 95 15 38 28 51 64 70 53 27 63 27 117 3z"/>
+                      </g>
                     </svg>
                   </div>
                   <div className="fleet-feature-text">
