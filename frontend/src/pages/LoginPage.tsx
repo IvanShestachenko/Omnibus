@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,6 +15,8 @@ const loginSchema = z.object({
 type LoginFields = z.infer<typeof loginSchema>;
 
 export const LoginPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get('redirectTo');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -48,7 +50,7 @@ export const LoginPage: React.FC = () => {
 
     try {
       await login(data.email, data.password);
-      navigate('/');
+      navigate(redirectTo || '/');
     } catch (err: unknown) {
       const axiosError = err as {
         response?: {
@@ -66,7 +68,7 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const onError = (formErrors: any) => {
+  const onError = (formErrors: Record<string, unknown>) => {
     const errorKeys = Object.keys(formErrors);
     if (errorKeys.length > 0) {
       const firstKey = errorKeys[0];
@@ -107,17 +109,22 @@ export const LoginPage: React.FC = () => {
             )}
 
             <Input
+              id="email"
               label="Email"
               type="email"
               placeholder="your@email.com"
+              autoComplete="email"
+              autoFocus
               error={errors.email?.message}
               {...registerField('email')}
             />
 
             <Input
+              id="password"
               label="Password"
               type="password"
               placeholder="••••••••"
+              autoComplete="current-password"
               error={errors.password?.message}
               {...registerField('password')}
             />
@@ -136,7 +143,7 @@ export const LoginPage: React.FC = () => {
           <div className="auth-footer">
             <p>
               Don't have an account?{' '}
-              <Link to="/register" className="auth-link">Sign up</Link>
+              <Link to={redirectTo ? `/register?redirectTo=${encodeURIComponent(redirectTo)}` : '/register'} className="auth-link">Sign up</Link>
             </p>
           </div>
         </Card>

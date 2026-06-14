@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, Card } from '../index';
-import { routesApi, type RouteResponse } from '../../../api/routes';
+
 import { terminalsApi, type TerminalResponse } from '../../../api/terminals';
 import { useAuth } from '../../../context/AuthContext';
 import './SearchPanel.css';
@@ -74,17 +74,35 @@ const getCleanTerminalName = (cityName: string, terminalName: string): string =>
   return terminalName;
 };
 
+// Date formatting helper for local dates
+const getMinDate = (): string => {
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+
+const getMaxDate = (): string => {
+  const today = new Date();
+  // End of the month 3 months after current month (e.g. if June (5), get October (9) index 0th day which is Sept 30)
+  const maxDate = new Date(today.getFullYear(), today.getMonth() + 4, 0);
+  const yyyy = maxDate.getFullYear();
+  const mm = String(maxDate.getMonth() + 1).padStart(2, '0');
+  const dd = String(maxDate.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+
 export const SearchPanel: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   // Load initial params from URL if present (useful for SearchPage pre-filling)
-  const urlRouteId = searchParams.get('routeId');
   const urlDate = searchParams.get('date');
   const urlPassengers = searchParams.get('passengers');
 
-  const [routes, setRoutes] = useState<RouteResponse[]>([]);
+
   const [terminals, setTerminals] = useState<TerminalResponse[]>([]);
 
   // Search states
@@ -92,7 +110,7 @@ export const SearchPanel: React.FC = () => {
   const [toSearch, setToSearch] = useState('');
   const [fromTerminal, setFromTerminal] = useState<TerminalResponse | null>(null);
   const [toTerminal, setToTerminal] = useState<TerminalResponse | null>(null);
-  const [date, setDate] = useState(() => urlDate || new Date().toISOString().split('T')[0] || '');
+  const [date, setDate] = useState(() => urlDate || getMinDate() || '');
   const [passengers, setPassengers] = useState(() => Number(urlPassengers) || 1);
 
   // Suggestions visibility
@@ -107,40 +125,77 @@ export const SearchPanel: React.FC = () => {
   const fromContainerRef = useRef<HTMLDivElement>(null);
   const toContainerRef = useRef<HTMLDivElement>(null);
 
-  // Pre-fill locations from URL routeId stops
-  const prefillFromUrl = (termList: TerminalResponse[]) => {
-    const matchingRoute = routes.find(r => r.id === Number(urlRouteId));
-    if (!matchingRoute || matchingRoute.stops.length < 2) return;
+  // Pre-fill locations from URL search params
+  const prefillFromUrl = React.useCallback((termList: TerminalResponse[]) => {
+    const fromCity = searchParams.get('fromCity');
+    const fromTerminalId = searchParams.get('fromTerminalId');
+    const toCity = searchParams.get('toCity');
+    const toTerminalId = searchParams.get('toTerminalId');
 
-    const sortedStops = [...matchingRoute.stops].sort((a, b) => a.sequenceOrder - b.sequenceOrder);
-    const originStop = sortedStops[0];
-    const destStop = sortedStops[sortedStops.length - 1];
+    if (termList.length === 0) return;
 
-    const fromTerm = termList.find(t => t.city.toLowerCase() === originStop.city.toLowerCase());
-    const toTerm = termList.find(t => t.city.toLowerCase() === destStop.city.toLowerCase());
-
-    if (fromTerm) {
-      setFromTerminal(fromTerm);
-      setFromSearch(`${fromTerm.city}, ${fromTerm.name}`);
-    }
-    if (toTerm) {
-      setToTerminal(toTerm);
-      setToSearch(`${toTerm.city}, ${toTerm.name}`);
-    }
-  };
-
-  // Load routes on mount to link terminal cities with routeIds
-  useEffect(() => {
-    const fetchRoutes = async () => {
-      try {
-        const data = await routesApi.getAll();
-        setRoutes(data);
-      } catch (err) {
-        console.error('Failed to load routes', err);
+    if (fromCity) {
+      let matchingTerm: TerminalResponse | undefined;
+      if (fromTerminalId && Number(fromTerminalId) > 0) {
+        matchingTerm = termList.find(t => t.id === Number(fromTerminalId));
       }
-    };
-    fetchRoutes();
-  }, []);
+      if (!matchingTerm) {
+        matchingTerm = termList.find(t => t.city.toLowerCase() === fromCity.toLowerCase());
+        if (fromTerminalId && Number(fromTerminalId) < 0) {
+          const index = termList.findIndex(t => t.city.toLowerCase() === fromCity.toLowerCase());
+          if (index !== -1) {
+            matchingTerm = {
+              id: Number(fromTerminalId),
+              name: 'All stations',
+              city: termList[index].city,
+              country: termList[index].country
+            };
+          }
+        }
+      }
+
+      if (matchingTerm) {
+        setFromTerminal(matchingTerm);
+        const cleanName = getCleanTerminalName(matchingTerm.city, matchingTerm.name);
+        const displayText = matchingTerm.name === 'All stations'
+          ? `${matchingTerm.city}, ${matchingTerm.country}`
+          : `${matchingTerm.city} – ${cleanName}`;
+        setFromSearch(displayText);
+      }
+    }
+
+    if (toCity) {
+      let matchingTerm: TerminalResponse | undefined;
+      if (toTerminalId && Number(toTerminalId) > 0) {
+        matchingTerm = termList.find(t => t.id === Number(toTerminalId));
+      }
+      if (!matchingTerm) {
+        matchingTerm = termList.find(t => t.city.toLowerCase() === toCity.toLowerCase());
+        if (toTerminalId && Number(toTerminalId) < 0) {
+          const index = termList.findIndex(t => t.city.toLowerCase() === toCity.toLowerCase());
+          if (index !== -1) {
+            matchingTerm = {
+              id: Number(toTerminalId),
+              name: 'All stations',
+              city: termList[index].city,
+              country: termList[index].country
+            };
+          }
+        }
+      }
+
+      if (matchingTerm) {
+        setToTerminal(matchingTerm);
+        const cleanName = getCleanTerminalName(matchingTerm.city, matchingTerm.name);
+        const displayText = matchingTerm.name === 'All stations'
+          ? `${matchingTerm.city}, ${matchingTerm.country}`
+          : `${matchingTerm.city} – ${cleanName}`;
+        setToSearch(displayText);
+      }
+    }
+  }, [searchParams]);
+
+
 
   // Listen for popular route selections from the home page
   useEffect(() => {
@@ -241,13 +296,13 @@ export const SearchPanel: React.FC = () => {
       }
 
       // 3. Pre-fill states once terminals and URL params are available
-      if (freshTerminals.length > 0 && urlRouteId && routes.length > 0) {
+      if (freshTerminals.length > 0) {
         prefillFromUrl(freshTerminals);
       }
     };
 
     loadTerminals();
-  }, [urlRouteId, routes.length]);
+  }, [searchParams, prefillFromUrl]);
 
   // Click outside to close autocompletes
   useEffect(() => {
@@ -264,8 +319,40 @@ export const SearchPanel: React.FC = () => {
   }, []);
 
   // Filter suggestions from cached list
-  const getFilteredSuggestions = (search: string, excludedTerminal: TerminalResponse | null) => {
+  const getFilteredSuggestions = (
+    search: string,
+    excludedTerminal: TerminalResponse | null,
+    currentSelectedTerminal: TerminalResponse | null = null
+  ) => {
     const cleanSearch = search.trim().toLowerCase();
+
+    // If a terminal is currently selected and the input text matches its display representation,
+    // show the city header and all terminals in that city.
+    if (currentSelectedTerminal) {
+      const cityName = currentSelectedTerminal.city;
+      const cityLower = cityName.toLowerCase();
+      const sampleTerm = terminals.find(t => t.city.toLowerCase() === cityLower);
+      if (sampleTerm) {
+        const isExcluded = (t: TerminalResponse) => {
+          if (!excludedTerminal) return false;
+          return t.id === excludedTerminal.id || t.city.toLowerCase() === excludedTerminal.city.toLowerCase();
+        };
+
+        const suggested: TerminalResponse[] = [];
+        // Add the city header (virtual terminal)
+        suggested.push({
+          id: -1000 - terminals.findIndex(term => term.city.toLowerCase() === cityLower),
+          name: 'All stations',
+          city: cityName,
+          country: sampleTerm.country
+        });
+
+        // Add ALL terminals of this city in the database (except excluded ones)
+        const cityTerminals = terminals.filter(t => t.city.toLowerCase() === cityLower && !isExcluded(t));
+        suggested.push(...cityTerminals);
+        return suggested;
+      }
+    }
 
     // Show popular destinations when less than 2 characters are entered
     if (cleanSearch.length < 2) {
@@ -447,35 +534,16 @@ export const SearchPanel: React.FC = () => {
     setIsSwapped(prev => !prev); // Toggle visual swapped state
   };
 
-  // Connect From and To city terminals to their matching routeId
-  const findMatchingRouteId = (fromCity: string, toCity: string): number | null => {
-    for (const route of routes) {
-      if (route.stops.length < 2) continue;
 
-      const sortedStops = [...route.stops].sort((a, b) => a.sequenceOrder - b.sequenceOrder);
-      const originStop = sortedStops[0];
-      const destStop = sortedStops[sortedStops.length - 1];
-
-      if (
-        originStop.city.toLowerCase() === fromCity.toLowerCase() &&
-        destStop.city.toLowerCase() === toCity.toLowerCase()
-      ) {
-        return route.id;
-      }
-    }
-    return null;
-  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!fromTerminal || !toTerminal || !date) return;
 
-    const matchingRouteId = findMatchingRouteId(fromTerminal.city, toTerminal.city);
-    // If no direct route exists, pass -1 to let the search page handle the empty state
-    const searchRouteId = matchingRouteId !== null ? matchingRouteId : -1;
-
     setLoading(true);
-    navigate(`/search?routeId=${searchRouteId}&date=${date}&passengers=${passengers}`);
+    const fromId = fromTerminal.id;
+    const toId = toTerminal.id;
+    navigate(`/search?fromCity=${fromTerminal.city}&fromTerminalId=${fromId}&toCity=${toTerminal.city}&toTerminalId=${toId}&date=${date}&passengers=${passengers}`);
     setLoading(false);
   };
 
@@ -486,11 +554,15 @@ export const SearchPanel: React.FC = () => {
 
           {/* Field 1: From Autocomplete with Integrated Inline Swap */}
           <div className="search-field autocomplete-field" ref={fromContainerRef}>
-            <label>From</label>
+            <label htmlFor="from-search-input">From</label>
             <div className="input-with-swap-container">
               <input
+                id="from-search-input"
+                autoFocus
+                name="fromSearch"
                 type="text"
                 placeholder="Departure city"
+                autoComplete="off"
                 value={fromSearch}
                 onChange={(e) => {
                   setFromSearch(e.target.value);
@@ -500,6 +572,32 @@ export const SearchPanel: React.FC = () => {
                 required
                 className="search-input"
               />
+              {fromSearch && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFromSearch('');
+                    setFromTerminal(null);
+                    setShowFromSuggestions(true);
+                  }}
+                  className="clear-button-inline from-clear"
+                  title="Clear input"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="12"
+                    height="12"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              )}
               <button
                 type="button"
                 onClick={handleSwap}
@@ -524,14 +622,14 @@ export const SearchPanel: React.FC = () => {
             {showFromSuggestions && (
               <div className="autocomplete-suggestions">
                 <div className="suggestions-header">
-                  {fromSearch.trim().length < 2 ? 'Popular Destinations' : 'Matching Locations'}
+                  {fromSearch.trim().length < 2 && !fromTerminal ? 'Popular Destinations' : 'Matching Locations'}
                 </div>
-                {getFilteredSuggestions(fromSearch, toTerminal).length > 0 ? (
-                  getFilteredSuggestions(fromSearch, toTerminal).map((term) => {
+                {getFilteredSuggestions(fromSearch, toTerminal, fromTerminal).length > 0 ? (
+                  getFilteredSuggestions(fromSearch, toTerminal, fromTerminal).map((term, index) => {
                     const cleanName = getCleanTerminalName(term.city, term.name);
                     return (
                       <div
-                        key={term.id}
+                        key={`${term.id}-${index}`}
                         className="suggestion-item"
                         style={term.name !== 'All stations' ? { paddingLeft: '44px' } : undefined}
                         onClick={() => handleSelectFrom(term)}
@@ -564,30 +662,61 @@ export const SearchPanel: React.FC = () => {
 
           {/* Field 2: To Autocomplete */}
           <div className="search-field autocomplete-field" ref={toContainerRef}>
-            <label>To</label>
-            <input
-              type="text"
-              placeholder="Arrival city"
-              value={toSearch}
-              onChange={(e) => {
-                setToSearch(e.target.value);
-                if (toTerminal) setToTerminal(null);
-              }}
-              onFocus={() => setShowToSuggestions(true)}
-              required
-              className="search-input"
-            />
+            <label htmlFor="to-search-input">To</label>
+            <div className="input-with-clear-container">
+              <input
+                id="to-search-input"
+                name="toSearch"
+                type="text"
+                placeholder="Arrival city"
+                autoComplete="off"
+                value={toSearch}
+                onChange={(e) => {
+                  setToSearch(e.target.value);
+                  if (toTerminal) setToTerminal(null);
+                }}
+                onFocus={() => setShowToSuggestions(true)}
+                required
+                className="search-input"
+              />
+              {toSearch && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setToSearch('');
+                    setToTerminal(null);
+                    setShowToSuggestions(true);
+                  }}
+                  className="clear-button-inline to-clear"
+                  title="Clear input"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="12"
+                    height="12"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              )}
+            </div>
             {showToSuggestions && (
               <div className="autocomplete-suggestions">
                 <div className="suggestions-header">
-                  {toSearch.trim().length < 2 ? 'Popular Destinations' : 'Matching Locations'}
+                  {toSearch.trim().length < 2 && !toTerminal ? 'Popular Destinations' : 'Matching Locations'}
                 </div>
-                {getFilteredSuggestions(toSearch, fromTerminal).length > 0 ? (
-                  getFilteredSuggestions(toSearch, fromTerminal).map((term) => {
+                {getFilteredSuggestions(toSearch, fromTerminal, toTerminal).length > 0 ? (
+                  getFilteredSuggestions(toSearch, fromTerminal, toTerminal).map((term, index) => {
                     const cleanName = getCleanTerminalName(term.city, term.name);
                     return (
                       <div
-                        key={term.id}
+                        key={`${term.id}-${index}`}
                         className="suggestion-item"
                         style={term.name !== 'All stations' ? { paddingLeft: '44px' } : undefined}
                         onClick={() => handleSelectTo(term)}
@@ -620,9 +749,12 @@ export const SearchPanel: React.FC = () => {
 
           {/* Field 3: Date Selector */}
           <div className="search-field date-field">
-            <label>Date</label>
+            <label htmlFor="date-input">Date</label>
             <input
+              id="date-input"
+              name="date"
               type="date"
+              autoComplete="off"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               onClick={(e) => {
@@ -635,7 +767,8 @@ export const SearchPanel: React.FC = () => {
                   // Empty catch to avoid unused variable warnings
                 }
               }}
-              min={new Date().toISOString().split('T')[0]}
+              min={getMinDate()}
+              max={getMaxDate()}
               required
               className="search-input"
             />

@@ -3,3 +3,4 @@ export { Input } from './Input';
 export { Card } from './Card';
 export { ProtectedRoute } from './ProtectedRoute';
 export { SearchPanel } from './SearchPanel';
+export { OfflineAlert } from './OfflineAlert/OfflineAlert';

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { CurrencyProvider } from './context/CurrencyContext';
 import { Header, Footer } from './components/layout';
-import { ProtectedRoute } from './components/common';
+import { ProtectedRoute, OfflineAlert } from './components/common';
 import {
   LoginPage,
   RegisterPage,
@@ -11,8 +11,10 @@ import {
   SearchPage,
   TripDetailsPage,
   ReservationsPage,
-  ProfilePage
+  ProfilePage,
+  PaymentPage
 } from './pages';
+import { OmnibusOOP } from './utils/oopPatterns';
 import './index.css';
 import './App.css';
 
@@ -70,11 +72,23 @@ const ScrollToHash = () => {
 };
 
 function App() {
+  useEffect(() => {
+    // Prototypical inheritance demo initialization
+    const testTicket = new OmnibusOOP.BusTicket("Prague - Brno", 350, "12A");
+    console.log("--- OOP Prototypical Inheritance Demo ---");
+    console.log("Summary:", testTicket.getSummary());
+    console.log("Detailed Summary:", testTicket.getDetailedSummary());
+    console.log("InstanceOf BusTicket:", testTicket instanceof OmnibusOOP.BusTicket);
+    console.log("InstanceOf BaseTicket:", testTicket instanceof OmnibusOOP.BaseTicket);
+    console.log("-----------------------------------------");
+  }, []);
+
   return (
     <BrowserRouter>
       <AuthProvider>
         <CurrencyProvider>
           <div className="app">
+            <OfflineAlert />
             <ScrollToTop />
             <ScrollToHash />
             <Header />
@@ -101,6 +115,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <ProfilePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/payment/:reservationId"
+                  element={
+                    <ProtectedRoute>
+                      <PaymentPage />
                     </ProtectedRoute>
                   }
                 />

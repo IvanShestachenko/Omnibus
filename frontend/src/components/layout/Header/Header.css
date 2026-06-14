@@ -30,11 +30,17 @@
 .header-transparent {
   position: absolute;
   background: transparent;
-  border-bottom: none; /* Removed the thin horizontal seam */
+  border-bottom: none;
+  /* Removed the thin horizontal seam */
+  transition: none !important;
+}
+
+.header-transparent::before {
+  transition: none !important;
 }
 
 .header-solid {
-  position: sticky;
+  position: relative;
   box-shadow: var(--shadow-md);
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
@@ -43,6 +49,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -72,7 +79,8 @@
 }
 
 .logo-image {
-  height: 66px; /* Scaled 1.1x from 60px for a refined logo scale */
+  height: 66px;
+  /* Scaled 1.1x from 60px for a refined logo scale */
   width: auto;
   object-fit: contain;
   display: block;
@@ -84,9 +92,11 @@
   }
 
   .logo-image {
-    height: 46px; /* Scaled 1.1x from 42px on mobile and tablets */
+    height: 46px;
+    /* Scaled 1.1x from 42px on mobile and tablets */
   }
 }
+
 .header-actions {
   display: flex;
   align-items: center;
@@ -152,6 +162,7 @@
     opacity: 0;
     transform: translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -385,13 +396,25 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scaleUp {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* Mobile Responsive */
@@ -405,16 +428,19 @@
   }
 
   .user-name-text {
-    display: none; /* Hide username text next to avatar on mobile */
+    display: none;
+    /* Hide username text next to avatar on mobile */
   }
 }
 
 @media (max-width: 480px) {
   .reservations-header-btn {
-    display: none; /* Hide reservations link only on screens narrower than 480px */
+    display: none;
+    /* Hide reservations link only on screens narrower than 480px */
   }
 
   .dropdown-reservations-link {
-    display: flex !important; /* Show reservations link in dropdown menu instead */
+    display: flex !important;
+    /* Show reservations link in dropdown menu instead */
   }
 }
