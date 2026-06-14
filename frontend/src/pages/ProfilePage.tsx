@@ -105,10 +105,11 @@ export const ProfilePage: React.FC = () => {
       } else {
         setValue('country', 'not_in_list', { shouldDirty: true });
       }
-    } catch (err: any) {
-      if (err.message === 'TIMEOUT') {
+    } catch (err) {
+      const error = err as Error;
+      if (error.message === 'TIMEOUT') {
         setGeoError('Location request timed out. Please try again.');
-      } else if (err.message === 'PERMISSION_DENIED') {
+      } else if (error.message === 'PERMISSION_DENIED') {
         setGeoError('Location access denied. Please enable location permissions in browser settings.');
       } else {
         setGeoError('Could not detect location. Please select manually.');
@@ -408,7 +409,9 @@ export const ProfilePage: React.FC = () => {
                 <div className="profile-grid">
                   <div className="form-group">
                     <Input
+                      id="profile-first-name"
                       label="First Name"
+                      autoComplete="given-name"
                       disabled={!isEditMode}
                       error={errors.firstName?.message}
                       {...register('firstName')}
@@ -417,7 +420,9 @@ export const ProfilePage: React.FC = () => {
 
                   <div className="form-group">
                     <Input
+                      id="profile-last-name"
                       label="Last Name"
+                      autoComplete="family-name"
                       disabled={!isEditMode}
                       error={errors.lastName?.message}
                       {...register('lastName')}
@@ -426,8 +431,10 @@ export const ProfilePage: React.FC = () => {
 
                   <div className="form-group">
                     <Input
+                      id="profile-email"
                       label="Email Address"
                       type="email"
+                      autoComplete="email"
                       value={user?.email || ''}
                       disabled
                     />
@@ -435,17 +442,24 @@ export const ProfilePage: React.FC = () => {
                   </div>
 
                   <div className="form-group">
-                    <Input
-                      label="Phone Number"
-                      placeholder="e.g. +420 123 456 789"
-                      disabled={!isEditMode}
-                      error={errors.phone?.message}
-                      {...register('phone')}
-                    />
-                    {isEditMode && (
-                      <span className="field-hint" style={{ marginTop: '2px' }}>
-                        Optional – will be used as a backup contact method for notifications.
-                      </span>
+                    <label htmlFor="profile-phone" className="input-label">Phone Number</label>
+                    {!isEditMode ? (
+                      <div className="phone-read-only-box">
+                        {user?.phone || 'Not specified'}
+                      </div>
+                    ) : (
+                      <>
+                        <Input
+                          id="profile-phone"
+                          autoComplete="tel"
+                          placeholder="e.g. +420 123 456 789"
+                          error={errors.phone?.message}
+                          {...register('phone')}
+                        />
+                        <span className="field-hint" style={{ marginTop: '2px' }}>
+                          Optional – will be used as a backup contact method for notifications.
+                        </span>
+                      </>
                     )}
                   </div>
 
@@ -473,12 +487,16 @@ export const ProfilePage: React.FC = () => {
                             <div className="country-select-dropdown">
                               <div className="country-search-box">
                                 <input
+                                  id="country-search-input"
+                                  name="countrySearch"
                                   type="text"
                                   placeholder="Search country..."
+                                  autoComplete="off"
                                   value={countrySearch}
                                   onChange={(e) => setCountrySearch(e.target.value)}
                                   onClick={(e) => e.stopPropagation()}
                                   className="country-search-input"
+                                  aria-label="Search country"
                                 />
                               </div>
                               <div className="country-options-list">
