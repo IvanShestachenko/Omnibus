@@ -19,7 +19,8 @@ A demo user is available for testing:
 5. [Project Structure](#project-structure)
 6. [Local Development Setup](#local-development-setup)
 7. [Evaluation Criteria Compliance](#evaluation-criteria-compliance)
-8. [Author](#author)
+8. [Screenshots](#screenshots)
+9. [Author](#author)
 
 ---
 
@@ -166,6 +167,26 @@ This file describes the project's goal, motivation, tech stack, and structural d
   - [src/pages/TripDetailsPage.tsx](src/pages/TripDetailsPage.tsx#L731-L891) — Renders dynamic bus seat states (`circle`, `rect`, etc.) and binds click callbacks dynamically using React.
 - **Web Component:**
   - [src/components/layout/Footer/Footer.tsx](src/components/layout/Footer/Footer.tsx#L6-L17) — Declares class `OmnibusFooterInfo` extending `HTMLElement`, defines the custom element via `customElements.define`, and instantiates it dynamically inside a `useEffect` mount hook (lines 35-42) to place in the footer container.
+
+---
+
+## Screenshots
+
+Below are screenshots showcasing the interface and workflows of the Omnibus client application.
+
+![Homepage and Search Panel](src/assets/screenshots/image_2026-06-14_23-46-32.png)
+
+![User Registration and Geolocation](src/assets/screenshots/image_2026-06-14_23-47-19.png)
+
+![User Profile Settings](src/assets/screenshots/image_2026-06-14_23-47-43.png)
+
+![Trip Search Results](src/assets/screenshots/image_2026-06-14_23-48-02.png)
+
+![Interactive SVG Seat Selection Map](src/assets/screenshots/image_2026-06-14_23-48-34.png)
+
+![Booking Summary and Checkout](src/assets/screenshots/image_2026-06-14_23-48-50.png)
+
+![Reservations List and Boarding Pass](src/assets/screenshots/image_2026-06-14_23-50-21.png)
 
 ---
 
