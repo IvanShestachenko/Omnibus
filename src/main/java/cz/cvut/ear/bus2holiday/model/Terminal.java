@@ -38,6 +38,9 @@ public class Terminal extends BaseEntity {
     @Column(nullable = false, precision = 11, scale = 8)
     private BigDecimal longitude;
 
+    @Column(name = "is_main", nullable = false)
+    private boolean isMain = false;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
@@ -123,5 +126,13 @@ public class Terminal extends BaseEntity {
 
     public void setRouteStops(Set<RouteStop> routeStops) {
         this.routeStops = routeStops;
+    }
+
+    public boolean isMain() {
+        return isMain;
+    }
+
+    public void setMain(boolean main) {
+        isMain = main;
     }
 }

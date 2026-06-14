@@ -2,6 +2,7 @@ package cz.cvut.ear.bus2holiday.controller;
 
 import cz.cvut.ear.bus2holiday.dto.mapper.RouteMapper;
 import cz.cvut.ear.bus2holiday.dto.response.RouteResponse;
+import cz.cvut.ear.bus2holiday.dto.response.PopularRouteResponse;
 import cz.cvut.ear.bus2holiday.model.Route;
 import cz.cvut.ear.bus2holiday.model.RouteStop;
 import cz.cvut.ear.bus2holiday.service.RouteService;
@@ -29,6 +30,12 @@ public class RouteController {
     public ResponseEntity<List<RouteResponse>> getAllRoutes() {
         return ResponseEntity.ok(
                 routeService.findAll().stream().map(routeMapper::toResponse).toList());
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<List<PopularRouteResponse>> getPopularRoutes(
+            @RequestParam(required = false) String country) {
+        return ResponseEntity.ok(routeService.getPopularRoutes(country));
     }
 
     @GetMapping("/{id}")
