@@ -1,0 +1,116 @@
+.offline-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(12, 30, 78, 0.65); /* Rich Dark Navy tinted backdrop */
+  backdrop-filter: blur(12px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999999; /* Exceedingly high z-index to overlay everything */
+  animation: fadeInOffline 0.3s ease-out forwards;
+}
+
+.offline-modal {
+  background: var(--bg-surface);
+  padding: var(--space-xl);
+  border-radius: 20px;
+  width: 90%;
+  max-width: 440px;
+  box-shadow: var(--shadow-lg), 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--border-default);
+  text-align: center;
+  animation: slideUpOffline 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.offline-icon-container {
+  width: 72px;
+  height: 72px;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto var(--space-lg);
+}
+
+.offline-icon {
+  width: 36px;
+  height: 36px;
+}
+
+.offline-title {
+  color: var(--secondary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: var(--space-sm);
+  letter-spacing: -0.5px;
+}
+
+.offline-message {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: var(--space-xl);
+}
+
+.offline-btn {
+  width: 100%;
+  background: var(--gradient-primary);
+  color: var(--text-inverse);
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm);
+}
+
+.offline-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow), 0 4px 12px rgba(250, 107, 107, 0.2);
+}
+
+.offline-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.offline-btn.checking {
+  background: var(--text-muted);
+  cursor: not-allowed;
+  animation: pulseChecking 1.2s infinite ease-in-out;
+}
+
+@keyframes fadeInOffline {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUpOffline {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulseChecking {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
