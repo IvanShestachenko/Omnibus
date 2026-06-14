@@ -253,13 +253,6 @@ export const ReservationsPage: React.FC = () => {
           <div className="profile-card-header">
             <div className="profile-header-title-row">
               <span className="profile-sheet-title">MY RESERVATIONS</span>
-              <button 
-                type="button" 
-                className="book-trip-btn" 
-                onClick={() => navigate('/#search-panel')}
-              >
-                Book New Trip
-              </button>
             </div>
             <div className="profile-divider-line" />
           </div>
@@ -311,14 +304,37 @@ export const ReservationsPage: React.FC = () => {
 
                 {sortedReservations.length === 0 ? (
                   <div className="empty-state">
-                    <div className="empty-icon">🎫</div>
+                    <div className="empty-icon">
+                      <svg viewBox="0 0 80 50" width="80" height="50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        {/* Outer ticket shape with notches cut out using clip */}
+                        <rect x="2" y="2" width="76" height="46" rx="7" fill="white" stroke="#B0B7C3" strokeWidth="3"/>
+                        {/* Left notch - white circle over border */}
+                        <circle cx="2" cy="25" r="7" fill="#F3F4F6"/>
+                        <path d="M2 18 A7 7 0 0 1 2 32" fill="#F3F4F6" stroke="#B0B7C3" strokeWidth="3"/>
+                        {/* Right notch */}
+                        <circle cx="78" cy="25" r="7" fill="#F3F4F6"/>
+                        <path d="M78 18 A7 7 0 0 0 78 32" fill="#F3F4F6" stroke="#B0B7C3" strokeWidth="3"/>
+                        {/* Dashed vertical separator */}
+                        <line x1="22" y1="5" x2="22" y2="45" stroke="#B0B7C3" strokeWidth="2.5" strokeDasharray="4 4" strokeLinecap="round"/>
+                        {/* Three horizontal lines in main area */}
+                        <line x1="32" y1="17" x2="68" y2="17" stroke="#B0B7C3" strokeWidth="3" strokeLinecap="round"/>
+                        <line x1="32" y1="25" x2="68" y2="25" stroke="#B0B7C3" strokeWidth="3" strokeLinecap="round"/>
+                        <line x1="32" y1="33" x2="60" y2="33" stroke="#B0B7C3" strokeWidth="3" strokeLinecap="round"/>
+                      </svg>
+                    </div>
                     <h3>No reservations found</h3>
                     <p>
-                      {filter === 'upcoming'
-                        ? "You don't have any upcoming active reservations. Check 'All' tab or book a new trip!"
-                        : 'Start exploring amazing destinations and book your first trip!'}
+                      {reservations.length === 0
+                        ? 'Start exploring amazing destinations and book your first trip!'
+                        : "You don't have any upcoming active reservations. Switch to All to see your travel history."}
                     </p>
-                    <Button variant="primary" onClick={() => navigate('/search')}>
+                    <Button variant="primary" onClick={() => {
+                      navigate('/');
+                      setTimeout(() => {
+                        const el = document.getElementById('search-panel');
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 150);
+                    }}>
                       Find Trips
                     </Button>
                   </div>
