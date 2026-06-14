@@ -12,12 +12,14 @@ A demo user is available for testing:
 ---
 
 ## Table of Contents
-1. [Motivation](#motivation)
-2. [Project Architecture](#project-architecture)
-3. [Application Contents](#application-contents)
-4. [Project Structure](#project-structure)
-5. [Local Development Setup](#local-development-setup)
-6. [Evaluation Criteria Compliance](#evaluation-criteria-compliance)
+1. [Live Demo](#live-demo)
+2. [Motivation](#motivation)
+3. [Project Architecture](#project-architecture)
+4. [Application Contents](#application-contents)
+5. [Project Structure](#project-structure)
+6. [Local Development Setup](#local-development-setup)
+7. [Evaluation Criteria Compliance](#evaluation-criteria-compliance)
+8. [Author](#author)
 
 ---
 
