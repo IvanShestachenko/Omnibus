@@ -351,6 +351,7 @@ export const RegisterPage: React.FC = () => {
                 label="First Name"
                 placeholder="John"
                 autoComplete="given-name"
+                autoFocus
                 error={errors.firstName?.message}
                 {...registerField('firstName')}
               />

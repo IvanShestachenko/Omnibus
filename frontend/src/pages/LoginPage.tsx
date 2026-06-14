@@ -114,7 +114,6 @@ export const LoginPage: React.FC = () => {
               type="email"
               placeholder="your@email.com"
               autoComplete="email"
-              autoFocus
               error={errors.email?.message}
               {...registerField('email')}
             />

@@ -558,7 +558,6 @@ export const SearchPanel: React.FC = () => {
             <div className="input-with-swap-container">
               <input
                 id="from-search-input"
-                autoFocus
                 name="fromSearch"
                 type="text"
                 placeholder="Departure city"
