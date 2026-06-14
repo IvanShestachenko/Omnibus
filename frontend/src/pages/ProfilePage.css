@@ -4,10 +4,10 @@
 
 .dashboard-page {
   background: var(--bg-primary);
-  min-height: calc(100vh - 94px); /* Exactly fills viewport height below header, allows expansion on small viewports */
+  min-height: calc(100vh - 94px - 50px); /* Fills viewport space between header tabs and visible footer top */
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Center profile card vertically, making top and bottom gaps exactly equal */
+  padding: 20px 0;
   box-sizing: border-box;
 }
 
@@ -67,7 +67,7 @@
 /* Profile Page Layout */
 .profile-container {
   max-width: 1200px;
-  margin: 0 auto; /* Horizontally centered, vertical spacing is controlled by dashboard parent */
+  margin: auto auto; /* Centered vertically relative to tabs and visible footer */
   padding: 0 var(--space-xl);
   width: 100%;
 }
@@ -204,11 +204,11 @@
 .profile-left-column {
   flex: 0 0 280px;
   background: transparent;
-  padding: var(--space-2xl) var(--space-xl);
+  padding: var(--space-2xl) var(--space-sm);
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
+  align-items: center;
+  text-align: center;
   /* GAP BETWEEN AVATAR AND NAME: Tweak this value (e.g. 12px, 16px) to adjust vertical spacing */
   --avatar-details-gap: 20px;
   gap: var(--avatar-details-gap);
@@ -225,7 +225,7 @@
 .profile-avatar-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-sm);
   position: relative;
   width: 100%;
@@ -297,11 +297,12 @@
 .profile-title-details {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
+  align-items: center;
+  text-align: center;
   gap: var(--space-xs);
   margin-top: 0;
   width: 100%;
+  container-type: inline-size;
 }
 
 .profile-title-details h2 {
@@ -313,15 +314,17 @@
 
 .profile-email-sub {
   color: var(--text-secondary);
-  font-size: var(--text-sm);
+  font-size: clamp(11px, 4.8cqw, 13px);
   margin: 0;
-  word-break: break-all;
-  max-width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .profile-role-badge {
   display: inline-block;
-  align-self: flex-start;
+  align-self: center;
   padding: 4px 12px;
   background: var(--primary-light);
   color: var(--primary);
@@ -377,7 +380,8 @@
 }
 
 /* Read-Only Mode Views */
-.country-read-only-box {
+.country-read-only-box,
+.phone-read-only-box {
   height: 44px;
   display: flex;
   align-items: center;
@@ -584,7 +588,8 @@
 /* Premium Form Controls for Profile Form */
 .profile-form .input,
 .profile-form .country-select-trigger,
-.profile-form .country-read-only-box {
+.profile-form .country-read-only-box,
+.profile-form .phone-read-only-box {
   background-color: #F5F7FA !important;
   color: var(--text-primary) !important;
   border-color: var(--border-default) !important;
@@ -606,7 +611,8 @@
 
 /* Crisp, soft gray background styling for disabled/read-only input fields */
 .profile-form input:disabled,
-.profile-form .country-read-only-box {
+.profile-form .country-read-only-box,
+.profile-form .phone-read-only-box {
   background-color: #F5F7FA !important;
   color: var(--text-primary) !important;
   border-color: var(--border-default) !important;
@@ -654,4 +660,88 @@
   font-weight: var(--font-medium);
   color: var(--text-primary);
   line-height: 1.4;
+}
+
+/* ===================================
+   Height-Based Responsiveness for Compact Viewports
+   =================================== */
+@media (max-height: 670px) {
+  .dashboard-tabs-container {
+    padding-top: 12px !important;
+  }
+  .dashboard-tab {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+  .profile-card-header {
+    padding-top: var(--space-lg) !important;
+  }
+  .profile-left-column {
+    padding-top: var(--space-lg) !important;
+    padding-bottom: var(--space-lg) !important;
+    --avatar-details-gap: 12px !important;
+  }
+  .profile-avatar-circle {
+    width: 80px !important;
+    height: 80px !important;
+  }
+  .profile-avatar-initials {
+    font-size: 1.8rem !important;
+  }
+  .profile-right-column {
+    padding-top: var(--space-lg) !important;
+    padding-bottom: var(--space-lg) !important;
+  }
+  .profile-grid {
+    gap: var(--space-md) var(--space-xl) !important;
+    margin-bottom: var(--space-md) !important;
+  }
+}
+
+@media (max-height: 570px) {
+  .dashboard-tabs-container {
+    padding-top: 8px !important;
+  }
+  .dashboard-tab {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+  .profile-card-header {
+    padding-top: var(--space-md) !important;
+  }
+  .profile-left-column {
+    padding-top: var(--space-md) !important;
+    padding-bottom: var(--space-md) !important;
+    --avatar-details-gap: 8px !important;
+  }
+  .profile-avatar-circle {
+    width: 65px !important;
+    height: 65px !important;
+  }
+  .profile-avatar-initials {
+    font-size: 1.4rem !important;
+  }
+  .profile-title-details h2 {
+    font-size: var(--text-base) !important;
+  }
+  .profile-email-sub {
+    font-size: clamp(11px, 4.8cqw, 12px) !important;
+  }
+  .profile-right-column {
+    padding-top: var(--space-md) !important;
+    padding-bottom: var(--space-md) !important;
+  }
+  .profile-grid {
+    gap: var(--space-xs) var(--space-xl) !important;
+    margin-bottom: var(--space-xs) !important;
+  }
+  .form-group {
+    gap: 2px !important;
+  }
+  .profile-form .input,
+  .profile-form .country-select-trigger,
+  .profile-form .country-read-only-box,
+  .profile-form .phone-read-only-box {
+    height: 38px !important;
+  }
 }
