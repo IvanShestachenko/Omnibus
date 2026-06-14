@@ -1,6 +1,15 @@
 # Omnibus
 
-**Live Demo:** [omnibus-frontend.vercel.app](https://omnibus-frontend.vercel.app/)
+## Live Demo
+
+The application is deployed and available at:
+[omnibus-frontend.vercel.app](https://omnibus-frontend.vercel.app/)
+
+A demo user is available for testing:
+- **Email:** `john.sullivan@kaj.omnibus.example.com`
+- **Password:** `e[MQhlvU+[9o6Qxv`
+
+---
 
 ## Table of Contents
 1. [Motivation](#motivation)
@@ -158,4 +167,7 @@ This file describes the project's goal, motivation, tech stack, and structural d
 
 ---
 
-Ivan Shestachenko, 2026, B0B39KAJ @ FEE CTU
+## Author
+
+**Ivan Shestachenko**
+2026, B0B39KAJ @ FEE CTU
