@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS terminal (
                                         "name" VARCHAR(255),
                                         "latitude" NUMERIC(10,8) NOT NULL,
                                         "longitude" NUMERIC(11,8) NOT NULL,
+                                        "is_main" BOOLEAN NOT NULL DEFAULT FALSE,
                                         "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
