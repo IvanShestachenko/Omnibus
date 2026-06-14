@@ -1,6 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Footer.css';
+
+// Define the custom element for the footer
+if (typeof window !== 'undefined' && !customElements.get('omnibus-footer-info')) {
+  class OmnibusFooterInfo extends HTMLElement {
+    connectedCallback() {
+      this.textContent = 'Omnibus Passenger Services • Verified Client App • 2026, @ FEE CTU B6B36NSS B0B39KAJ';
+      this.style.display = 'block';
+      this.style.fontSize = 'var(--text-sm, 0.875rem)';
+      this.style.color = 'rgba(255, 255, 255, 0.6)';
+      this.style.marginTop = 'var(--space-xs, 0.25rem)';
+      this.style.textAlign = 'center';
+    }
+  }
+  customElements.define('omnibus-footer-info', OmnibusFooterInfo);
+}
 
 export const Footer: React.FC = () => {
   const navigate = useNavigate();
@@ -16,6 +31,15 @@ export const Footer: React.FC = () => {
       navigate(`/#${targetId}`);
     }
   };
+
+  useEffect(() => {
+    const container = document.getElementById('footer-custom-info-container');
+    if (container) {
+      container.innerHTML = '';
+      const customEl = document.createElement('omnibus-footer-info');
+      container.appendChild(customEl);
+    }
+  }, []);
 
   return (
     <footer className="footer">
@@ -46,7 +70,7 @@ export const Footer: React.FC = () => {
         </nav>
 
         <div className="footer-bottom">
-          <p>© 2026 Omnibus. All rights reserved.</p>
+          <div id="footer-custom-info-container"></div>
         </div>
       </div>
     </footer>
