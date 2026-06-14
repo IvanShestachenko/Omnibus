@@ -49,20 +49,20 @@
 }
 
 .autocomplete-field {
-  flex: 2.2;
+  flex: 2.4;
   position: relative;
 }
 
 .date-field {
-  flex: 1.4;
+  flex: 1.3;
 }
 
 .passenger-field {
-  flex: 1.4;
+  flex: 1.3;
 }
 
 .search-action-container {
-  flex: 1.6;
+  flex: 1.4;
 }
 
 .search-input {
@@ -181,15 +181,19 @@
   text-align: center;
 }
 
-/* Direction Swap Button (Inline) */
-.input-with-swap-container {
+/* Direction Swap Button (Inline) & Clear Buttons */
+.input-with-swap-container,
+.input-with-clear-container {
   position: relative;
   width: 100%;
 }
 
 .input-with-swap-container .search-input {
-  padding-right: 44px;
-  /* Ensure text doesn't overflow under inline button */
+  padding-right: 72px; /* Space for both swap and clear buttons on desktop */
+}
+
+.input-with-clear-container .search-input {
+  padding-right: 34px; /* Space for clear button */
 }
 
 .swap-button-inline {
@@ -224,6 +228,38 @@
   color: var(--primary);
   /* Thematic Coral Orange */
   transform: rotate(180deg);
+}
+
+.clear-button-inline {
+  position: absolute;
+  top: 12px; /* Center inside 48px input: (48 - 24) / 2 = 12px */
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  transition: color var(--transition-fast), background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.clear-button-inline:hover {
+  color: var(--primary);
+  background-color: rgba(19, 41, 104, 0.08);
+  transform: scale(1.1);
+}
+
+.to-clear {
+  right: 12px;
+}
+
+.from-clear {
+  right: 44px; /* Placed left of the swap button on desktop */
 }
 
 /* Passenger Counter Widget */
@@ -309,16 +345,29 @@
   }
 
   .search-fields-grid {
-    flex-direction: column;
-    align-items: stretch;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: var(--space-md);
+    align-items: end;
   }
 
-  .autocomplete-field,
-  .date-field,
-  .passenger-field,
+  .autocomplete-field {
+    grid-column: span 2;
+    width: 100%;
+  }
+
+  .date-field {
+    grid-column: span 1;
+    width: 100%;
+  }
+
+  .passenger-field {
+    grid-column: span 1;
+    width: 100%;
+  }
+
   .search-action-container {
-    flex: none;
+    grid-column: span 2;
     width: 100%;
   }
 
@@ -343,5 +392,13 @@
   .swap-button-inline.swapped {
     transform: rotate(270deg);
     /* Swapped vertical flip */
+  }
+
+  .input-with-swap-container .search-input {
+    padding-right: 34px !important;
+  }
+
+  .from-clear {
+    right: 12px !important;
   }
 }
