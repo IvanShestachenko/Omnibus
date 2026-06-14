@@ -26,13 +26,18 @@ public class TripController {
         this.tripMapper = tripMapper;
     }
 
-    /** Search for trips by route and date. Public endpoint for users to find available trips. */
+    /** Search for trips by locations and date. Public endpoint for users to find available trips. */
     @GetMapping("/search")
     public ResponseEntity<List<TripResponse>> searchTrips(
-            @RequestParam Long routeId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        List<Trip> trips = tripService.searchTrips(routeId, date);
-        return ResponseEntity.ok(trips.stream().map(tripMapper::toResponse).toList());
+            @RequestParam(required = false) String fromCity,
+            @RequestParam(required = false) Long fromTerminalId,
+            @RequestParam(required = false) String toCity,
+            @RequestParam(required = false) Long toTerminalId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(defaultValue = "1") Integer passengers) {
+        List<TripResponse> trips = tripService.searchTripsNew(
+                fromCity, fromTerminalId, toCity, toTerminalId, date, passengers);
+        return ResponseEntity.ok(trips);
     }
 
     /** Get all trips (Admin only). */
@@ -45,9 +50,14 @@ public class TripController {
 
     /** Get a specific trip by ID. */
     @GetMapping("/{id}")
-    public ResponseEntity<TripResponse> getTrip(@PathVariable Long id) {
+    public ResponseEntity<TripResponse> getTrip(
+            @PathVariable Long id,
+            @RequestParam(required = false) Long fromTerminalId,
+            @RequestParam(required = false) String fromCity,
+            @RequestParam(required = false) Long toTerminalId,
+            @RequestParam(required = false) String toCity) {
         Trip trip = tripService.findById(id);
-        return ResponseEntity.ok(tripMapper.toResponse(trip));
+        return ResponseEntity.ok(tripMapper.toResponse(trip, fromTerminalId, fromCity, toTerminalId, toCity));
     }
 
     /** Get available seats count for a trip. */
