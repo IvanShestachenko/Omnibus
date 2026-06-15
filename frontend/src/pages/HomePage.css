@@ -313,8 +313,8 @@
   }
 
   .hero-title {
-    font-size: 5.2vw;
-    /* Slightly larger premium heading size on phones, guaranteed single-line fit */
+    font-size: 4.0vw;
+    /* Compact premium heading size on phones, guaranteed single-line fit */
     white-space: nowrap;
     /* Never wrap to a new line! */
   }
