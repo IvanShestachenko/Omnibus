@@ -728,7 +728,7 @@ export const TripDetailsPage: React.FC = () => {
 
               <div className="seat-map-scroll-area">
                 {/* SVG interactive layout (Resized: 360 width) */}
-                <svg className="bus-svg-container" width="360" height="980">
+                <svg className="bus-svg-container" width="360" height="980" viewBox="0 0 360 980">
                   {/* Bus border (grey) */}
                   <rect className="bus-body-outline" x="10" y="10" width="340" height="960" rx="30" ry="30" fill="none" stroke="var(--border-hover)" strokeWidth="3" />
 

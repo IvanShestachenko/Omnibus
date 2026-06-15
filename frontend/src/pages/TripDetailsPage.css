@@ -4,6 +4,9 @@
 
 .trip-details-page {
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
   padding: var(--space-xl) clamp(24px, calc((100vw - 1118px) / 2), calc(var(--space-2xl) * 1.2));
   max-width: 1920px;
   /* Standard widescreen wrapper */
@@ -22,16 +25,31 @@
   margin: 0 auto;
   /* Center the grid container to expand outer page margins */
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .trip-main-column {
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .trip-sidebar-column {
   align-self: stretch;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.trip-details-page .card {
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Disable card hover reactions on this page */
@@ -76,9 +94,10 @@
 }
 
 .timeline-station-point {
-  flex: none;
-  width: 140px;
-  /* fixed width to center labels perfectly under times, reduced to spread times and content */
+  flex: 1;
+  max-width: 140px;
+  min-width: 0;
+  /* fluid width to center labels perfectly under times, allows shrinking on smaller viewports */
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -517,12 +536,18 @@
   background: var(--bg-elevated);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-default);
+  width: 100%;
+  max-width: 100%;
 }
 
 /* SVG seat map styling */
 .bus-svg-container {
   display: block;
   user-select: none;
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  margin: 0 auto;
 }
 
 .bus-body-outline {
@@ -905,6 +930,11 @@
     gap: var(--space-sm);
     align-items: flex-end;
   }
+
+  .timeline-station-point .station-date,
+  .timeline-station-point .station-name-label {
+    white-space: normal !important;
+  }
 }
 
 @media (max-height: 800px) {
@@ -1003,6 +1033,20 @@
 }
 
 @media (max-width: 500px) {
+  .trip-details-page {
+    padding: var(--space-md) 12px;
+  }
+
+  .trip-details-page .card {
+    padding: var(--space-md) !important;
+  }
+
+  .trip-header-main-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+
   .trip-header-timeline {
     gap: var(--space-xs);
     padding: var(--space-sm) 0;
@@ -1010,7 +1054,9 @@
   }
 
   .timeline-station-point {
-    width: 110px;
+    max-width: 110px;
+    width: auto;
+    min-width: 0;
   }
 
   .timeline-station-point .station-time {
@@ -1047,6 +1093,19 @@
     height: 4px;
   }
 
+  .bus-details-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    padding-left: 12px;
+  }
+
+  .trip-features-icons {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
   .passenger-input-row {
     grid-template-columns: 1fr 110px;
     gap: var(--space-xs);
@@ -1057,5 +1116,12 @@
     padding: 10px 4px;
     font-size: 11px;
     gap: 4px;
+  }
+
+  .seat-map-legend {
+    flex-wrap: wrap;
+    gap: var(--space-sm) var(--space-md);
+    justify-content: flex-start;
+    font-size: var(--text-xs);
   }
 }
