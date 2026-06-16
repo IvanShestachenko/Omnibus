@@ -16,6 +16,7 @@ export interface TripResponse {
   driverName: string | null;
   availableSeats: string[];
   occupiedSeats: string[];
+  reverse: boolean;
 }
 
 export interface SearchTripsParams {

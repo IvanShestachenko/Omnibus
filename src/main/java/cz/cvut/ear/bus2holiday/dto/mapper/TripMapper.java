@@ -237,6 +237,7 @@ public class TripMapper {
                 trip.getStatus(),
                 driverName,
                 availableSeats,
-                occupiedSeats);
+                occupiedSeats,
+                trip.isReverse());
     }
 }

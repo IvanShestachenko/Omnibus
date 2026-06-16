@@ -433,7 +433,8 @@ public class TripService {
                     trip.getStatus(),
                     driverName,
                     availableList,
-                    occupiedList
+                    occupiedList,
+                    trip.isReverse()
             ));
         }
         return results;

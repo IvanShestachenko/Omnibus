@@ -237,7 +237,11 @@ export const TripDetailsPage: React.FC = () => {
 
   const getPanoramicSurcharge = () => {
     if (!route || !trip) return 0;
-    const sortedStops = [...route.stops].sort((a, b) => a.sequenceOrder - b.sequenceOrder);
+    const sortedStops = [...route.stops].sort((a, b) =>
+      trip.reverse
+        ? b.sequenceOrder - a.sequenceOrder
+        : a.sequenceOrder - b.sequenceOrder
+    );
     const startStop = sortedStops.find((s) => s.terminalName === trip.originTerminalName);
     const endStop = sortedStops.find((s) => s.terminalName === trip.destinationTerminalName);
     if (!startStop || !endStop) return 0;
@@ -317,7 +321,11 @@ export const TripDetailsPage: React.FC = () => {
 
     if (!trip || !route) return;
 
-    const sortedStops = [...route.stops].sort((a, b) => a.sequenceOrder - b.sequenceOrder);
+    const sortedStops = [...route.stops].sort((a, b) =>
+      trip.reverse
+        ? b.sequenceOrder - a.sequenceOrder
+        : a.sequenceOrder - b.sequenceOrder
+    );
     const startStop = sortedStops.find((s) => s.terminalName === trip.originTerminalName);
     const endStop = sortedStops.find((s) => s.terminalName === trip.destinationTerminalName);
     if (!startStop || !endStop) return;
@@ -463,7 +471,13 @@ export const TripDetailsPage: React.FC = () => {
   };
 
   // Find index ranges for stops route highlights
-  const sortedStops = route ? [...route.stops].sort((a, b) => a.sequenceOrder - b.sequenceOrder) : [];
+  const sortedStops = route
+    ? [...route.stops].sort((a, b) =>
+        trip.reverse
+          ? b.sequenceOrder - a.sequenceOrder
+          : a.sequenceOrder - b.sequenceOrder
+      )
+    : [];
   const startStopIdx = sortedStops.findIndex((s) => s.terminalName === trip.originTerminalName);
   const endStopIdx = sortedStops.findIndex((s) => s.terminalName === trip.destinationTerminalName);
 

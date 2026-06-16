@@ -21,4 +21,5 @@ public record TripResponse(
         TripStatus status,
         String driverName,
         List<String> availableSeats,
-        List<String> occupiedSeats) {}
+        List<String> occupiedSeats,
+        boolean reverse) {}
