@@ -6,7 +6,7 @@
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  overflow-x: hidden;
+  overflow-x: clip;
   padding: var(--space-xl) clamp(24px, calc((100vw - 1118px) / 2), calc(var(--space-2xl) * 1.2));
   max-width: 1920px;
   /* Standard widescreen wrapper */
@@ -25,7 +25,6 @@
   margin: 0 auto;
   /* Center the grid container to expand outer page margins */
   width: 100%;
-  max-width: 100%;
   box-sizing: border-box;
 }
 
