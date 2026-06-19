@@ -193,4 +193,4 @@ Below are screenshots showcasing the interface and workflows of the Omnibus clie
 ## Author
 
 **Ivan Shestachenko**
-2026, B0B39KAJ @ FEE CTU
+, 2026, B0B39KAJ @ FEE CTU
