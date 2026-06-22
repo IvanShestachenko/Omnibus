@@ -39,8 +39,6 @@ The goal of this semester project is to **design and implement an enterprise inf
 
 This project is built around a live, complex search and booking algorithm for trip segments (resolving routes, trips, reservations, and passenger manifests on the backend). The frontend was developed to serve as a premium presentation layer, communicating directly with the live Java Spring Boot server and PostgreSQL database, utilizing zero local mock data. 
 
-The backend service was completed during the B6B36EAR and B6B36NSS courses, while the frontend application was designed and engineered as part of the B0B39KAJ course.
-
 ---
 
 ## ⚙️ Technology Stack
