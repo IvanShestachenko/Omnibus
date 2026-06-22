@@ -35,9 +35,42 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const isTokenExpired = (token: string): boolean => {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return true;
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      window.atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const payload = JSON.parse(jsonPayload);
+    return payload.exp ? payload.exp * 1000 < Date.now() : true;
+  } catch {
+    return true;
+  }
+};
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
+  const [token, setToken] = useState<string | null>(() => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      if (isTokenExpired(storedToken)) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        return null;
+      }
+      return storedToken;
+    }
+    return null;
+  });
+
   const [user, setUser] = useState<User | null>(() => {
+    const storedToken = localStorage.getItem('token');
+    if (!storedToken) return null; // If token was cleared as expired
+
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
@@ -60,8 +93,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUser(null);
       }
     };
+    const handleUnauthorizedLogout = () => {
+      setToken(null);
+      setUser(null);
+    };
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('unauthorized-logout', handleUnauthorizedLogout);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('unauthorized-logout', handleUnauthorizedLogout);
+    };
   }, []);
 
   const login = async (email: string, password: string) => {

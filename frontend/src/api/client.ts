@@ -33,6 +33,7 @@ api.interceptors.response.use(
       if (!url.includes('/auth/login')) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        window.dispatchEvent(new Event('unauthorized-logout'));
       }
     }
     return Promise.reject(error);
