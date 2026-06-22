@@ -254,7 +254,7 @@ The application is deployed live using a hybrid cloud setup:
 - **Dynamic Surcharges:**Surcharges are calculated dynamically based on time of day, international borders, and premium panoramic seats.
 - **Pre-Generated Routes & Occupancy:** The database contains 53 pre-generated routes across Europe with regular schedules for six months and millions of pre-loaded segment bookings. Occupancy ranges from 25% for trips 6 months out to 80% for current-week trips.
 - **Immediate Currency Updates:** Changing the preferred currency in the header immediately updates the database (`preferred_currency` column on User) and recalculates all prices site-wide.
-- **Pessimistic locking:** Prevents double-booking under concurrent load by holding locks during booking.
+- **Advisory locking:** Prevents double-booking under concurrent load by holding PostgreSQL transaction-level advisory locks (`pg_advisory_xact_lock`) on the combination of trip ID and seat number.
 
 ---
 
