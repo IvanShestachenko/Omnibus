@@ -1,6 +1,6 @@
 # Omnibus — Enterprise Bus Transportation System
 
-## 🌐 Live Demo
+## Live Demo
 
 The application is deployed and available at:
 [omnibus-frontend.vercel.app](https://omnibus-frontend.vercel.app/)
@@ -13,13 +13,13 @@ A demo user is available for testing:
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 1. [Live Demo](#live-demo)
 2. [Table of Contents](#table-of-contents)
-3. [Project Goal & Motivation](#project-goal--motivation)
+3. [Project Goal and Motivation](#project-goal-and-motivation)
 4. [Technology Stack](#technology-stack)
 5. [Project Structure](#project-structure)
-6. [Getting Started & Local Development](#getting-started--local-development)
+6. [Getting Started and Local Development](#getting-started-and-local-development)
 7. [Frontend Client Flow (Functional Description)](#frontend-client-flow-functional-description)
 8. [Key Backend Features](#key-backend-features)
 9. [Security](#security)
@@ -27,13 +27,13 @@ A demo user is available for testing:
 11. [API Endpoints](#api-endpoints)
 12. [Testing](#testing)
 13. [Layered Architecture of Backend Core](#layered-architecture-of-backend-core)
-14. [!!! Incoming Architecture Change](#incoming-architecture-change)
+14. [Incoming Architecture Change](#incoming-architecture-change)
 15. [Screenshots](#screenshots)
-16. [Authors & Courses](#authors--courses)
+16. [Authors](#authors)
 
 ---
 
-## 🎯 Project Goal & Motivation
+## Project Goal and Motivation
 
 The goal of this semester project is to **design and implement an enterprise information system** for a bus transportation company (inspired by FlixBus). 
 
@@ -41,7 +41,7 @@ This project is built around a live, complex search and booking algorithm for tr
 
 ---
 
-## ⚙️ Technology Stack
+## Technology Stack
 
 ### Backend
 | Technology | Version | Purpose |
@@ -67,7 +67,7 @@ This project is built around a live, complex search and booking algorithm for tr
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Omnibus-frontend/
@@ -113,7 +113,7 @@ Omnibus-frontend/
 
 ---
 
-## 🚀 Getting Started & Local Development
+## Getting Started and Local Development
 
 ### Prerequisites
 - **Java 21+**
@@ -205,7 +205,7 @@ The application is deployed live using a hybrid cloud setup:
 ---
 
 
-## 📱 Frontend Client Flow (Functional Description)
+## Frontend Client Flow (Functional Description)
 
 ### Registration, Geolocation, and Personalization
 - **Registration Profile Upload:** During registration, users can upload an avatar image, which supports drag-and-drop actions or standard file dialog selection (implemented via HTML5 File API).
@@ -247,7 +247,7 @@ The application is deployed live using a hybrid cloud setup:
 
 ---
 
-## ⚙️ Key Backend Features
+## Key Backend Features
 
 ### Live Search & Seat Booking Logic (NSS/EAR)
 - **Real-Time Segment Availability:** Searches perform live, un-cached queries across routes (`Route`), trips (`Trip`), and bookings. Calculates segment-level vacancy by evaluating `Reservation` and `ReservationPassenger` entities (replacing obsolete BookedSegments).
@@ -258,7 +258,7 @@ The application is deployed live using a hybrid cloud setup:
 
 ---
 
-## 🔒 Security
+## Security
 
 - **JWT tokens** — stateless authentication, 24h expiration
 - **RBAC** — `user`, `driver`, `admin` roles via `@PreAuthorize`
@@ -269,7 +269,7 @@ The application is deployed live using a hybrid cloud setup:
 
 ---
 
-## 👥 System Roles
+## System Roles
 
 | Role | Description |
 |---|---|
@@ -279,7 +279,7 @@ The application is deployed live using a hybrid cloud setup:
 
 ---
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### Public (no authentication required)
 | Method | Endpoint | Description |
@@ -317,7 +317,7 @@ The application is deployed live using a hybrid cloud setup:
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ```bash
 # Run all tests (requires Docker for Testcontainers)
@@ -341,7 +341,7 @@ The application is deployed live using a hybrid cloud setup:
 
 ---
 
-## 🏗️ Layered Architecture of Backend Core
+## Layered Architecture of Backend Core
 
 ```
 ┌─────────────┐     ┌───────────────┐     ┌─────────────┐     ┌──────────────┐
@@ -361,7 +361,7 @@ The application is deployed live using a hybrid cloud setup:
 
 ---
 
-## Incoming architecture change
+## Incoming Architecture Change
 
 ![Component Diagram - microservices, Caffeine in-memory cache](Component%20Diagram%20-%20microservices,%20Caffeine%20in-memory%20cache.jpg)
 
