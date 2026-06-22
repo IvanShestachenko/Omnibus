@@ -27,7 +27,7 @@ A demo user is available for testing:
 11. [API Endpoints](#api-endpoints)
 12. [Testing](#testing)
 13. [Layered Architecture of Backend Core](#layered-architecture-of-backend-core)
-14. [Incoming Architecture Change](#incoming-architecture-change)
+14. **[!!! Incoming Architecture Change](#incoming-architecture-change)**
 15. [Screenshots](#screenshots)
 16. [Authors](#authors)
 
