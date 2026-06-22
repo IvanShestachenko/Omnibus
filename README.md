@@ -363,18 +363,18 @@ The application is deployed live using a hybrid cloud setup:
 
 ## Incoming Architecture Change
 
+![Component Diagram - microservices, Caffeine in-memory cache](Component%20Diagram%20-%20microservices,%20Caffeine%20in-memory%20cache.jpg)
+
+![Component Diagram - microservices, Redis centralized cache](Component%20Diagram%20-%20microservices,%20Redis%20centralized%20cache.jpg)
+
 To be implemented:
 - **Indirect connections:** Multi-trip bookings with transfers in a single ticket, utilizing a graph algorithm for optimal path selection.
 - **Driver interface and state machine:** A dedicated driver interface backed by a finite state machine (FSM) to manage the trip execution flow.
 - **Admin interface:** An administrative dashboard with sophisticated business logic for managing routes, schedules, buses, and driver allocations.
 - **Microservice decomposition:** Extracting payment and notification features into separate microservices to isolate external dependencies (such as payment gateway and SMTP server). The payment service will feature a dedicated database schema. Inter-service communication will be handled asynchronously using assigned Kafka topics to implement an event-driven design.
-- **Caching & consistency (CDC):** Caching static and semi-static data (Terminals, RouteStops, and Trips) to optimize our most computationally expensive use case: Trip Search. With an estimated cache size of 15,000 records and approximately 900 cache invalidation operations per day, cache consistency will be maintained via a Change Data Capture (CDC) pipeline utilizing Debezium and a designated Kafka topic. Cache TTL will be set to 12/24 hours. The first diagram below displays the architecture using a Caffeine in-memory cache. Alternatively, the second diagram shows a centralized Redis cache with a separate cache worker. These two approaches will be benchmarked and compared; we hypothesize that Caffeine will show higher performance in this specific scenario due to the absence of network latency and the relatively low volume of stored data.
+- **Caching & CDC chain:** Caching static and semi-static data (Terminals, RouteStops, and Trips) to optimize our most computationally expensive use case: Trip Search. With an estimated cache size of 15,000 records and approximately 900 cache invalidation operations per day, cache consistency will be maintained via a Change Data Capture (CDC) pipeline utilizing Debezium and designated Kafka topic. Cache TTL will be set to 12/24 hours. The first diagram below displays the architecture using a Caffeine in-memory cache. Alternatively, the second diagram shows a centralized Redis cache with a separate cache worker. These two approaches will be benchmarked and compared; we hypothesize that Caffeine will show higher performance in this specific scenario due to the absence of network latency and the relatively low volume of stored data.
 - **Event-driven communication:** Utilizing Kafka fat events to minimize callback queries back to the core service.
 - **Kubernetes orchestration:** Deploying the modular system with automated orchestration, scaling, and load balancing.
-
-![Component Diagram - microservices, Caffeine in-memory cache](Component%20Diagram%20-%20microservices,%20Caffeine%20in-memory%20cache.jpg)
-
-![Component Diagram - microservices, Redis centralized cache](Component%20Diagram%20-%20microservices,%20Redis%20centralized%20cache.jpg)
 
 ---
 
