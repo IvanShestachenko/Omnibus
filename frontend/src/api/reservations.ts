@@ -4,12 +4,12 @@ export interface PassengerSeatRequest {
   firstName: string;
   lastName: string;
   seatNumber: string;
-  fromStopOrder: number;
-  toStopOrder: number;
 }
 
 export interface CreateReservationRequest {
   tripId: number;
+  fromStopOrder: number;
+  toStopOrder: number;
   passengers: PassengerSeatRequest[];
 }
 

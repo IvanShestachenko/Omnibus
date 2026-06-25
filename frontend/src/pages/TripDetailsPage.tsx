@@ -342,9 +342,7 @@ export const TripDetailsPage: React.FC = () => {
         return {
           firstName,
           lastName,
-          seatNumber: selectedSeats[idx],
-          fromStopOrder: startStop.sequenceOrder,
-          toStopOrder: endStop.sequenceOrder
+          seatNumber: selectedSeats[idx]
         };
       });
 
@@ -359,6 +357,8 @@ export const TripDetailsPage: React.FC = () => {
 
       const body = {
         tripId: trip.id,
+        fromStopOrder: startStop.sequenceOrder,
+        toStopOrder: endStop.sequenceOrder,
         passengers: passengerRequests
       };
 
