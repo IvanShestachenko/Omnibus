@@ -6,4 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record CreateReservationRequest(
-        @NotNull Long tripId, @NotEmpty List<PassengerSeatRequest> passengers) {}
+        @NotNull Long tripId,
+        @NotNull Integer fromStopOrder,
+        @NotNull Integer toStopOrder,
+        @NotEmpty List<PassengerSeatRequest> passengers
+) {}
