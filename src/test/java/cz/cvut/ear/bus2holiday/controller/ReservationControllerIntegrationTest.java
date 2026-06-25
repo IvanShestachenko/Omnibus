@@ -188,9 +188,9 @@ public class ReservationControllerIntegrationTest extends TestContainerConfig {
 
     @Test
     void createReservation_ShouldSucceed() throws Exception {
-        PassengerSeatRequest passenger = new PassengerSeatRequest("Alice", "Smith", "1A", 1, 2);
+        PassengerSeatRequest passenger = new PassengerSeatRequest("Alice", "Smith", "1A");
         CreateReservationRequest request =
-                new CreateReservationRequest(testTrip.getId(), List.of(passenger));
+                new CreateReservationRequest(testTrip.getId(), 1, 2, List.of(passenger));
 
         mockMvc.perform(
                         post("/api/reservations")
@@ -207,8 +207,8 @@ public class ReservationControllerIntegrationTest extends TestContainerConfig {
 
     @Test
     void createReservation_ShouldFail_WhenSeatTaken() throws Exception {
-        PassengerSeatRequest p1 = new PassengerSeatRequest("Alice", "Smith", "1A", 1, 2);
-        CreateReservationRequest r1 = new CreateReservationRequest(testTrip.getId(), List.of(p1));
+        PassengerSeatRequest p1 = new PassengerSeatRequest("Alice", "Smith", "1A");
+        CreateReservationRequest r1 = new CreateReservationRequest(testTrip.getId(), 1, 2, List.of(p1));
 
         mockMvc.perform(
                         post("/api/reservations")
@@ -217,8 +217,8 @@ public class ReservationControllerIntegrationTest extends TestContainerConfig {
                                 .content(objectMapper.writeValueAsString(r1)))
                 .andExpect(status().isCreated());
 
-        PassengerSeatRequest p2 = new PassengerSeatRequest("Bob", "Jones", "1A", 1, 2);
-        CreateReservationRequest r2 = new CreateReservationRequest(testTrip.getId(), List.of(p2));
+        PassengerSeatRequest p2 = new PassengerSeatRequest("Bob", "Jones", "1A");
+        CreateReservationRequest r2 = new CreateReservationRequest(testTrip.getId(), 1, 2, List.of(p2));
 
         mockMvc.perform(
                         post("/api/reservations")
@@ -234,7 +234,9 @@ public class ReservationControllerIntegrationTest extends TestContainerConfig {
         CreateReservationRequest request =
                 new CreateReservationRequest(
                         testTrip.getId(),
-                        List.of(new PassengerSeatRequest("Me", "Myself", "2B", 1, 2)));
+                        1,
+                        2,
+                        List.of(new PassengerSeatRequest("Me", "Myself", "2B")));
         mockMvc.perform(
                         post("/api/reservations")
                                 .header("Authorization", userToken)
@@ -256,7 +258,9 @@ public class ReservationControllerIntegrationTest extends TestContainerConfig {
         CreateReservationRequest request =
                 new CreateReservationRequest(
                         testTrip.getId(),
-                        List.of(new PassengerSeatRequest("To", "Cancel", "3C", 1, 2)));
+                        1,
+                        2,
+                        List.of(new PassengerSeatRequest("To", "Cancel", "3C")));
         MvcResult res =
                 mockMvc.perform(
                                 post("/api/reservations")
@@ -282,7 +286,9 @@ public class ReservationControllerIntegrationTest extends TestContainerConfig {
         CreateReservationRequest request =
                 new CreateReservationRequest(
                         testTrip.getId(),
-                        List.of(new PassengerSeatRequest("Payer", "Test", "4D", 1, 2)));
+                        1,
+                        2,
+                        List.of(new PassengerSeatRequest("Payer", "Test", "4D")));
 
         MvcResult createRes =
                 mockMvc.perform(

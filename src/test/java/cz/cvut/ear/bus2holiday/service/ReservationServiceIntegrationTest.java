@@ -161,10 +161,10 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
 
     @Test
     void testCreateReservation_HappyPath() {
-        PassengerSeatRequest p1 = new PassengerSeatRequest("Alice", "Smith", "1A", 1, 5);
-        PassengerSeatRequest p2 = new PassengerSeatRequest("Bob", "Jones", "1B", 1, 5);
+        PassengerSeatRequest p1 = new PassengerSeatRequest("Alice", "Smith", "1A");
+        PassengerSeatRequest p2 = new PassengerSeatRequest("Bob", "Jones", "1B");
         ReservationRequest request =
-                new ReservationRequest(testUser.getId(), testTrip.getId(), List.of(p1, p2));
+                new ReservationRequest(testUser.getId(), testTrip.getId(), 1, 5, List.of(p1, p2));
 
         Reservation reservation = reservationService.createReservation(request);
 
@@ -176,17 +176,17 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
     @Test
     void testCreateReservation_FailOnOverlappingSegment() {
         PassengerSeatRequest initialPassenger =
-                new PassengerSeatRequest("Initial", "Booker", "2A", 2, 5);
+                new PassengerSeatRequest("Initial", "Booker", "2A");
         ReservationRequest initialRequest =
                 new ReservationRequest(
-                        testUser.getId(), testTrip.getId(), List.of(initialPassenger));
+                        testUser.getId(), testTrip.getId(), 2, 5, List.of(initialPassenger));
         reservationService.createReservation(initialRequest);
 
         PassengerSeatRequest overlappingPassenger =
-                new PassengerSeatRequest("Late", "Booker", "2A", 4, 6);
+                new PassengerSeatRequest("Late", "Booker", "2A");
         ReservationRequest overlappingRequest =
                 new ReservationRequest(
-                        testUser.getId(), testTrip.getId(), List.of(overlappingPassenger));
+                        testUser.getId(), testTrip.getId(), 4, 6, List.of(overlappingPassenger));
 
         assertThrows(
                 SeatUnavailableException.class,
@@ -197,14 +197,14 @@ public class ReservationServiceIntegrationTest extends TestContainerConfig {
 
     @Test
     void testCreateReservation_SuccessOnNonOverlappingSegment() {
-        PassengerSeatRequest p1 = new PassengerSeatRequest("Anna", "First", "3B", 1, 3);
+        PassengerSeatRequest p1 = new PassengerSeatRequest("Anna", "First", "3B");
         ReservationRequest r1 =
-                new ReservationRequest(testUser.getId(), testTrip.getId(), List.of(p1));
+                new ReservationRequest(testUser.getId(), testTrip.getId(), 1, 3, List.of(p1));
         reservationService.createReservation(r1);
 
-        PassengerSeatRequest p2 = new PassengerSeatRequest("Boris", "Second", "3B", 3, 5);
+        PassengerSeatRequest p2 = new PassengerSeatRequest("Boris", "Second", "3B");
         ReservationRequest r2 =
-                new ReservationRequest(testUser.getId(), testTrip.getId(), List.of(p2));
+                new ReservationRequest(testUser.getId(), testTrip.getId(), 3, 5, List.of(p2));
 
         assertDoesNotThrow(
                 () -> {

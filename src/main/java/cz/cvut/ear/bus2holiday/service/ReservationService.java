@@ -51,11 +51,44 @@ public class ReservationService {
     @Transactional
     public Reservation createReservation(Long userId, CreateReservationRequest request) {
         return createReservation(
-                new ReservationRequest(userId, request.tripId(), request.passengers()));
+                new ReservationRequest(
+                        userId,
+                        request.tripId(),
+                        request.fromStopOrder(),
+                        request.toStopOrder(),
+                        request.passengers()
+                )
+        );
     }
 
     @Transactional
     public Reservation createReservation(ReservationRequest request) {
+        if (request.passengers() == null || request.passengers().isEmpty()) {
+            throw new IllegalArgumentException("Reservation must have at least one passenger");
+        }
+
+        // 1. In-memory validation of request structure (No DB calls)
+        int fromStopOrder = request.fromStopOrder();
+        int toStopOrder = request.toStopOrder();
+
+        Set<String> requestedSeats = new HashSet<>();
+        for (PassengerSeatRequest psr : request.passengers()) {
+            // Validate name formats
+            validatePassengerName(psr.firstName(), psr.lastName());
+
+            // Validate seat number presence
+            String seat = psr.seatNumber();
+            if (seat == null || seat.trim().isEmpty()) {
+                throw new IllegalArgumentException("Seat number cannot be empty");
+            }
+
+            // Validate seat uniqueness within request
+            if (!requestedSeats.add(seat)) {
+                throw new IllegalArgumentException("Duplicate seat number in reservation request: " + seat);
+            }
+        }
+
+        // 2. Database validation & Entity loading
         User user =
                 userRepo.findById(request.userId())
                         .orElseThrow(
@@ -69,15 +102,6 @@ public class ReservationService {
                                         new EntityNotFoundException(
                                                 "Trip not found: " + request.tripId()));
 
-        if (request.passengers().isEmpty()) {
-            throw new IllegalArgumentException("Reservation must have at least one passenger");
-        }
-
-        // Validate seats and acquire lock
-        PassengerSeatRequest firstPsr = request.passengers().get(0);
-        int fromStopOrder = firstPsr.fromStopOrder();
-        int toStopOrder = firstPsr.toStopOrder();
-
         RouteStop originStop =
                 routeStopRepo
                         .findByRouteIdAndSequenceOrder(trip.getRoute().getId(), fromStopOrder)
@@ -88,10 +112,19 @@ public class ReservationService {
                         .findByRouteIdAndSequenceOrder(trip.getRoute().getId(), toStopOrder)
                         .orElseThrow(() -> new EntityNotFoundException("Target RouteStop not found"));
 
-        for (PassengerSeatRequest psr : request.passengers()) {
-            if (!isSeatAvailable(trip, psr.seatNumber(), fromStopOrder, toStopOrder)) {
+        // 3. Layout validation (uses loaded bus layout, in-memory)
+        Set<String> validSeats = getValidSeatsForBus(trip.getBus());
+        for (String seat : requestedSeats) {
+            if (!validSeats.contains(seat)) {
+                throw new IllegalArgumentException("Seat " + seat + " does not exist in the bus layout");
+            }
+        }
+
+        // 4. Concurrency lock and seat availability checks (DB calls)
+        for (String seat : requestedSeats) {
+            if (!isSeatAvailable(trip, seat, fromStopOrder, toStopOrder)) {
                 throw new SeatUnavailableException(
-                        "Seat " + psr.seatNumber() + " is not available for the selected segment.");
+                        "Seat " + seat + " is not available for the selected segment.");
             }
         }
 
@@ -233,10 +266,88 @@ public class ReservationService {
         return true;
     }
 
+    private static final com.fasterxml.jackson.databind.ObjectMapper OBJECT_MAPPER = new com.fasterxml.jackson.databind.ObjectMapper();
+    private static final java.util.regex.Pattern NAME_PART_PATTERN = java.util.regex.Pattern.compile("^[\\p{L}'-]{2,}$");
+
+    private void validatePassengerName(String firstName, String lastName) {
+        if (firstName == null || firstName.trim().isEmpty()) {
+            throw new IllegalArgumentException("First name cannot be empty");
+        }
+        if (lastName == null || lastName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Last name cannot be empty");
+        }
+
+        if (!NAME_PART_PATTERN.matcher(firstName.trim()).matches()) {
+            throw new IllegalArgumentException("First name contains invalid characters or is too short: " + firstName);
+        }
+
+        String[] lastNameParts = lastName.trim().split("\\s+");
+        for (String part : lastNameParts) {
+            if (!NAME_PART_PATTERN.matcher(part).matches()) {
+                throw new IllegalArgumentException("Last name contains invalid part: " + part);
+            }
+        }
+    }
+
+    private Set<String> getValidSeatsForBus(Bus bus) {
+        int busTotalSeats = bus.getTotalSeats();
+        Set<String> allSeats = new HashSet<>();
+        try {
+            com.fasterxml.jackson.databind.JsonNode rootNode = OBJECT_MAPPER.readTree(bus.getSeatLayout());
+            com.fasterxml.jackson.databind.JsonNode categories = rootNode.path("categories");
+            if (categories.isObject()) {
+                java.util.Iterator<String> fieldNames = categories.fieldNames();
+                while (fieldNames.hasNext()) {
+                    String catName = fieldNames.next();
+                    com.fasterxml.jackson.databind.JsonNode seatsNode = categories.path(catName);
+                    if (seatsNode.isArray()) {
+                        for (com.fasterxml.jackson.databind.JsonNode seat : seatsNode) {
+                            allSeats.add(seat.asText());
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Log or fallback
+        }
+
+        if (allSeats.size() < busTotalSeats) {
+            boolean hasLetters = false;
+            for (String s : allSeats) {
+                if (s.matches(".*[A-Za-z].*")) {
+                    hasLetters = true;
+                    break;
+                }
+            }
+            if (hasLetters) {
+                int rows = 14;
+                int seatsPerRow = 4;
+                try {
+                    com.fasterxml.jackson.databind.JsonNode rootNode = OBJECT_MAPPER.readTree(bus.getSeatLayout());
+                    if (rootNode.has("rows")) rows = rootNode.get("rows").asInt();
+                    if (rootNode.has("seatsPerRow")) seatsPerRow = rootNode.get("seatsPerRow").asInt();
+                } catch (Exception e) {}
+
+                char[] letters = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
+                for (int r = 1; r <= rows; r++) {
+                    for (int c = 0; c < seatsPerRow; c++) {
+                        if (allSeats.size() >= busTotalSeats) break;
+                        String seatNum = r + "" + letters[c];
+                        allSeats.add(seatNum);
+                    }
+                }
+            } else {
+                for (int i = 1; i <= busTotalSeats; i++) {
+                    allSeats.add(String.valueOf(i));
+                }
+            }
+        }
+        return allSeats;
+    }
+
     private boolean isPanoramicSeat(Bus bus, String seatNumber) {
         try {
-            com.fasterxml.jackson.databind.JsonNode root =
-                    new com.fasterxml.jackson.databind.ObjectMapper().readTree(bus.getSeatLayout());
+            com.fasterxml.jackson.databind.JsonNode root = OBJECT_MAPPER.readTree(bus.getSeatLayout());
             com.fasterxml.jackson.databind.JsonNode categories = root.path("categories");
             if (categories.isObject()) {
                 com.fasterxml.jackson.databind.JsonNode panoramic = categories.path("PANORAMIC");
